@@ -142,6 +142,11 @@
 | GLOBE-03 | Phase 1 | Pending |
 | GLOBE-04 | Phase 1 | Pending |
 | GLOBE-05 | Phase 1 | Pending |
+| DSYS-01 | Phase 1 | Pending |
+| DSYS-02 | Phase 1 | Pending |
+| DSYS-03 | Phase 1 | Pending |
+| DSYS-04 | Phase 1 | Pending |
+| DSYS-05 | Phase 1 | Pending |
 | AUTH-01 | Phase 2 | Pending |
 | AUTH-02 | Phase 2 | Pending |
 | AUTH-03 | Phase 2 | Pending |
@@ -172,31 +177,26 @@
 | TRIP-05 | Phase 3 | Pending |
 | TRIP-06 | Phase 3 | Pending |
 | TRIP-07 | Phase 3 | Pending |
-| DETAIL-01 | Phase 4 | Pending |
-| DETAIL-02 | Phase 4 | Pending |
-| DETAIL-03 | Phase 4 | Pending |
-| DETAIL-04 | Phase 4 | Pending |
-| DETAIL-05 | Phase 4 | Pending |
-| PASS-01 | Phase 5 | Pending |
-| PASS-02 | Phase 5 | Pending |
-| PASS-03 | Phase 5 | Pending |
-| PASS-04 | Phase 5 | Pending |
-| PASS-05 | Phase 5 | Pending |
-| PASS-06 | Phase 5 | Pending |
-| ARCH-01 | Phase 5 | Pending |
-| ARCH-02 | Phase 5 | Pending |
-| ARCH-03 | Phase 5 | Pending |
-| DSYS-01 | Phase 1 | Pending |
-| DSYS-02 | Phase 1 | Pending |
-| DSYS-03 | Phase 1 | Pending |
-| DSYS-04 | Phase 1 | Pending |
-| DSYS-05 | Phase 1 | Pending |
+| DETAIL-01 | Phase 3 | Pending |
+| DETAIL-02 | Phase 3 | Pending |
+| DETAIL-03 | Phase 3 | Pending |
+| DETAIL-04 | Phase 3 | Pending |
+| DETAIL-05 | Phase 3 | Pending |
+| PASS-01 | Phase 4 | Pending |
+| PASS-02 | Phase 4 | Pending |
+| PASS-03 | Phase 4 | Pending |
+| PASS-04 | Phase 4 | Pending |
+| PASS-05 | Phase 4 | Pending |
+| PASS-06 | Phase 4 | Pending |
+| ARCH-01 | Phase 4 | Pending |
+| ARCH-02 | Phase 4 | Pending |
+| ARCH-03 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 54 total
-- Mapped to phases: 54
-- Unmapped: 0 ✓
+- v1 requirements: 58 total (4 INFRA + 7 AUTH + 5 GLOBE + 6 LOC + 4 PLACE + 7 TRIP + 6 PANEL + 5 DETAIL + 6 PASS + 3 ARCH + 5 DSYS)
+- Mapped to phases: 58
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after initial definition*
+*Last updated: 2026-04-03 — traceability aligned to 4-phase coarse roadmap*
