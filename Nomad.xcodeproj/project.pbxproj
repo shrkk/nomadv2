@@ -23,6 +23,7 @@
 		9D5C59EAC5D648CA91150019 /* PlayfairDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */; };
 		005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */; };
 		84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D299DB49ACB4F0E9B748D1E /* grain-noise.png */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 		0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Regular.otf"; sourceTree = "<group>"; };
 		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
 		5D299DB49ACB4F0E9B748D1E /* grain-noise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grain-noise.png"; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "countries-simplified.geojson"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,7 @@
 				0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */,
 				48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */,
 				5D299DB49ACB4F0E9B748D1E /* grain-noise.png */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 				9D5C59EAC5D648CA91150019 /* PlayfairDisplay-Regular.otf in Resources */,
 				005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */,
 				84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
