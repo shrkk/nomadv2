@@ -6,7 +6,7 @@ struct NomadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GlobeView()
         }
     }
 }
