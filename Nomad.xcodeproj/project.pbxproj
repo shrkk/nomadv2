@@ -26,6 +26,9 @@
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */; };
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* GeoJSONParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */; };
+		AA01BB02CC03DD04EE05FF06 /* GlobeCountryOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */; };
+		AA02BB03CC04DD05EE06FF07 /* GlobeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */; };
+		AA03BB04CC05DD06EE07FF08 /* GlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +50,9 @@
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "countries-simplified.geojson"; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryFeature.swift; sourceTree = "<group>"; };
 		F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoJSONParser.swift; sourceTree = "<group>"; };
+		BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeCountryOverlay.swift; sourceTree = "<group>"; };
+		BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeViewModel.swift; sourceTree = "<group>"; };
+		BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +92,7 @@
 				C41C5A496B8E41F2A5D259A7 /* DesignSystem */,
 				5B92EEB797944183B407C00F /* Firebase */,
 				A7B8C9D0E1F2A3B4C5D6E7F8 /* GeoJSON */,
+				CC01DD02EE03FF04AA05BB06 /* Globe */,
 				87F5BAD506434B0A82F0C4FB /* Resources */,
 				D32422AB49024EB385B48A1F /* Info.plist */,
 				20975FB83A0E434BA323E8C7 /* Assets.xcassets */,
@@ -141,6 +148,16 @@
 				F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */,
 			);
 			path = GeoJSON;
+			sourceTree = "<group>";
+		};
+		CC01DD02EE03FF04AA05BB06 /* Globe */ = {
+			isa = PBXGroup;
+			children = (
+				BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */,
+				BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */,
+				BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */,
+			);
+			path = Globe;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,6 +252,9 @@
 				BAB1B9137B594C2CABFA9A0E /* FirebaseService.swift in Sources */,
 				C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */,
 				E5F6A7B8C9D0E1F2A3B4C5D6 /* GeoJSONParser.swift in Sources */,
+				AA01BB02CC03DD04EE05FF06 /* GlobeCountryOverlay.swift in Sources */,
+				AA02BB03CC04DD05EE06FF07 /* GlobeViewModel.swift in Sources */,
+				AA03BB04CC05DD06EE07FF08 /* GlobeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
