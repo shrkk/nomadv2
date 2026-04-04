@@ -1,0 +1,412 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2095C50EF52A480D82069BA8 /* NomadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96AB8F13EB564CBDA2460F55 /* NomadApp.swift */; };
+		6D05384D05EA4CB0A467BDDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCDCF7500B445F5AEBDF02F /* AppDelegate.swift */; };
+		F9BE07D021994160B7542BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528632E14E3F411192BA5560 /* ContentView.swift */; };
+		4B751712728A4FCDB10D3B6F /* AppFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 268B146F356F475EABAC6436 /* AppFont.swift */; };
+		14781ED6E9FF43CFA1727A08 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DED0A3A5378443E9B959AD5 /* AppColors.swift */; };
+		8B8907A07BA14115BE970B00 /* PanelGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42CD8ECB346049A2A67D41DE /* PanelGradient.swift */; };
+		BAB1B9137B594C2CABFA9A0E /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9245CA396446D896EA50F6 /* FirebaseService.swift */; };
+		F360014E61104CF6BF9FDC5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 20975FB83A0E434BA323E8C7 /* Assets.xcassets */; };
+		C98FE2FDD90349E0B94C1E03 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4477F0441A44305908292A1 /* Inter-Regular.ttf */; };
+		A66194437CE04E958ABD4DFA /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2C9CB6DB828A4E6F9C335D66 /* Inter-SemiBold.ttf */; };
+		9D5C59EAC5D648CA91150019 /* PlayfairDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */; };
+		005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */; };
+		84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D299DB49ACB4F0E9B748D1E /* grain-noise.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0191C5FEC2C84767ADCC712A /* Nomad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nomad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		96AB8F13EB564CBDA2460F55 /* NomadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomadApp.swift; sourceTree = "<group>"; };
+		6BCDCF7500B445F5AEBDF02F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		528632E14E3F411192BA5560 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		268B146F356F475EABAC6436 /* AppFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFont.swift; sourceTree = "<group>"; };
+		9DED0A3A5378443E9B959AD5 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		42CD8ECB346049A2A67D41DE /* PanelGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelGradient.swift; sourceTree = "<group>"; };
+		9C9245CA396446D896EA50F6 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
+		D32422AB49024EB385B48A1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		20975FB83A0E434BA323E8C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D4477F0441A44305908292A1 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
+		2C9CB6DB828A4E6F9C335D66 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Regular.otf"; sourceTree = "<group>"; };
+		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
+		5D299DB49ACB4F0E9B748D1E /* grain-noise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grain-noise.png"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1982D9C01012430C81E37168 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		906FBF37AA3A482BAF52E053 /* Nomad */ = {
+			isa = PBXGroup;
+			children = (
+				2003323777C24083B48CEEFA /* Nomad */,
+				BB1A0507A57B4D2AAEFF7AC8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BB1A0507A57B4D2AAEFF7AC8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0191C5FEC2C84767ADCC712A /* Nomad.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2003323777C24083B48CEEFA /* Nomad */ = {
+			isa = PBXGroup;
+			children = (
+				98DD09C6295642BB91E3CDBC /* App */,
+				C41C5A496B8E41F2A5D259A7 /* DesignSystem */,
+				5B92EEB797944183B407C00F /* Firebase */,
+				87F5BAD506434B0A82F0C4FB /* Resources */,
+				D32422AB49024EB385B48A1F /* Info.plist */,
+				20975FB83A0E434BA323E8C7 /* Assets.xcassets */,
+			);
+			path = Nomad;
+			sourceTree = "<group>";
+		};
+		98DD09C6295642BB91E3CDBC /* App */ = {
+			isa = PBXGroup;
+			children = (
+				96AB8F13EB564CBDA2460F55 /* NomadApp.swift */,
+				6BCDCF7500B445F5AEBDF02F /* AppDelegate.swift */,
+				528632E14E3F411192BA5560 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C41C5A496B8E41F2A5D259A7 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				268B146F356F475EABAC6436 /* AppFont.swift */,
+				9DED0A3A5378443E9B959AD5 /* AppColors.swift */,
+				42CD8ECB346049A2A67D41DE /* PanelGradient.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		5B92EEB797944183B407C00F /* Firebase */ = {
+			isa = PBXGroup;
+			children = (
+				9C9245CA396446D896EA50F6 /* FirebaseService.swift */,
+			);
+			path = Firebase;
+			sourceTree = "<group>";
+		};
+		87F5BAD506434B0A82F0C4FB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D4477F0441A44305908292A1 /* Inter-Regular.ttf */,
+				2C9CB6DB828A4E6F9C335D66 /* Inter-SemiBold.ttf */,
+				0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */,
+				48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */,
+				5D299DB49ACB4F0E9B748D1E /* grain-noise.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A511892DA484B5B8E3B9D89 /* Nomad */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 604BB53155A147BAA7BB0C5D /* Build configuration list for PBXNativeTarget "Nomad" */;
+			buildPhases = (
+				75F106EDB76C44D7B3E2D41F /* Sources */,
+				1982D9C01012430C81E37168 /* Frameworks */,
+				561D23BCD6174AF98E8AA66C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Nomad;
+			packageProductDependencies = (
+			);
+			productName = Nomad;
+			productReference = 0191C5FEC2C84767ADCC712A /* Nomad.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C53AE09C1F6E442DA8B6C9DD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					0A511892DA484B5B8E3B9D89 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 8780AE1103B94AC8AC36CC87 /* Build configuration list for PBXProject "Nomad" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 906FBF37AA3A482BAF52E053 /* Nomad */;
+			packageReferences = (
+			);
+			productRefGroup = BB1A0507A57B4D2AAEFF7AC8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0A511892DA484B5B8E3B9D89 /* Nomad */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		561D23BCD6174AF98E8AA66C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F360014E61104CF6BF9FDC5B /* Assets.xcassets in Resources */,
+				C98FE2FDD90349E0B94C1E03 /* Inter-Regular.ttf in Resources */,
+				A66194437CE04E958ABD4DFA /* Inter-SemiBold.ttf in Resources */,
+				9D5C59EAC5D648CA91150019 /* PlayfairDisplay-Regular.otf in Resources */,
+				005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */,
+				84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		75F106EDB76C44D7B3E2D41F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2095C50EF52A480D82069BA8 /* NomadApp.swift in Sources */,
+				6D05384D05EA4CB0A467BDDE /* AppDelegate.swift in Sources */,
+				F9BE07D021994160B7542BA4 /* ContentView.swift in Sources */,
+				4B751712728A4FCDB10D3B6F /* AppFont.swift in Sources */,
+				14781ED6E9FF43CFA1727A08 /* AppColors.swift in Sources */,
+				8B8907A07BA14115BE970B00 /* PanelGradient.swift in Sources */,
+				BAB1B9137B594C2CABFA9A0E /* FirebaseService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0DD6EF5427F04A53A9D7A995 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		199304051A864AAEABAD50CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0B85D8D0041741D29FA70B28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Nomad/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nomad.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		3056255BB54049AD87C1CCA9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Nomad/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nomad.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8780AE1103B94AC8AC36CC87 /* Build configuration list for PBXProject "Nomad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DD6EF5427F04A53A9D7A995 /* Debug */,
+				199304051A864AAEABAD50CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		604BB53155A147BAA7BB0C5D /* Build configuration list for PBXNativeTarget "Nomad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0B85D8D0041741D29FA70B28 /* Debug */,
+				3056255BB54049AD87C1CCA9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = C53AE09C1F6E442DA8B6C9DD /* Project object */;
+}
