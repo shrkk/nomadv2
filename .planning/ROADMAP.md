@@ -34,7 +34,13 @@
 5. Firebase Auth and Firestore are connected; a stub user document can be written and read back; the app initializes Firebase via AppDelegate adaptor without crashing.
 6. Playfair Display (titles/subheadings) and Inter (body/buttons/labels) are loaded and applied via a shared `AppFont` type; at least one title and one body label are visible on the globe home view using these fonts.
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Design system tokens (AppFont, AppColors, PanelGradient) + Firebase setup
+- [ ] 01-02-PLAN.md — GeoJSON pipeline (download, simplify, bundle, parse)
+- [ ] 01-03-PLAN.md — Globe rendering spike (RealityKit sphere + country overlay texture)
+- [ ] 01-04-PLAN.md — Globe interactions + stacked sheets (tap, animate, pinpoints, nested sheets)
 
 **UI hint**: yes
 
@@ -109,7 +115,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Spikes & Globe Shell | 0/3 | Not started | - |
+| 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
 | 2. Data & Auth Foundation | 0/3 | Not started | - |
 | 3. Core User Journey | 0/3 | Not started | - |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
@@ -196,7 +202,7 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 
 **Phase 2 before Phase 3:** Location data is the raw material for every user-visible feature. The iOS 16.4+ background GPS bug, CLVisit detection, the RDP simplification pipeline, and the Firestore schema with denormalized `routePreview`, `placeCounts`, and `visitedCountryCodes` must all be finalized before the UI is built on top. Changing the Firestore schema after Phase 3 is expensive.
 
-**Phase 3 after Phase 2:** The core user journey (panel → trip → detail) is straightforward to build once the data pipeline is proven. Photo matching, HealthKit steps, and trip logging UX all have well-documented Apple patterns. This phase builds UI on a solid foundation rather than assuming the pipeline works.
+**Phase 3 after Phase 2:** The core user journey (panel -> trip -> detail) is straightforward to build once the data pipeline is proven. Photo matching, HealthKit steps, and trip logging UX all have well-documented Apple patterns. This phase builds UI on a solid foundation rather than assuming the pipeline works.
 
 **Phase 4 last:** The archetype engine reads from `placeCounts` written by the Phase 2 pipeline and accumulated across trips logged in Phase 3. Passport stats require real trip data to validate scoring thresholds. Shareable card export is the final feature to polish — it benefits from the design system being fully applied in prior phases.
 
@@ -206,8 +212,8 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 
 | Phase | Risk | Severity | Mitigation |
 |-------|------|----------|------------|
-| 1 | RealityKit country polygon overlay on sphere — no off-the-shelf solution | HIGH | Dedicated spike in Phase 1, Plan 1; do not proceed to Plan 2 until polygon renders on device |
-| 1 | Stacked sheet second slot — silent failure if second `.sheet` is a sibling not nested inside first | HIGH | Prototype AppRouter with two-slot nesting in Phase 1, Plan 1 |
+| 1 | RealityKit country polygon overlay on sphere — no off-the-shelf solution | HIGH | Dedicated spike in Phase 1, Plan 3; texture-paint approach validated in research |
+| 1 | Stacked sheet second slot — silent failure if second `.sheet` is a sibling not nested inside first | HIGH | Nested sheet pattern validated in Phase 1, Plan 4 |
 | 1 | GeoJSON polygon count (195 countries, potentially 100K+ points) — MapKit lockup | HIGH | Pre-simplify offline with mapshaper before bundling; parse off main thread |
 | 2 | Background location silent suspension on iOS 16.4+ with wrong distanceFilter | HIGH | Test on physical device with screen locked 10+ minutes before declaring Phase 2 complete |
 | 2 | MKLocalPointsOfInterestRequest undocumented rate limits | MEDIUM | Coordinate-keyed cache (per ~100m grid cell) to avoid re-querying same location |
@@ -217,5 +223,5 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 
 ---
 *Roadmap defined: 2026-04-03*
+*Phase 1 planned: 2026-04-04*
 *Granularity: coarse*
-*Ready for: /gsd:plan-phase 1*
