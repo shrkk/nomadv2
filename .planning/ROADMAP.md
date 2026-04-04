@@ -37,9 +37,9 @@
 **Plans:** 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Design system tokens (AppFont, AppColors, PanelGradient) + Firebase setup
-- [ ] 01-02-PLAN.md — GeoJSON pipeline (download, simplify, bundle, parse)
-- [ ] 01-03-PLAN.md — Globe rendering spike (RealityKit sphere + country overlay texture)
+- [x] 01-01-PLAN.md — Design system tokens (AppFont, AppColors, PanelGradient) + Firebase setup
+- [x] 01-02-PLAN.md — GeoJSON pipeline (download, simplify, bundle, parse)
+- [x] 01-03-PLAN.md — Globe rendering spike (RealityKit sphere + country overlay texture)
 - [ ] 01-04-PLAN.md — Globe interactions + stacked sheets (tap, animate, pinpoints, nested sheets)
 
 **UI hint**: yes
