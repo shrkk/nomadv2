@@ -10,6 +10,7 @@ import RealityKit
 //   - Globe sphere (radius 0.5) with country overlay texture per D-03
 //   - One-finger drag for yaw + pitch rotation
 //   - Two-finger pinch for camera zoom
+//   - SpatialTapGesture for country focus animation and pinpoint → profile sheet
 //
 // @MainActor isolation satisfies Swift 6 strict concurrency for @Observable viewModel.
 
@@ -18,6 +19,8 @@ struct GlobeView: View {
     @State private var viewModel = GlobeViewModel()
     @State private var globeEntity: ModelEntity?
     @State private var textureApplied: Bool = false
+    // Tracks pinpoint entity IDs added to the scene to avoid duplicate insertion
+    @State private var addedPinpointIDs: Set<String> = []
 
     // Gesture tracking — stores last translation delta so we get velocity-free incremental rotation
     @State private var lastDragTranslation: CGSize = .zero
@@ -63,6 +66,7 @@ struct GlobeView: View {
                         mesh: .generateSphere(radius: 0.5),
                         materials: [makeGlobeMaterial()]
                     )
+                    sphere.name = "globe"
                     sphere.generateCollisionShapes(recursive: false)
                     content.add(sphere)
                     globeEntity = sphere
@@ -101,7 +105,76 @@ struct GlobeView: View {
                         globe.model?.materials = [material]
                         textureApplied = true
                     }
+
+                    // Add pinpoint entities when a country is focused.
+                    // Only add trips belonging to the focused country, only once each.
+                    if viewModel.showPinpoints, let code = viewModel.focusedCountryCode {
+                        let trips = viewModel.tripsByCountry[code] ?? []
+                        for trip in trips {
+                            guard !addedPinpointIDs.contains(trip.id) else { continue }
+                            let pinEntity = GlobePinpoint.createEntity(for: trip)
+                            content.add(pinEntity)
+                            addedPinpointIDs.insert(trip.id)
+                        }
+                    }
                 }
+                .gesture(
+                    // SpatialTapGesture handles both pinpoint taps and globe taps.
+                    // Pinpoint tap → identify by entity name → open ProfileSheet.
+                    // Globe tap → compute hit lat/lon → animate to nearest visited country centroid.
+                    SpatialTapGesture()
+                        .targetedToAnyEntity()
+                        .onEnded { value in
+                            let tappedEntity = value.entity
+
+                            // --- Pinpoint tap: open ProfileSheet ---
+                            if let trip = GlobePinpoint.StubTrip.stubTrips.first(where: { $0.id == tappedEntity.name }) {
+                                viewModel.selectedTrip = trip
+                                viewModel.showProfileSheet = true
+                                return
+                            }
+
+                            // --- Globe tap: animate to nearest visited country ---
+                            // SpatialTapGesture.Value only provides a 2D screen location.
+                            // For Phase 1 spike, we approximate the tapped lon/lat by
+                            // reverse-projecting the screen position through the current
+                            // globe rotation. We use the 2D tap location relative to the
+                            // view centre to estimate the facing lon/lat, then find the
+                            // nearest visited country centroid.
+                            guard tappedEntity.name == "globe" else { return }
+
+                            // Current globe facing direction (centre of sphere in screen space)
+                            // maps to (rotationY, rotationX). Use globe rotation state to pick
+                            // the nearest visited country centroid to the current facing direction.
+                            // This is a Phase 1 simplification — full raycast deferred to Phase 2.
+                            let facingLat = Double(-viewModel.rotationX * 180 / .pi)
+                            let facingLon = Double(-viewModel.rotationY * 180 / .pi)
+
+                            // Find the visited country centroid nearest to the facing direction
+                            let visitedCodes = GlobeCountryOverlay.hardcodedVisitedCodes
+                            let visitedCountries = viewModel.countries.filter { visitedCodes.contains($0.isoCode) }
+
+                            var bestCode: String? = nil
+                            var bestDist: Double = .infinity
+                            for country in visitedCountries {
+                                let coords = country.polygons.first ?? []
+                                guard !coords.isEmpty else { continue }
+                                let cLat = coords.map(\.latitude).reduce(0, +) / Double(coords.count)
+                                let cLon = coords.map(\.longitude).reduce(0, +) / Double(coords.count)
+                                let dist = (facingLat - cLat) * (facingLat - cLat) + (facingLon - cLon) * (facingLon - cLon)
+                                if dist < bestDist {
+                                    bestDist = dist
+                                    bestCode = country.isoCode
+                                }
+                            }
+
+                            if let code = bestCode {
+                                // Clear previously added pinpoints when switching country focus
+                                addedPinpointIDs = []
+                                viewModel.animateToCountry(code: code)
+                            }
+                        }
+                )
                 .gesture(
                     DragGesture()
                         .onChanged { value in
@@ -127,6 +200,15 @@ struct GlobeView: View {
                         }
                 )
                 .ignoresSafeArea()
+                // FIRST sheet slot — ProfileSheet presents from GlobeView.
+                // CRITICAL: TripDetailSheet is nested INSIDE ProfileSheet's body (INFRA-02 pattern).
+                // It is NOT a second .sheet() here — that would cause cascading dismissal.
+                .sheet(isPresented: $viewModel.showProfileSheet) {
+                    ProfileSheet(
+                        selectedTrip: viewModel.selectedTrip,
+                        trips: GlobePinpoint.StubTrip.stubTrips
+                    )
+                }
             }
         }
         .task {

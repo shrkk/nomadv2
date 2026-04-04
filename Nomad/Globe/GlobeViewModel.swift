@@ -27,6 +27,42 @@ class GlobeViewModel {
     let minCameraDistance: Float = 0.8   // continent-level zoom
     let maxCameraDistance: Float = 2.5   // full globe view
 
+    // Country focus state — driven by tap-to-animate interaction (GLOBE-03)
+    var focusedCountryCode: String? = nil
+    var showPinpoints = false
+    var selectedTrip: GlobePinpoint.StubTrip? = nil
+    var showProfileSheet = false
+
+    // Stub trips grouped by country for pinpoint display
+    var tripsByCountry: [String: [GlobePinpoint.StubTrip]] {
+        Dictionary(grouping: GlobePinpoint.StubTrip.stubTrips, by: \.countryCode)
+    }
+
+    /// Animates globe rotation to bring the target country's centroid to camera-facing position.
+    /// Duration: 600ms ease-in-out per UI-SPEC Interaction Contract.
+    func animateToCountry(code: String) {
+        guard let country = countries.first(where: { $0.isoCode == code }) else { return }
+
+        // Compute centroid from first polygon's coordinates
+        let coords = country.polygons.first ?? []
+        guard !coords.isEmpty else { return }
+        let avgLat = coords.map(\.latitude).reduce(0, +) / Double(coords.count)
+        let avgLon = coords.map(\.longitude).reduce(0, +) / Double(coords.count)
+
+        // Target rotation to bring centroid to front of camera
+        let targetYaw = Float(-avgLon * .pi / 180)
+        let targetPitch = Float(-avgLat * .pi / 180)
+
+        withAnimation(.easeInOut(duration: 0.6)) {
+            rotationY = targetYaw
+            rotationX = targetPitch
+            cameraDistance = 1.2  // zoom to region level
+        }
+
+        focusedCountryCode = code
+        showPinpoints = true
+    }
+
     func loadGlobeData() async {
         do {
             let parser = GeoJSONParser()
