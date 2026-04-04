@@ -24,6 +24,8 @@
 		005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */; };
 		84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D299DB49ACB4F0E9B748D1E /* grain-noise.png */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* GeoJSONParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +45,8 @@
 		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
 		5D299DB49ACB4F0E9B748D1E /* grain-noise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grain-noise.png"; sourceTree = "<group>"; };
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "countries-simplified.geojson"; sourceTree = "<group>"; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryFeature.swift; sourceTree = "<group>"; };
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoJSONParser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +85,7 @@
 				98DD09C6295642BB91E3CDBC /* App */,
 				C41C5A496B8E41F2A5D259A7 /* DesignSystem */,
 				5B92EEB797944183B407C00F /* Firebase */,
+				A7B8C9D0E1F2A3B4C5D6E7F8 /* GeoJSON */,
 				87F5BAD506434B0A82F0C4FB /* Resources */,
 				D32422AB49024EB385B48A1F /* Info.plist */,
 				20975FB83A0E434BA323E8C7 /* Assets.xcassets */,
@@ -127,6 +132,15 @@
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		A7B8C9D0E1F2A3B4C5D6E7F8 /* GeoJSON */ = {
+			isa = PBXGroup;
+			children = (
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */,
+			);
+			path = GeoJSON;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -219,6 +233,8 @@
 				14781ED6E9FF43CFA1727A08 /* AppColors.swift in Sources */,
 				8B8907A07BA14115BE970B00 /* PanelGradient.swift in Sources */,
 				BAB1B9137B594C2CABFA9A0E /* FirebaseService.swift in Sources */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* GeoJSONParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
