@@ -1,16 +1,16 @@
 import UIKit
+import FirebaseCore
 
-// AppDelegate — Firebase is initialized here via FirebaseApp.configure().
-// NOTE: FirebaseCore import and initialization are added in Task 2 once
-// Firebase SPM packages are resolved. This stub compiles without Firebase.
-// The app will crash on launch without GoogleService-Info.plist —
-// this is expected and documented in the threat model.
+// AppDelegate — Firebase initialization via UIApplicationDelegateAdaptor pattern.
+// FirebaseApp.configure() must be called before any Firebase service is accessed.
+// The app will not launch without GoogleService-Info.plist — see user_setup in PLAN.md.
+// Source: INFRA-03 (REQUIREMENTS.md), 01-RESEARCH.md §Standard Stack Firebase 12.11.0.
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Firebase initialization added in Task 2
+        FirebaseApp.configure()
         return true
     }
 }
