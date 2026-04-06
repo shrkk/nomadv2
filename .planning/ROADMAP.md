@@ -94,10 +94,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — TripDocument model, GlobeViewModel Firestore fetch, environment injection
-- [ ] 03-02-PLAN.md — Drag strip, ProfileSheet with route preview cards, Passport stub
-- [ ] 03-03-PLAN.md — Recording pill, trip start/stop/name flow, VisitMonitor dismiss counter
-- [ ] 03-04-PLAN.md — TripDetailSheet with MapKit route map, stats row, photo gallery
+- [x] 03-01-PLAN.md — TripDocument model, GlobeViewModel Firestore fetch, environment injection
+- [x] 03-02-PLAN.md — Drag strip, ProfileSheet with route preview cards, Passport stub
+- [x] 03-03-PLAN.md — Recording pill, trip start/stop/name flow, VisitMonitor dismiss counter
+- [x] 03-04-PLAN.md — TripDetailSheet with MapKit route map, stats row, photo gallery
 
 **UI hint**: yes
 
