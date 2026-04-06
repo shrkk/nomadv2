@@ -91,7 +91,13 @@ Plans:
 6. The globe home view highlights visited countries using `visitedCountryCodes` from the user document, and renders trip pinpoints for each logged trip; tapping a pinpoint slides up the profile panel scrolled to that trip.
 7. The profile panel has a Profile button that opens the Traveler Passport (stub view acceptable in this phase — full implementation is Phase 4).
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — TripDocument model, GlobeViewModel Firestore fetch, environment injection
+- [ ] 03-02-PLAN.md — Drag strip, ProfileSheet with route preview cards, Passport stub
+- [ ] 03-03-PLAN.md — Recording pill, trip start/stop/name flow, VisitMonitor dismiss counter
+- [ ] 03-04-PLAN.md — TripDetailSheet with MapKit route map, stats row, photo gallery
 
 **UI hint**: yes
 
@@ -125,7 +131,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
 | 2. Data & Auth Foundation | 0/4 | Planned | - |
-| 3. Core User Journey | 0/3 | Not started | - |
+| 3. Core User Journey | 0/4 | Planned | - |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
 
 ---
@@ -233,4 +239,5 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 *Roadmap defined: 2026-04-03*
 *Phase 1 planned: 2026-04-04*
 *Phase 2 planned: 2026-04-05*
+*Phase 3 planned: 2026-04-06*
 *Granularity: coarse*
