@@ -40,6 +40,8 @@
 		A100B200C300D400E500F603 /* RoutePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F603 /* RoutePoint.swift */; };
 		A100B200C300D400E500F604 /* TripLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F604 /* TripLocal.swift */; };
 		A100B200C300D400E500F605 /* FirestoreSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F605 /* FirestoreSchema.swift */; };
+		PC01PC02PC03PC04PC05PC06 /* PlaceCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */; };
+		TS01TS02TS03TS04TS05TS06 /* TripService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TS11TS12TS13TS14TS15TS16 /* TripService.swift */; };
 		LC01LC02LC03LC04LC05LC06 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LC11LC12LC13LC14LC15LC16 /* LocationManager.swift */; };
 		LC02LC03LC04LC05LC06LC07 /* VisitMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = LC12LC13LC14LC15LC16LC17 /* VisitMonitor.swift */; };
 		LC03LC04LC05LC06LC07LC08 /* RouteSimplifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = LC13LC14LC15LC16LC17LC18 /* RouteSimplifier.swift */; };
@@ -87,6 +89,8 @@
 		A101B201C301D401E501F603 /* RoutePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePoint.swift; sourceTree = "<group>"; };
 		A101B201C301D401E501F604 /* TripLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLocal.swift; sourceTree = "<group>"; };
 		A101B201C301D401E501F605 /* FirestoreSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSchema.swift; sourceTree = "<group>"; };
+		PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCategoryService.swift; sourceTree = "<group>"; };
+		TS11TS12TS13TS14TS15TS16 /* TripService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripService.swift; sourceTree = "<group>"; };
 		LC11LC12LC13LC14LC15LC16 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		LC12LC13LC14LC15LC16LC17 /* VisitMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitMonitor.swift; sourceTree = "<group>"; };
 		LC13LC14LC15LC16LC17LC18 /* RouteSimplifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteSimplifier.swift; sourceTree = "<group>"; };
@@ -238,6 +242,8 @@
 			children = (
 				A200B200C300D400E500F603 /* Models */,
 				A101B201C301D401E501F605 /* FirestoreSchema.swift */,
+				PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */,
+				TS11TS12TS13TS14TS15TS16 /* TripService.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -383,6 +389,8 @@
 				A100B200C300D400E500F603 /* RoutePoint.swift in Sources */,
 				A100B200C300D400E500F604 /* TripLocal.swift in Sources */,
 				A100B200C300D400E500F605 /* FirestoreSchema.swift in Sources */,
+				PC01PC02PC03PC04PC05PC06 /* PlaceCategoryService.swift in Sources */,
+				TS01TS02TS03TS04TS05TS06 /* TripService.swift in Sources */,
 				LC01LC02LC03LC04LC05LC06 /* LocationManager.swift in Sources */,
 				LC02LC03LC04LC05LC06LC07 /* VisitMonitor.swift in Sources */,
 				LC03LC04LC05LC06LC07LC08 /* RouteSimplifier.swift in Sources */,
