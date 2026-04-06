@@ -156,22 +156,18 @@ struct TripPreviewCard: View {
     var body: some View {
         ZStack(alignment: .trailing) {
             // MARK: Action buttons revealed on swipe
-            HStack(spacing: 0) {
+            HStack(spacing: 12) {
                 // Share
                 Button {
                     resetSwipe()
                     onShare?()
                 } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 20, weight: .medium))
-                        Text("Share")
-                            .font(AppFont.caption())
-                    }
-                    .foregroundStyle(.white)
-                    .frame(width: 66)
-                    .frame(maxHeight: .infinity)
-                    .background(Color.Nomad.amber)
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(width: 48, height: 48)
+                        .background(Color.Nomad.amber)
+                        .clipShape(Circle())
                 }
 
                 // Delete
@@ -179,20 +175,15 @@ struct TripPreviewCard: View {
                     resetSwipe()
                     onDelete?()
                 } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 20, weight: .medium))
-                        Text("Delete")
-                            .font(AppFont.caption())
-                    }
-                    .foregroundStyle(.white)
-                    .frame(width: 66)
-                    .frame(maxHeight: .infinity)
-                    .background(Color.red)
+                    Image(systemName: "trash")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(width: 48, height: 48)
+                        .background(Color.red)
+                        .clipShape(Circle())
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .frame(width: actionWidth)
+            .padding(.trailing, 8)
             .opacity(swipeOffset < 0 ? 1 : 0)
 
             // MARK: Card content (slides left on swipe)
