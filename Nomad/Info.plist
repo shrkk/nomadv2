@@ -16,10 +16,27 @@
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.601995922194-vppjto4lb0j8h33iqis5amr0qeur47he</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Nomad tracks your route in the background so your journey is captured even when your phone is locked.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nomad uses your location to track trips and detect your home city.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Nomad matches photos from your library to trips by date and location.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PlayfairDisplay-Regular.otf</string>
@@ -32,32 +49,15 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Nomad tracks your route in the background so your journey is captured even when your phone is locked.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Nomad uses your location to track trips and detect your home city.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Nomad matches photos from your library to trips by date and location.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>location</string>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.601995922194-vppjto4lb0j8h33iqis5amr0qeur47he</string>
-			</array>
-		</dict>
 	</array>
 </dict>
 </plist>

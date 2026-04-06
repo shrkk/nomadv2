@@ -201,8 +201,6 @@ struct HomeCityScreen: View {
             return
         }
 
-        locationManager.requestLocation()
-
         // Use a dedicated location manager for the one-time fix so delegate lifetime is controlled.
         let oneShotManager = CLLocationManager()
         do {
@@ -213,8 +211,6 @@ struct HomeCityScreen: View {
                 oneShotManager.delegate = delegate
                 oneShotManager.desiredAccuracy = kCLLocationAccuracyKilometer
                 oneShotManager.requestLocation()
-                // Prevent ARC from releasing delegate — it will release itself after delivering.
-                _ = delegate
             }
 
             let geocoder = CLGeocoder()
@@ -286,9 +282,9 @@ struct HomeCityScreen: View {
                 discoveryScope: coordinator.discoveryScope,
                 geofenceRadius: 50_000
             )
-            // AuthManager + Firestore state routes user to GlobeView on success.
-            // Also store in UserDefaults for instant routing on next launch.
-            UserDefaults.standard.set(true, forKey: "onboardingComplete")
+            // Mark onboarding complete — updates AuthManager.onboardingComplete + UserDefaults,
+            // which causes NomadApp to route to GlobeView.
+            authManager.markOnboardingComplete()
         } catch {
             saveError = "Couldn't save. Tap to retry."
         }
@@ -300,9 +296,14 @@ struct HomeCityScreen: View {
 private final class OneTimeLocationDelegate: NSObject, CLLocationManagerDelegate {
     private var continuation: CheckedContinuation<CLLocation, Error>?
     private var didDeliver = false
+    // Strong self-reference keeps this delegate alive until delivery,
+    // since CLLocationManager.delegate is weak.
+    private var selfRetain: OneTimeLocationDelegate?
 
     init(continuation: CheckedContinuation<CLLocation, Error>) {
         self.continuation = continuation
+        super.init()
+        selfRetain = self
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -310,6 +311,7 @@ private final class OneTimeLocationDelegate: NSObject, CLLocationManagerDelegate
         didDeliver = true
         continuation?.resume(returning: location)
         continuation = nil
+        selfRetain = nil
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -317,5 +319,6 @@ private final class OneTimeLocationDelegate: NSObject, CLLocationManagerDelegate
         didDeliver = true
         continuation?.resume(throwing: error)
         continuation = nil
+        selfRetain = nil
     }
 }

@@ -14,6 +14,8 @@ struct NomadApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var authManager: AuthManager
     @State private var userService: UserService
+    // Coordinator lives here so its step position survives auth state changes mid-onboarding.
+    @State private var onboardingCoordinator = OnboardingCoordinator()
 
     init() {
         FirebaseApp.configure()
@@ -37,9 +39,14 @@ struct NomadApp: App {
             Color.Nomad.globeBackground
                 .ignoresSafeArea()
         case .unauthenticated:
-            OnboardingView()
+            OnboardingView(coordinator: onboardingCoordinator)
         case .authenticated:
-            GlobeView()
+            if authManager.onboardingComplete {
+                GlobeView()
+            } else {
+                // Authenticated but onboarding not finished (e.g. Google sign-in mid-flow).
+                OnboardingView(coordinator: onboardingCoordinator)
+            }
         }
     }
 }

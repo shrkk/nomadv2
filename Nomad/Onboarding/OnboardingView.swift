@@ -9,7 +9,7 @@ struct OnboardingView: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(UserService.self) private var userService
 
-    @State private var coordinator = OnboardingCoordinator()
+    var coordinator: OnboardingCoordinator
     @State private var isForward: Bool = true
 
     var body: some View {

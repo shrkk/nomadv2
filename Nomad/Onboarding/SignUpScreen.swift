@@ -219,7 +219,8 @@ struct SignUpScreen: View {
         defer { isGoogleLoading = false }
         do {
             try await authManager.signInWithGoogle()
-            // Auth state listener fires → NomadApp routes to GlobeView
+            // Advance to HandleScreen — NomadApp stays on OnboardingView until onboarding completes.
+            coordinator.advance()
         } catch {
             errorMessage = error.localizedDescription
         }

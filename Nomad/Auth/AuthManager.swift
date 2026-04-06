@@ -1,4 +1,5 @@
 import FirebaseAuth
+import FirebaseFirestore
 import GoogleSignIn
 import Observation
 import UIKit
@@ -26,6 +27,9 @@ private final class ListenerHandleBox: @unchecked Sendable {
 
 @Observable @MainActor final class AuthManager {
     var authState: AuthState = .loading
+    /// True once the user has completed the full onboarding flow.
+    /// Seeded from UserDefaults on launch; confirmed/corrected via Firestore async check.
+    var onboardingComplete: Bool = UserDefaults.standard.bool(forKey: "onboardingComplete")
 
     // Stored in a nonisolated box so deinit can access it without actor isolation violation.
     private let handleBox = ListenerHandleBox()
@@ -35,10 +39,36 @@ private final class ListenerHandleBox: @unchecked Sendable {
             Task { @MainActor in
                 if let user = user {
                     self?.authState = .authenticated(user)
+                    await self?.syncOnboardingStatus(uid: user.uid)
                 } else {
                     self?.authState = .unauthenticated
+                    self?.onboardingComplete = false
                 }
             }
+        }
+    }
+
+    /// Called at the end of HomeCityScreen — marks the user as fully onboarded.
+    func markOnboardingComplete() {
+        onboardingComplete = true
+        UserDefaults.standard.set(true, forKey: "onboardingComplete")
+    }
+
+    /// Fast-path: UserDefaults; slow-path: Firestore (handles new-device sign-in for returning users).
+    private func syncOnboardingStatus(uid: String) async {
+        if UserDefaults.standard.bool(forKey: "onboardingComplete") {
+            onboardingComplete = true
+            return
+        }
+        do {
+            let doc = try await Firestore.firestore().collection("users").document(uid).getDocument()
+            let complete = doc.data()?["onboardingComplete"] as? Bool ?? false
+            onboardingComplete = complete
+            if complete {
+                UserDefaults.standard.set(true, forKey: "onboardingComplete")
+            }
+        } catch {
+            // Network failure — leave onboardingComplete as false; user will re-enter flow.
         }
     }
 
