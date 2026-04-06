@@ -233,6 +233,12 @@ struct GlobeView: View {
                     scrollToTripId: viewModel.scrollToTripId
                 )
             }
+
+            // DragStrip — always visible at bottom, opens ProfileSheet (D-01, D-02)
+            VStack {
+                Spacer()
+                DragStrip(onTap: { viewModel.showProfileSheet = true })
+            }
         }
         .task {
             await viewModel.loadGlobeData()
