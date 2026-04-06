@@ -66,7 +66,7 @@ struct ProfileSheet: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 24)
+            .padding(.top, 44)
             .padding(.bottom, 16)
 
             // MARK: Trip list or empty state
@@ -118,7 +118,7 @@ struct ProfileSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .panelGradient()
         .ignoresSafeArea(edges: .bottom)
-        .presentationDetents([.height(110), .medium, .large])
+        .presentationDetents([.height(60), .medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color.Nomad.cream)
         // CRITICAL (INFRA-02): TripDetailSheet nested inside ProfileSheet body.
