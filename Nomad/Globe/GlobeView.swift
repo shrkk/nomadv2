@@ -236,19 +236,20 @@ struct GlobeView: View {
                 }
             )
             .ignoresSafeArea()
-            .sheet(isPresented: $viewModel.showProfileSheet) {
+            // Persistent sheet — always present, peek detent shows header, drag up to expand
+            .sheet(isPresented: .constant(true)) {
                 ProfileSheet(
                     trips: viewModel.trips,
                     scrollToTripId: viewModel.scrollToTripId,
                     onStartTrip: {
-                        // TRIP-01: Generate UUID, start recording, dismiss profile sheet
+                        // TRIP-01: Generate UUID, start recording
                         let tripId = UUID().uuidString
                         activeTripId = tripId
                         recordingStartDate = Date()
                         locationManager.startRecording(tripId: tripId)
-                        viewModel.showProfileSheet = false
                     }
                 )
+                .interactiveDismissDisabled(true)
             }
 
             // Recording pill — conditionally present in view hierarchy when recording.
@@ -259,12 +260,6 @@ struct GlobeView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
                     .zIndex(1)
-            }
-
-            // DragStrip — always visible at bottom, opens ProfileSheet (D-01, D-02)
-            VStack {
-                Spacer()
-                DragStrip(onTap: { viewModel.showProfileSheet = true })
             }
         }
         .task {
