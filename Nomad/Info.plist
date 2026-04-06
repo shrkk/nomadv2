@@ -42,6 +42,8 @@
 	<string>Nomad tracks your route in the background so your journey is captured even when your phone is locked.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Nomad uses your location to track trips and detect your home city.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Nomad reads your step count to include walking stats in your trip summaries.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Nomad matches photos from your library to trips by date and location.</string>
 	<key>UIBackgroundModes</key>

@@ -5,8 +5,12 @@ import Observation
 // VisitMonitor — CLVisit and geofence-based trip auto-detection.
 // LOC-05: Monitors CLVisit departure events (system-batched, power-efficient).
 // LOC-06: Home city geofence exit triggers local notification to prompt trip logging.
-// Discovery scope "awayOnly" means geofence exit IS the trigger — suppression not needed
-// since CLRegion exit only fires when the user physically leaves the geofence boundary.
+// TRIP-02: Geofence exit triggers sendTripStartNotification (guarded by manualOnlyMode).
+// TRIP-03: After 3 dismissed notifications, manualOnlyMode=true is set by AppDelegate;
+//          handleGeofenceExit() guards on this flag before sending any notification.
+// D-09: manualOnlyMode stored in UserDefaults; checked on every geofence exit.
+// D-10: Notification category "tripPromptCategory" with .customDismissAction enables
+//       UNNotificationDismissActionIdentifier to fire in AppDelegate dismiss counter.
 
 @Observable
 @MainActor
@@ -33,6 +37,10 @@ final class VisitMonitor: NSObject, CLLocationManagerDelegate {
         locationManager.startMonitoring(for: region)
         locationManager.startMonitoringVisits()
         isMonitoring = true
+
+        // Register notification category before requesting permission so category is available
+        // when the first notification is delivered.
+        registerNotificationCategory()
 
         // Request notification permission for trip prompts.
         Task {
@@ -66,14 +74,15 @@ final class VisitMonitor: NSObject, CLLocationManagerDelegate {
         }
     }
 
+    // MARK: - Private
+
     private func handleGeofenceExit() {
-        // Check discovery scope — geofence exit fires only when LEAVING home city.
-        // Both "awayOnly" and "everywhere" scopes should prompt on departure.
+        // TRIP-03: Check manualOnlyMode before sending any notification.
+        // Set to true by AppDelegate after 3 dismissed trip prompt notifications.
+        guard !UserDefaults.standard.bool(forKey: "manualOnlyMode") else { return }
+
         let scope = UserDefaults.standard.string(forKey: "discoveryScope") ?? "everywhere"
-        // For "awayOnly": geofence exit IS the trigger — send notification.
-        // For "everywhere": always send notification on detected departure.
-        // Phase 3 will add the 3-dismiss counter logic (TRIP-03).
-        _ = scope  // scope-aware behavior deferred to Phase 3
+        _ = scope  // Both scopes prompt on departure — geofence exit IS the trigger
         sendTripStartNotification()
     }
 
@@ -82,6 +91,8 @@ final class VisitMonitor: NSObject, CLLocationManagerDelegate {
         content.title = "Adventure detected!"
         content.body = "Looks like you're exploring somewhere new. Start logging this trip?"
         content.sound = .default
+        // D-10: Set category so UNNotificationDismissActionIdentifier fires in AppDelegate
+        content.categoryIdentifier = "tripPromptCategory"
 
         let request = UNNotificationRequest(
             identifier: "tripStartPrompt-\(UUID().uuidString)",
@@ -89,5 +100,18 @@ final class VisitMonitor: NSObject, CLLocationManagerDelegate {
             trigger: nil // deliver immediately
         )
         UNUserNotificationCenter.current().add(request)
+    }
+
+    /// Register "tripPromptCategory" with .customDismissAction so dismiss events reach AppDelegate.
+    /// D-10: Without .customDismissAction, UNNotificationDismissActionIdentifier does not fire.
+    /// Call once from startMonitoring() before any notifications are delivered.
+    private func registerNotificationCategory() {
+        let category = UNNotificationCategory(
+            identifier: "tripPromptCategory",
+            actions: [],
+            intentIdentifiers: [],
+            options: .customDismissAction  // Required for dismiss counter in AppDelegate
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([category])
     }
 }
