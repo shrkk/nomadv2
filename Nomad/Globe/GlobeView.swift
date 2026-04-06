@@ -230,7 +230,8 @@ struct GlobeView: View {
             .sheet(isPresented: $viewModel.showProfileSheet) {
                 ProfileSheet(
                     trips: viewModel.trips,
-                    scrollToTripId: viewModel.scrollToTripId
+                    scrollToTripId: viewModel.scrollToTripId,
+                    onStartTrip: nil
                 )
             }
 
