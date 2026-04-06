@@ -35,6 +35,11 @@
 		CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */; };
 		EE05FF06AA07BB08CC09DD05 /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF05AA06BB07CC08DD09EE06 /* ProfileSheet.swift */; };
 		AA06BB07CC08DD09EE05FF06 /* TripDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */; };
+		A100B200C300D400E500F601 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F601 /* AuthManager.swift */; };
+		A100B200C300D400E500F602 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F602 /* UserService.swift */; };
+		A100B200C300D400E500F603 /* RoutePoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F603 /* RoutePoint.swift */; };
+		A100B200C300D400E500F604 /* TripLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F604 /* TripLocal.swift */; };
+		A100B200C300D400E500F605 /* FirestoreSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F605 /* FirestoreSchema.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +70,11 @@
 		DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobePinpoint.swift; sourceTree = "<group>"; };
 		FF05AA06BB07CC08DD09EE06 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
 		BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDetailSheet.swift; sourceTree = "<group>"; };
+		A101B201C301D401E501F601 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		A101B201C301D401E501F602 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
+		A101B201C301D401E501F603 /* RoutePoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePoint.swift; sourceTree = "<group>"; };
+		A101B201C301D401E501F604 /* TripLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLocal.swift; sourceTree = "<group>"; };
+		A101B201C301D401E501F605 /* FirestoreSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSchema.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +111,8 @@
 			isa = PBXGroup;
 			children = (
 				98DD09C6295642BB91E3CDBC /* App */,
+				A200B200C300D400E500F601 /* Auth */,
+				A200B200C300D400E500F602 /* Data */,
 				C41C5A496B8E41F2A5D259A7 /* DesignSystem */,
 				5B92EEB797944183B407C00F /* Firebase */,
 				A7B8C9D0E1F2A3B4C5D6E7F8 /* GeoJSON */,
@@ -184,6 +196,33 @@
 				BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */,
 			);
 			path = Sheets;
+			sourceTree = "<group>";
+		};
+		A200B200C300D400E500F601 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A101B201C301D401E501F601 /* AuthManager.swift */,
+				A101B201C301D401E501F602 /* UserService.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		A200B200C300D400E500F602 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				A200B200C300D400E500F603 /* Models */,
+				A101B201C301D401E501F605 /* FirestoreSchema.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		A200B200C300D400E500F603 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A101B201C301D401E501F603 /* RoutePoint.swift */,
+				A101B201C301D401E501F604 /* TripLocal.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -287,6 +326,11 @@
 				CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */,
 				EE05FF06AA07BB08CC09DD05 /* ProfileSheet.swift in Sources */,
 				AA06BB07CC08DD09EE05FF06 /* TripDetailSheet.swift in Sources */,
+				A100B200C300D400E500F601 /* AuthManager.swift in Sources */,
+				A100B200C300D400E500F602 /* UserService.swift in Sources */,
+				A100B200C300D400E500F603 /* RoutePoint.swift in Sources */,
+				A100B200C300D400E500F604 /* TripLocal.swift in Sources */,
+				A100B200C300D400E500F605 /* FirestoreSchema.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
