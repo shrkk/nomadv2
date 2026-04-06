@@ -88,6 +88,24 @@ final class TripService {
         ])
     }
 
+    // MARK: - Read
+
+    /// Fetch all trips for a user, ordered by startDate descending (newest first).
+    /// T-03-01: userId must be Auth.auth().currentUser?.uid — enforced at call site in GlobeViewModel.
+    func fetchTrips(userId: String) async throws -> [TripDocument] {
+        let snapshot = try await FirestoreSchema.tripsCollection(userId)
+            .order(by: FirestoreSchema.TripFields.startDate, descending: true)
+            .getDocuments()
+        return snapshot.documents.compactMap { TripDocument(snapshot: $0) }
+    }
+
+    /// Fetch visitedCountryCodes from user document.
+    /// T-03-01: userId must be Auth.auth().currentUser?.uid — enforced at call site in GlobeViewModel.
+    func fetchVisitedCountryCodes(userId: String) async throws -> [String] {
+        let doc = try await FirestoreSchema.userDoc(userId).getDocument()
+        return doc.data()?["visitedCountryCodes"] as? [String] ?? []
+    }
+
     // MARK: - Private
 
     /// Sample every Nth coordinate for POI categorization (avoids querying every GPS point)
