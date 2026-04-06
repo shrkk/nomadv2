@@ -39,9 +39,12 @@ final class TripService {
         let countryCodes = await detectCountryCodes(from: coordinates)
 
         // 5. Write trip document with all D-14 denormalized fields
+        // Flatten [[lat,lon]] → [lat,lon,lat,lon,...] — Firestore rejects nested arrays.
+        let flatPreview: [Double] = previewRoute.flatMap { $0 }
+
         let tripRef = FirestoreSchema.tripDoc(userId, tripId: tripId)
         try await tripRef.setData([
-            FirestoreSchema.TripFields.routePreview: previewRoute,
+            FirestoreSchema.TripFields.routePreview: flatPreview,
             FirestoreSchema.TripFields.visitedCountryCodes: countryCodes,
             FirestoreSchema.TripFields.placeCounts: placeCounts,
             FirestoreSchema.TripFields.cityName: cityName,

@@ -32,8 +32,12 @@ struct TripDocument: Identifiable {
             let cityName = data[FirestoreSchema.TripFields.cityName] as? String,
             let startTimestamp = data[FirestoreSchema.TripFields.startDate] as? Timestamp,
             let endTimestamp = data[FirestoreSchema.TripFields.endDate] as? Timestamp,
-            let preview = data[FirestoreSchema.TripFields.routePreview] as? [[Double]]
+            let rawPreview = data[FirestoreSchema.TripFields.routePreview] as? [Double]
         else { return nil }
+        // Re-pair flat [lat,lon,lat,lon,...] → [[lat,lon]] stored as nested array in memory.
+        let preview: [[Double]] = stride(from: 0, to: rawPreview.count - 1, by: 2).map {
+            [rawPreview[$0], rawPreview[$0 + 1]]
+        }
 
         self.id = snapshot.documentID
         self.cityName = cityName
