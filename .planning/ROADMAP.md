@@ -58,11 +58,19 @@ Plans:
 1. A new user can complete onboarding: create an account with email/password, set a unique handle (validated against Firestore for uniqueness), grant always-on location permission, grant Photos library access, and choose a discovery scope — all in a single linear flow.
 2. With the app backgrounded and the screen locked for 10 minutes on a physical device, background GPS recording continues without interruption; route points accumulate in SwiftData and are later written to Firestore's `routePoints` subcollection.
 3. CLVisit monitoring detects departure from the registered home city geofence and sends a local notification prompt; when discovery scope is set to "away from home city only," no prompt fires while the device stays within the geofence.
-4. A completed trip's GPS trace is processed by the route simplifier — raw points → ~200–500pt simplified route → ~50pt preview array — and the trip document is written to Firestore with `routePreview`, `placeCounts`, and `visitedCountryCodes` denormalized correctly.
+4. A completed trip's GPS trace is processed by the route simplifier — raw points → ~200-500pt simplified route → ~50pt preview array — and the trip document is written to Firestore with `routePreview`, `placeCounts`, and `visitedCountryCodes` denormalized correctly.
 5. Each visited stop is categorized using MKLocalPointsOfInterestRequest (not CLPlacemark); category results are cached by coordinate key; `placeCounts` on the trip document reflects the correct breakdown across the 6 scoring dimensions (Food, Culture, Nature, Nightlife, Wellness, Local).
 6. Session persists across app restarts: a returning user lands directly on the globe without going through onboarding again.
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [x] 02-01-PLAN.md — AuthManager, UserService, data models, Firestore schema, security rules
+- [x] 02-02-PLAN.md — Full onboarding flow (7 screens: Welcome through Home City Confirm)
+- [x] 02-03-PLAN.md — Location pipeline (background GPS, CLVisit monitor, RDP simplification)
+- [x] 02-04-PLAN.md — Place categorization service + trip finalization pipeline
+
+**UI hint**: yes
 
 ---
 
@@ -116,7 +124,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
-| 2. Data & Auth Foundation | 0/3 | Not started | - |
+| 2. Data & Auth Foundation | 0/4 | Planned | - |
 | 3. Core User Journey | 0/3 | Not started | - |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
 
@@ -224,4 +232,5 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 ---
 *Roadmap defined: 2026-04-03*
 *Phase 1 planned: 2026-04-04*
+*Phase 2 planned: 2026-04-05*
 *Granularity: coarse*
