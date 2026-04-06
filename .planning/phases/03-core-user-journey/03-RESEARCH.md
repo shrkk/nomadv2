@@ -644,27 +644,31 @@ all.enumerateObjects { asset, _, _ in
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **HealthKit step authorization in onboarding**
    - What we know: `TripService.finalizeTrip` takes `stepCount: Int`; onboarding grants location + Photos (AUTH-04, AUTH-05)
    - What's unclear: Was `HKHealthStore.requestAuthorization` added to onboarding in Phase 2 execution? `NSHealthShareUsageDescription` in Info.plist?
    - Recommendation: Check `Nomad/Onboarding/` files and `Info.plist` before building the finalization flow. If missing, add HK authorization to the recording start flow (not onboarding — less disruptive).
+   - **RESOLVED:** Plan 03-03 Task 2 adds `NSHealthShareUsageDescription` to Info.plist. HealthKit capability also requires a manual Xcode Signing & Capabilities toggle (noted in plan). Authorization is requested at query time in `queryStepCount()` rather than in onboarding.
 
 2. **routePoints subcollection read in TripDetailSheet — ordering**
    - What we know: `routePoints` is written as a batch via `TripService.syncRoutePoints` without explicit ordering field
    - What's unclear: Firestore documents within a collection don't have guaranteed order unless queried with `orderBy`. The `timestamp` field exists on each routePoint.
    - Recommendation: Always fetch `routePoints` with `.order(by: "timestamp")` to ensure correct polyline point order.
+   - **RESOLVED:** Plan 03-04 Task 1 fetches routePoints with `.order(by: "timestamp")` in TripDetailSheet's `.task` block.
 
 3. **`visitedCountryCodes` on user document — field write timing**
    - What we know: `TripService.updateUserVisitedCountries` writes `visitedCountryCodes` using `arrayUnion`. It's a separate method call, not automatically called by `finalizeTrip`.
    - What's unclear: Is `updateUserVisitedCountries` called anywhere in the current codebase after trip finalization?
    - Recommendation: Ensure the trip start/stop flow calls `updateUserVisitedCountries` after `finalizeTrip` completes, so `GlobeViewModel` reads current data on next load.
+   - **RESOLVED:** Plan 03-03 Task 1b calls `TripService.updateUserVisitedCountries(userId:newCodes:)` after `finalizeTrip` succeeds in `saveTrip(name:)`, deriving country codes from the trip's route points via reverse geocoding or from the trip's visitedCountryCodes.
 
 4. **`GlobePinpoint.createEntity` used in Phase 3?**
    - What we know: `GlobePinpoint.createEntity` creates `ModelEntity` for RealityKit scene. The current globe is `MKMapView` (`hybridFlyover`), not RealityKit.
    - What's unclear: Was there a RealityKit globe at any point, or was `GlobePinpoint.createEntity` never actually wired to the live view?
    - Recommendation: `GlobePinpoint.createEntity` can be ignored for Phase 3 — the `MKAnnotationView` pattern in `GlobeView.Coordinator.mapView(_:viewFor:)` already handles pinpoints correctly (verified in GlobeView.swift lines 123-144). Real TripDocuments should be passed to `addPinpointAnnotations`.
+   - **RESOLVED:** Not required. Existing Phase 2 `MKAnnotationView` infrastructure in `GlobeView.Coordinator` handles pinpoint rendering. `GlobePinpoint.createEntity` is a RealityKit artifact that was never wired to the live MKMapView-based globe.
 
 ---
 
