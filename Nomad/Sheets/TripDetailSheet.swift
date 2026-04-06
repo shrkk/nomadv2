@@ -8,9 +8,16 @@ import SwiftUI
 //
 // Design: Panel gradient (D-07), Playfair Display title, Inter body (D-08).
 // Copy: per UI-SPEC Copywriting Contract — city name header, "No stops recorded" empty state.
+// Updated in Phase 3 Plan 01: accepts TripDocument instead of StubTrip.
 
 struct TripDetailSheet: View {
-    let trip: GlobePinpoint.StubTrip
+    let trip: TripDocument
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMMM yyyy"
+        return f
+    }()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -21,7 +28,7 @@ struct TripDetailSheet: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 24)
 
-            Text(trip.dateLabel)
+            Text(Self.dateFormatter.string(from: trip.startDate))
                 .font(AppFont.body())  // 16pt Inter Regular
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 16)
@@ -29,13 +36,12 @@ struct TripDetailSheet: View {
             Divider()
                 .padding(.horizontal, 16)
 
-            // Stub content — placeholder for future trip detail (Phase 2+)
+            // Stub stats layout — Plan 04 replaces with real data
             VStack(alignment: .leading, spacing: 12) {
-                // Stub stats section
                 HStack(spacing: 24) {
-                    StatItem(label: "Steps", value: "12,450")
-                    StatItem(label: "Distance", value: "8.3 km")
-                    StatItem(label: "Places", value: "6")
+                    StatItem(label: "Steps", value: formatSteps(trip.stepCount))
+                    StatItem(label: "Distance", value: formatDistance(trip.distanceMeters))
+                    StatItem(label: "Places", value: "\(trip.placeCounts.values.reduce(0, +))")
                 }
 
                 // Empty state per UI-SPEC Copywriting Contract
@@ -52,6 +58,17 @@ struct TripDetailSheet: View {
         .panelGradient()  // Same gradient treatment as ProfileSheet per D-07
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+    }
+
+    private func formatSteps(_ steps: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: steps)) ?? "\(steps)"
+    }
+
+    private func formatDistance(_ meters: Double) -> String {
+        let km = meters / 1000
+        return String(format: "%.1f km", km)
     }
 }
 
@@ -74,7 +91,19 @@ struct StatItem: View {
 }
 
 #if DEBUG
+private let previewTrip = TripDocument(
+    id: "preview-tokyo",
+    cityName: "Tokyo",
+    startDate: Date(timeIntervalSinceNow: -86400 * 30),
+    endDate: Date(timeIntervalSinceNow: -86400 * 28),
+    stepCount: 12450,
+    distanceMeters: 8300,
+    routePreview: [[35.6762, 139.6503]],
+    visitedCountryCodes: ["JP"],
+    placeCounts: ["food": 3, "culture": 2]
+)
+
 #Preview {
-    TripDetailSheet(trip: GlobePinpoint.StubTrip.stubTrips[0])
+    TripDetailSheet(trip: previewTrip)
 }
 #endif

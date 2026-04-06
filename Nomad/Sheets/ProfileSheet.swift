@@ -3,20 +3,21 @@ import SwiftUI
 // MARK: - ProfileSheet
 //
 // Primary bottom sheet — slides up from GlobeView when a pinpoint is tapped.
-// Contains a list of stub trip cards and hosts the NESTED second sheet (TripDetailSheet).
+// Contains a list of trip cards and hosts the NESTED second sheet (TripDetailSheet).
 //
 // INFRA-02 spike: The second sheet (.sheet(isPresented: $showTripDetail)) is attached
 // INSIDE this view's body — NOT alongside GlobeView's .sheet(). This is the only pattern
 // that avoids cascading dismissal (dismissing TripDetailSheet leaves ProfileSheet visible).
 //
 // Design: Panel gradient (D-07), Playfair Display titles, Inter body (D-08).
+// Updated in Phase 3 Plan 01: accepts TripDocument instead of StubTrip.
 
 struct ProfileSheet: View {
-    let selectedTrip: GlobePinpoint.StubTrip?
-    let trips: [GlobePinpoint.StubTrip]
+    let trips: [TripDocument]
+    let scrollToTripId: String?
 
     @State private var showTripDetail = false
-    @State private var detailTrip: GlobePinpoint.StubTrip? = nil
+    @State private var detailTrip: TripDocument? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -27,8 +28,8 @@ struct ProfileSheet: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 24)
 
-            // Hardcoded country count per UI-SPEC Copywriting Contract
-            Text("5 countries visited")
+            // Live country count derived from trips
+            Text("\(visitedCountryCount) \(visitedCountryCount == 1 ? "country" : "countries") visited")
                 .font(AppFont.caption())  // 13pt Inter Regular
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 16)
@@ -63,19 +64,29 @@ struct ProfileSheet: View {
             }
         }
     }
+
+    private var visitedCountryCount: Int {
+        Set(trips.flatMap(\.visitedCountryCodes)).count
+    }
 }
 
 // MARK: - Trip Card Component
 
 struct TripCard: View {
-    let trip: GlobePinpoint.StubTrip
+    let trip: TripDocument
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMMM yyyy"
+        return f
+    }()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(trip.cityName + ", " + countryName(for: trip.countryCode))
+            Text(trip.cityName)
                 .font(AppFont.subheading())  // 20pt Playfair Display Regular
                 .foregroundStyle(Color.Nomad.globeBackground)
-            Text(trip.dateLabel)
+            Text(Self.dateFormatter.string(from: trip.startDate))
                 .font(AppFont.caption())  // 13pt Inter Regular
                 .foregroundStyle(.secondary)
         }
@@ -84,15 +95,21 @@ struct TripCard: View {
         .background(Color.Nomad.warmCard)  // #F5F0E8
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-
-    private func countryName(for code: String) -> String {
-        // STUB: Phase 1 hardcoded mapping
-        let map = ["JP": "Japan", "FR": "France", "KE": "Kenya", "AU": "Australia", "BR": "Brazil"]
-        return map[code] ?? code
-    }
 }
 
 #if DEBUG
+private let previewTrip = TripDocument(
+    id: "preview-tokyo",
+    cityName: "Tokyo",
+    startDate: Date(timeIntervalSinceNow: -86400 * 30),
+    endDate: Date(timeIntervalSinceNow: -86400 * 28),
+    stepCount: 12450,
+    distanceMeters: 8300,
+    routePreview: [[35.6762, 139.6503]],
+    visitedCountryCodes: ["JP"],
+    placeCounts: ["food": 3, "culture": 2]
+)
+
 #Preview {
     ZStack {
         Color.Nomad.globeBackground.ignoresSafeArea()
@@ -101,8 +118,8 @@ struct TripCard: View {
     }
     .sheet(isPresented: .constant(true)) {
         ProfileSheet(
-            selectedTrip: GlobePinpoint.StubTrip.stubTrips.first,
-            trips: GlobePinpoint.StubTrip.stubTrips
+            trips: [previewTrip],
+            scrollToTripId: nil
         )
     }
 }

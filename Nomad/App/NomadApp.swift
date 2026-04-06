@@ -16,6 +16,8 @@ struct NomadApp: App {
     @State private var userService: UserService
     // Coordinator lives here so its step position survives auth state changes mid-onboarding.
     @State private var onboardingCoordinator = OnboardingCoordinator()
+    @State private var locationManager = LocationManager()
+    @State private var visitMonitor = VisitMonitor()
 
     init() {
         FirebaseApp.configure()
@@ -28,6 +30,8 @@ struct NomadApp: App {
             content
                 .environment(authManager)
                 .environment(userService)
+                .environment(locationManager)
+                .environment(visitMonitor)
                 .modelContainer(for: [RoutePoint.self, TripLocal.self])
         }
     }

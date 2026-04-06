@@ -50,11 +50,37 @@ struct GlobeMapView: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        // Add overlays and annotations once countries are loaded
-        guard !viewModel.countries.isEmpty, !context.coordinator.overlaysAdded else { return }
-        context.coordinator.overlaysAdded = true
-        context.coordinator.addCountryOverlays(to: mapView, countries: viewModel.countries)
-        context.coordinator.addPinpointAnnotations(to: mapView)
+        // Only proceed once countries are loaded
+        guard !viewModel.countries.isEmpty else { return }
+
+        let newCodes = Set(viewModel.visitedCountryCodes)
+
+        // Diff visitedCountryCodes: if the set changed, remove old overlays and re-add
+        if newCodes != context.coordinator.cachedVisitedCodes {
+            mapView.removeOverlays(mapView.overlays)
+            context.coordinator.overlaysAdded = false
+            context.coordinator.cachedVisitedCodes = newCodes
+        }
+
+        // Add overlays when countries AND visitedCountryCodes are both loaded
+        if !context.coordinator.overlaysAdded && !newCodes.isEmpty {
+            context.coordinator.overlaysAdded = true
+            context.coordinator.addCountryOverlays(
+                to: mapView,
+                countries: viewModel.countries,
+                visitedCodes: newCodes
+            )
+        }
+
+        // Diff trip pinpoints: re-add when trip count changes
+        let newTripCount = viewModel.trips.count
+        if newTripCount != context.coordinator.cachedTripCount {
+            // Remove existing pinpoint annotations
+            let existing = mapView.annotations.filter { $0 is TripAnnotation }
+            mapView.removeAnnotations(existing)
+            context.coordinator.cachedTripCount = newTripCount
+            context.coordinator.addPinpointAnnotations(to: mapView, trips: viewModel.trips)
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -74,6 +100,8 @@ struct GlobeMapView: UIViewRepresentable {
         let onTapCountry: (String) -> Void
         var mapView: MKMapView?
         var overlaysAdded = false
+        var cachedVisitedCodes: Set<String> = []
+        var cachedTripCount: Int = -1
 
         init(viewModel: GlobeViewModel, onTapCountry: @escaping (String) -> Void) {
             self.viewModel = viewModel
@@ -82,8 +110,7 @@ struct GlobeMapView: UIViewRepresentable {
 
         // MARK: - Overlay Setup
 
-        func addCountryOverlays(to mapView: MKMapView, countries: [CountryFeature]) {
-            let visitedCodes = GlobeCountryOverlay.hardcodedVisitedCodes
+        func addCountryOverlays(to mapView: MKMapView, countries: [CountryFeature], visitedCodes: Set<String>) {
             for country in countries where visitedCodes.contains(country.isoCode) {
                 for ring in country.polygons where ring.count >= 3 {
                     var coords = ring
@@ -94,15 +121,13 @@ struct GlobeMapView: UIViewRepresentable {
             }
         }
 
-        func addPinpointAnnotations(to mapView: MKMapView) {
-            for trip in GlobePinpoint.StubTrip.stubTrips {
+        func addPinpointAnnotations(to mapView: MKMapView, trips: [TripDocument]) {
+            for trip in trips {
+                guard let coord = trip.coordinate else { continue }
                 let annotation = TripAnnotation()
-                annotation.coordinate = CLLocationCoordinate2D(
-                    latitude: trip.latitude,
-                    longitude: trip.longitude
-                )
+                annotation.coordinate = coord
                 annotation.tripID = trip.id
-                annotation.countryCode = trip.countryCode
+                annotation.countryCode = trip.visitedCountryCodes.first ?? ""
                 mapView.addAnnotation(annotation)
             }
         }
@@ -143,13 +168,20 @@ struct GlobeMapView: UIViewRepresentable {
             return view
         }
 
+        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            guard let trip = view.annotation as? TripAnnotation else { return }
+            mapView.deselectAnnotation(view.annotation, animated: false)
+            viewModel.scrollToTripId = trip.tripID
+            viewModel.showProfileSheet = true
+        }
+
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
             guard let mapView = mapView else { return }
             let point = gesture.location(in: mapView)
             let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
 
-            // Find nearest visited country
-            let visitedCodes = GlobeCountryOverlay.hardcodedVisitedCodes
+            // Find nearest visited country using live visitedCountryCodes
+            let visitedCodes = Set(viewModel.visitedCountryCodes)
             let visitedCountries = viewModel.countries.filter { visitedCodes.contains($0.isoCode) }
 
             var bestCode: String?
@@ -180,6 +212,8 @@ struct GlobeMapView: UIViewRepresentable {
 @MainActor
 struct GlobeView: View {
     @State private var viewModel = GlobeViewModel()
+    @Environment(LocationManager.self) private var locationManager
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         ZStack {
@@ -195,13 +229,14 @@ struct GlobeView: View {
             .ignoresSafeArea()
             .sheet(isPresented: $viewModel.showProfileSheet) {
                 ProfileSheet(
-                    selectedTrip: viewModel.selectedTrip,
-                    trips: GlobePinpoint.StubTrip.stubTrips
+                    trips: viewModel.trips,
+                    scrollToTripId: viewModel.scrollToTripId
                 )
             }
         }
         .task {
             await viewModel.loadGlobeData()
+            locationManager.configure(modelContext: modelContext)
         }
     }
 }
