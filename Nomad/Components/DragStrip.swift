@@ -23,10 +23,9 @@ struct DragStrip: View {
                 .frame(height: 1)
 
             ZStack {
-                // Frosted glass background
+                // Cream panel background — matches the sheet surface
                 Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(Color.Nomad.globeBackground.opacity(0.6))
+                    .fill(Color.Nomad.cream)
 
                 // Amber capsule handle — 8pt from top, centered horizontally
                 Capsule()
