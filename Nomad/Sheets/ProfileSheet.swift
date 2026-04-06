@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - ProfileSheet
 //
-// Primary bottom sheet — slides up from GlobeView when DragStrip is tapped or
+// Primary bottom sheet — slides up from GlobeView when DragStrip is tapped/dragged or
 // a pinpoint is selected. Contains real trip data as route preview cards and
 // hosts the NESTED second sheet (TripDetailSheet).
 //
@@ -17,6 +17,7 @@ struct ProfileSheet: View {
     let trips: [TripDocument]
     let scrollToTripId: String?
     let onStartTrip: (() -> Void)?
+    var onDeleteTrip: ((TripDocument) -> Void)? = nil
 
     @State private var showTripDetail = false
     @State private var detailTrip: TripDocument? = nil
@@ -38,7 +39,6 @@ struct ProfileSheet: View {
         VStack(alignment: .leading, spacing: 0) {
             // MARK: Header
             HStack(alignment: .center) {
-                // Profile button (left) — opens Traveler Passport (PANEL-06)
                 Button {
                     showPassport = true
                 } label: {
@@ -50,14 +50,12 @@ struct ProfileSheet: View {
 
                 Spacer()
 
-                // Title
                 Text("Your Journeys")
                     .font(AppFont.title())
                     .foregroundStyle(Color.Nomad.globeBackground)
 
                 Spacer()
 
-                // "+" button (right) — start new trip (PANEL-05; recording wired in Plan 03)
                 Button {
                     onStartTrip?()
                 } label: {
@@ -73,7 +71,6 @@ struct ProfileSheet: View {
 
             // MARK: Trip list or empty state
             if trips.isEmpty {
-                // Empty state per UI-SPEC Copywriting
                 VStack(spacing: 8) {
                     Text("No trips yet.")
                         .font(AppFont.subheading())
@@ -88,20 +85,22 @@ struct ProfileSheet: View {
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 24) {
+                        LazyVStack(spacing: 12) {
                             ForEach(trips) { trip in
                                 TripPreviewCard(
                                     trip: trip,
                                     dateFormatter: Self.dateFormatter,
-                                    stepsFormatter: Self.stepsFormatter
+                                    stepsFormatter: Self.stepsFormatter,
+                                    onTap: {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                            detailTrip = trip
+                                            showTripDetail = true
+                                        }
+                                    },
+                                    onDelete: onDeleteTrip.map { cb in { cb(trip) } },
+                                    onShare: { shareTrip(trip) }
                                 )
                                 .id(trip.id)
-                                .onTapGesture {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                                        detailTrip = trip
-                                        showTripDetail = true
-                                    }
-                                }
                             }
                         }
                         .padding(.horizontal, 16)
@@ -121,15 +120,22 @@ struct ProfileSheet: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         // CRITICAL (INFRA-02): TripDetailSheet nested inside ProfileSheet body.
-        // Dismissing TripDetailSheet does NOT auto-dismiss ProfileSheet.
         .sheet(isPresented: $showTripDetail) {
             if let trip = detailTrip {
                 TripDetailSheet(trip: trip)
             }
         }
-        // Traveler Passport stub (PANEL-06)
         .sheet(isPresented: $showPassport) {
             TravelerPassportStub()
+        }
+    }
+
+    private func shareTrip(_ trip: TripDocument) {
+        let text = "\(trip.cityName) — \(Self.dateFormatter.string(from: trip.startDate))"
+        let av = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let root = scene.windows.first?.rootViewController {
+            root.present(av, animated: true)
         }
     }
 }
@@ -140,14 +146,92 @@ struct TripPreviewCard: View {
     let trip: TripDocument
     let dateFormatter: DateFormatter
     let stepsFormatter: NumberFormatter
+    let onTap: () -> Void
+    var onDelete: (() -> Void)? = nil
+    var onShare: (() -> Void)? = nil
+
+    @State private var swipeOffset: CGFloat = 0
+    private let actionWidth: CGFloat = 132 // 2 × 66pt action buttons
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Route strip: 120×48pt, globe-dark background with amber path
-            ZStack {
-                Color.Nomad.globeBackground.opacity(0.9)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+        ZStack(alignment: .trailing) {
+            // MARK: Action buttons revealed on swipe
+            HStack(spacing: 0) {
+                // Share
+                Button {
+                    resetSwipe()
+                    onShare?()
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 20, weight: .medium))
+                        Text("Share")
+                            .font(AppFont.caption())
+                    }
+                    .foregroundStyle(.white)
+                    .frame(width: 66)
+                    .frame(maxHeight: .infinity)
+                    .background(Color.Nomad.amber)
+                }
 
+                // Delete
+                Button {
+                    resetSwipe()
+                    onDelete?()
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 20, weight: .medium))
+                        Text("Delete")
+                            .font(AppFont.caption())
+                    }
+                    .foregroundStyle(.white)
+                    .frame(width: 66)
+                    .frame(maxHeight: .infinity)
+                    .background(Color.red)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .frame(width: actionWidth)
+            .opacity(swipeOffset < 0 ? 1 : 0)
+
+            // MARK: Card content (slides left on swipe)
+            cardContent
+                .offset(x: swipeOffset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            let dx = value.translation.width
+                            if dx < 0 {
+                                // Resist past full reveal with rubber-band
+                                swipeOffset = max(dx, -actionWidth - 20) * (abs(dx) > actionWidth ? 0.3 : 1)
+                            } else if swipeOffset < 0 {
+                                swipeOffset = min(0, swipeOffset + dx)
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                swipeOffset = value.translation.width < -actionWidth / 2 ? -actionWidth : 0
+                            }
+                        }
+                )
+                .onTapGesture {
+                    if swipeOffset < 0 {
+                        resetSwipe()
+                    } else {
+                        onTap()
+                    }
+                }
+        }
+        .frame(height: 96)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var cardContent: some View {
+        HStack(spacing: 16) {
+            // Route strip — transparent background so card colour shows through
+            ZStack {
+                Color.clear
                 GeometryReader { geo in
                     RoutePreviewPath(
                         routePreview: trip.routePreview,
@@ -156,10 +240,10 @@ struct TripPreviewCard: View {
                 }
                 .padding(4)
             }
-            .frame(width: 120, height: 48)
+            .frame(width: 120, height: 64)
+            .background(Color.Nomad.globeBackground.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            // Trip info
             VStack(alignment: .leading, spacing: 4) {
                 Text(trip.cityName)
                     .font(AppFont.subheading())
@@ -186,7 +270,13 @@ struct TripPreviewCard: View {
     private var distanceStepsLabel: String {
         let km = String(format: "%.1f km", trip.distanceMeters / 1000)
         let steps = stepsFormatter.string(from: NSNumber(value: trip.stepCount)) ?? "\(trip.stepCount)"
-        return "\(km) . \(steps) steps"
+        return "\(km) · \(steps) steps"
+    }
+
+    private func resetSwipe() {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            swipeOffset = 0
+        }
     }
 }
 

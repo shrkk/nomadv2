@@ -40,6 +40,15 @@ struct DragStrip: View {
         .frame(height: 44)
         .contentShape(Rectangle()) // Full 44pt touch target
         .onTapGesture { onTap() }
+        .gesture(
+            DragGesture(minimumDistance: 10)
+                .onEnded { value in
+                    // Any upward drag (negative vertical translation) opens the sheet
+                    if value.translation.height < -10 {
+                        onTap()
+                    }
+                }
+        )
     }
 }
 
