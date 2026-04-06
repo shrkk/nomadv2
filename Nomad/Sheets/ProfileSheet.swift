@@ -217,7 +217,6 @@ struct TripPreviewCard: View {
                 }
         }
         .frame(height: 96)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
     private var cardContent: some View {
