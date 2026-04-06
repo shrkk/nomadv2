@@ -1,0 +1,190 @@
+import SwiftUI
+import FirebaseAuth
+
+// SignUpScreen — Screen 2 of the onboarding flow.
+// Handles both "Create account" (sign-up mode) and "Sign in" (returning user mode).
+// D-09: Uses AuthManager from environment to sign up or sign in.
+// UI-SPEC Screen 2: cream background, conditional header, email/password fields, Firebase error mapping.
+
+struct SignUpScreen: View {
+    var coordinator: OnboardingCoordinator
+    @Environment(AuthManager.self) private var authManager
+
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @State private var showPassword: Bool = false
+    @State private var errorMessage: String?
+    @State private var isLoading: Bool = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                Text(coordinator.isSignInMode ? "Welcome back" : "Create your account")
+                    .font(AppFont.title())
+                    .foregroundColor(Color.Nomad.globeBackground)
+                    .padding(.top, 32)
+
+                // Subheader (sign-up mode only)
+                if !coordinator.isSignInMode {
+                    Text("We'll keep your journey private and secure.")
+                        .font(AppFont.body())
+                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.6))
+                        .padding(.top, 8)
+                }
+
+                // Email field
+                emailField
+                    .padding(.top, 32)
+
+                // Password field + hint
+                passwordField
+                    .padding(.top, 16)
+
+                if !coordinator.isSignInMode {
+                    Text("8+ characters")
+                        .font(AppFont.caption())
+                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.5))
+                        .padding(.top, 4)
+                }
+
+                // CTA
+                ctaButton
+                    .padding(.top, 32)
+            }
+            .padding(.horizontal, 16)
+        }
+        .background(Color.Nomad.cream.ignoresSafeArea())
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+
+    // MARK: - Email field
+
+    private var emailField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            TextField("Email address", text: $email)
+                .font(AppFont.body())
+                .foregroundColor(Color.Nomad.globeBackground)
+                .autocapitalization(.none)
+                .keyboardType(.emailAddress)
+                .textContentType(.emailAddress)
+                .autocorrectionDisabled()
+                .frame(height: 48)
+                .padding(.horizontal, 12)
+                .background(Color.Nomad.warmCard)
+                .cornerRadius(12)
+
+            if let error = errorMessage, error.contains("email") || error.contains("Email") {
+                Text(error)
+                    .font(AppFont.caption())
+                    .foregroundColor(Color.Nomad.destructive)
+            }
+        }
+    }
+
+    // MARK: - Password field
+
+    private var passwordField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ZStack(alignment: .trailing) {
+                Group {
+                    if showPassword {
+                        TextField("Password", text: $password)
+                            .textContentType(.password)
+                    } else {
+                        SecureField("Password", text: $password)
+                            .textContentType(.password)
+                    }
+                }
+                .font(AppFont.body())
+                .foregroundColor(Color.Nomad.globeBackground)
+                .frame(height: 48)
+                .padding(.horizontal, 12)
+                .padding(.trailing, 44)
+
+                Button {
+                    showPassword.toggle()
+                } label: {
+                    Image(systemName: showPassword ? "eye" : "eye.slash")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.4))
+                        .frame(width: 44, height: 44)
+                }
+            }
+            .background(Color.Nomad.warmCard)
+            .cornerRadius(12)
+
+            if let error = errorMessage, !error.contains("email") && !error.contains("Email") {
+                Text(error)
+                    .font(AppFont.caption())
+                    .foregroundColor(Color.Nomad.destructive)
+            }
+        }
+    }
+
+    // MARK: - CTA button
+
+    private var ctaButton: some View {
+        let label = coordinator.isSignInMode ? "Sign in" : "Create account"
+        let isDisabled = email.isEmpty || password.isEmpty || isLoading
+
+        return Button {
+            Task { await performAuth() }
+        } label: {
+            ZStack {
+                if isLoading {
+                    ProgressView()
+                        .tint(Color.Nomad.globeBackground)
+                } else {
+                    Text(label)
+                        .font(AppFont.buttonLabel())
+                        .foregroundColor(Color.Nomad.globeBackground)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color.Nomad.amber.opacity(isDisabled ? 0.5 : 1.0))
+            .cornerRadius(12)
+        }
+        .disabled(isDisabled)
+    }
+
+    // MARK: - Auth logic
+
+    private func performAuth() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            if coordinator.isSignInMode {
+                try await authManager.signIn(email: email, password: password)
+                // AuthManager listener will flip authState → NomadApp routes accordingly.
+            } else {
+                _ = try await authManager.signUp(email: email, password: password)
+                coordinator.email = email
+                coordinator.advance()
+            }
+        } catch let nsError as NSError {
+            errorMessage = mapFirebaseError(nsError)
+        }
+    }
+
+    private func mapFirebaseError(_ error: NSError) -> String {
+        // Firebase Auth errors come back as NSError with domain "FIRAuthErrorDomain"
+        // and codes matching AuthErrorCode enum values.
+        let code = AuthErrorCode(rawValue: error.code)
+        switch code {
+        case .emailAlreadyInUse:
+            return "An account with this email already exists. Sign in instead?"
+        case .invalidEmail:
+            return "Enter a valid email address."
+        case .weakPassword:
+            return "Password must be at least 8 characters."
+        case .wrongPassword, .userNotFound:
+            return "Invalid email or password."
+        default:
+            return "Something went wrong. Check your connection and try again."
+        }
+    }
+}
