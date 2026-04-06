@@ -117,8 +117,10 @@ struct ProfileSheet: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .panelGradient()
+        .ignoresSafeArea(edges: .bottom)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Color.Nomad.cream)
         // CRITICAL (INFRA-02): TripDetailSheet nested inside ProfileSheet body.
         .sheet(isPresented: $showTripDetail) {
             if let trip = detailTrip {

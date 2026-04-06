@@ -16,36 +16,31 @@ struct DragStrip: View {
     let onTap: () -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 1pt amber top border
-            Rectangle()
-                .fill(Color.Nomad.amber.opacity(0.3))
-                .frame(height: 1)
+        ZStack {
+            // Card-style background: warmCard color, rounded top corners only
+            UnevenRoundedRectangle(
+                topLeadingRadius: 16,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 16
+            )
+            .fill(Color.Nomad.warmCard)
 
-            ZStack {
-                // Cream panel background — matches the sheet surface
-                Rectangle()
-                    .fill(Color.Nomad.cream)
-
-                // Amber capsule handle — 8pt from top, centered horizontally
-                Capsule()
-                    .fill(Color.Nomad.amber.opacity(0.4))
-                    .frame(width: 36, height: 4)
-                    .padding(.top, 8)
-                    .frame(maxHeight: .infinity, alignment: .top)
-            }
-            .frame(height: 43) // 44pt total with the 1pt border above
+            // Amber capsule handle — centered, 10pt from top
+            Capsule()
+                .fill(Color.Nomad.amber.opacity(0.5))
+                .frame(width: 36, height: 4)
+                .padding(.top, 10)
+                .frame(maxHeight: .infinity, alignment: .top)
         }
         .frame(height: 44)
-        .contentShape(Rectangle()) // Full 44pt touch target
+        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: -4)
+        .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .gesture(
             DragGesture(minimumDistance: 10)
                 .onEnded { value in
-                    // Any upward drag (negative vertical translation) opens the sheet
-                    if value.translation.height < -10 {
-                        onTap()
-                    }
+                    if value.translation.height < -10 { onTap() }
                 }
         )
     }
