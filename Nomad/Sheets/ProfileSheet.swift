@@ -118,7 +118,7 @@ struct ProfileSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .panelGradient()
         .ignoresSafeArea(edges: .bottom)
-        .presentationDetents([.height(60), .medium, .large])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color.Nomad.cream)
         // CRITICAL (INFRA-02): TripDetailSheet nested inside ProfileSheet body.

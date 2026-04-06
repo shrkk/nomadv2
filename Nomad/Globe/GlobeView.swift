@@ -236,8 +236,7 @@ struct GlobeView: View {
                 }
             )
             .ignoresSafeArea()
-            // Persistent sheet — always present, peek detent shows header, drag up to expand
-            .sheet(isPresented: .constant(true)) {
+            .sheet(isPresented: $viewModel.showProfileSheet) {
                 ProfileSheet(
                     trips: viewModel.trips,
                     scrollToTripId: viewModel.scrollToTripId,
@@ -247,9 +246,9 @@ struct GlobeView: View {
                         activeTripId = tripId
                         recordingStartDate = Date()
                         locationManager.startRecording(tripId: tripId)
+                        viewModel.showProfileSheet = false
                     }
                 )
-                .interactiveDismissDisabled(true)
             }
 
             // Recording pill — conditionally present in view hierarchy when recording.
@@ -260,6 +259,25 @@ struct GlobeView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
                     .zIndex(1)
+            }
+
+            // Floating journey pill — visible when sheet is closed, passes touches through to globe
+            if !viewModel.showProfileSheet {
+                VStack {
+                    Spacer()
+                    JourneyPill(
+                        onOpenJourneys: { viewModel.showProfileSheet = true },
+                        onStartTrip: {
+                            let tripId = UUID().uuidString
+                            activeTripId = tripId
+                            recordingStartDate = Date()
+                            locationManager.startRecording(tripId: tripId)
+                        }
+                    )
+                    .padding(.bottom, 24)
+                }
+                .allowsHitTesting(true)
+                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             }
         }
         .task {
