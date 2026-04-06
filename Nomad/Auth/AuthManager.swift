@@ -68,7 +68,9 @@ private final class ListenerHandleBox: @unchecked Sendable {
 
     /// Sign in with Google. Requires CLIENT_ID in GoogleService-Info.plist (enable Google Sign-In in Firebase Console first).
     func signInWithGoogle() async throws {
-        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "CLIENT_ID") as? String else {
+        guard let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+              let plist = NSDictionary(contentsOfFile: plistPath),
+              let clientID = plist["CLIENT_ID"] as? String else {
             throw GoogleSignInError.notConfigured
         }
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
