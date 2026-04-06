@@ -38,5 +38,15 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Nomad tracks your route in the background so your journey is captured even when your phone is locked.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nomad uses your location to track trips and detect your home city.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Nomad matches photos from your library to trips by date and location.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 </dict>
 </plist>
