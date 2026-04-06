@@ -52,6 +52,7 @@ struct GlobePinpoint {
     /// Visual: 0.012 radius sphere (~20pt visual size at default camera distance 2.0).
     /// Material: amber (#E8A44A), unlit so color is consistent regardless of scene lighting.
     /// Collision: sphere at 0.022 radius (~44pt hit area per Apple HIG) for tap detection.
+    @MainActor
     static func createEntity(for trip: StubTrip) -> ModelEntity {
         let pinpoint = ModelEntity(
             mesh: .generateSphere(radius: 0.012),

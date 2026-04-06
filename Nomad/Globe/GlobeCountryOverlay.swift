@@ -47,25 +47,31 @@ struct GlobeCountryOverlay {
     static func renderOverlayTexture(
         countries: [CountryFeature],
         visitedCodes: Set<String> = hardcodedVisitedCodes,
-        size: CGSize = CGSize(width: 4096, height: 2048)
+        size: CGSize = CGSize(width: 2048, height: 1024)
     ) -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: size)
 
         let image = renderer.image { ctx in
             let cgCtx = ctx.cgContext
 
-            // Transparent background — only visited countries are painted
-            cgCtx.clear(CGRect(origin: .zero, size: size))
+            // Ocean background — rich deep blue
+            let oceanColor = UIColor(red: 0.08, green: 0.12, blue: 0.28, alpha: 1.0)
+            cgCtx.setFillColor(oceanColor.cgColor)
+            cgCtx.fill(CGRect(origin: .zero, size: size))
 
-            // Fill color: #E8A44A at 60% opacity per D-03
-            let fillColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.6)
-            // Glow color: #E8A44A at 30% opacity per D-03 (2-3px outer glow)
-            let glowColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.3)
+            // Land color for unvisited countries — visible gray-blue
+            let landColor = UIColor(red: 0.22, green: 0.25, blue: 0.24, alpha: 1.0)
+            // Visited country fill: #E8A44A at 80% opacity — brighter
+            let visitedFillColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.8)
+            // Visited glow: #E8A44A at 50% opacity — more visible
+            let glowColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.5)
+            // Border for all countries — more visible
+            let borderColor = UIColor(red: 0.35, green: 0.38, blue: 0.42, alpha: 0.6)
 
-            // Filter to only visited countries
-            let visitedCountries = countries.filter { visitedCodes.contains($0.isoCode) }
+            // Draw ALL countries as land masses first
+            for country in countries {
+                let isVisited = visitedCodes.contains(country.isoCode)
 
-            for country in visitedCountries {
                 for ring in country.polygons {
                     guard ring.count >= 3 else { continue }
 
@@ -87,20 +93,25 @@ struct GlobeCountryOverlay {
                     }
                     path.closeSubpath()
 
-                    // Apply outer glow via CGContext shadow (renders before fill)
-                    // Shadow with zero offset creates an even outer glow per D-03
-                    cgCtx.setShadow(
-                        offset: .zero,
-                        blur: 8,
-                        color: glowColor.cgColor
-                    )
+                    if isVisited {
+                        // Visited: amber glow + fill
+                        cgCtx.setShadow(offset: .zero, blur: 8, color: glowColor.cgColor)
+                        cgCtx.setFillColor(visitedFillColor.cgColor)
+                    } else {
+                        // Unvisited: flat land color, no glow
+                        cgCtx.setShadow(offset: .zero, blur: 0, color: UIColor.clear.cgColor)
+                        cgCtx.setFillColor(landColor.cgColor)
+                    }
 
-                    cgCtx.setFillColor(fillColor.cgColor)
                     cgCtx.addPath(path)
                     cgCtx.fillPath()
 
-                    // Reset shadow so subsequent polygons don't accumulate glow
+                    // Subtle border on all countries
                     cgCtx.setShadow(offset: .zero, blur: 0, color: UIColor.clear.cgColor)
+                    cgCtx.setStrokeColor(borderColor.cgColor)
+                    cgCtx.setLineWidth(1.0)
+                    cgCtx.addPath(path)
+                    cgCtx.strokePath()
                 }
             }
         }
@@ -120,6 +131,7 @@ struct GlobeCountryOverlay {
         guard let cgImage = image.cgImage else {
             throw GlobeError.parseError("Failed to get CGImage from overlay UIImage")
         }
-        return try TextureResource(image: cgImage, options: .init(semantic: .color))
+        // Use default options — .init(semantic:) causes createFailure on simulator
+        return try TextureResource(image: cgImage, options: .init(semantic: nil))
     }
 }

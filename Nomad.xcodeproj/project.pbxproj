@@ -24,6 +24,9 @@
 		005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */; };
 		84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D299DB49ACB4F0E9B748D1E /* grain-noise.png */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */; };
+		AAFF11223344556677889900 /* earth-texture.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BBFF11223344556677889900 /* earth-texture.jpg */; };
+		AAFF22334455667788990011 /* earth-day.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BBFF22334455667788990011 /* earth-day.jpg */; };
+		AAFF33445566778899001122 /* earth-night.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BBFF33445566778899001122 /* earth-night.jpg */; };
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* GeoJSONParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */; };
 		AA01BB02CC03DD04EE05FF06 /* GlobeCountryOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */; };
@@ -51,6 +54,9 @@
 		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
 		5D299DB49ACB4F0E9B748D1E /* grain-noise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grain-noise.png"; sourceTree = "<group>"; };
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "countries-simplified.geojson"; sourceTree = "<group>"; };
+		BBFF11223344556677889900 /* earth-texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-texture.jpg"; sourceTree = "<group>"; };
+		BBFF22334455667788990011 /* earth-day.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-day.jpg"; sourceTree = "<group>"; };
+		BBFF33445566778899001122 /* earth-night.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-night.jpg"; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryFeature.swift; sourceTree = "<group>"; };
 		F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoJSONParser.swift; sourceTree = "<group>"; };
 		BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeCountryOverlay.swift; sourceTree = "<group>"; };
@@ -144,6 +150,9 @@
 				48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */,
 				5D299DB49ACB4F0E9B748D1E /* grain-noise.png */,
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */,
+				BBFF11223344556677889900 /* earth-texture.jpg */,
+				BBFF22334455667788990011 /* earth-day.jpg */,
+				BBFF33445566778899001122 /* earth-night.jpg */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -250,6 +259,9 @@
 				005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */,
 				84AC54965EDD481D8D74EFD9 /* grain-noise.png in Resources */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */,
+				AAFF11223344556677889900 /* earth-texture.jpg in Resources */,
+				AAFF22334455667788990011 /* earth-day.jpg in Resources */,
+				AAFF33445566778899001122 /* earth-night.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
