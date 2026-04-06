@@ -62,6 +62,8 @@
 		RP01RP02RP03RP04RP05RP06 /* RoutePreviewPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */; };
 		TP01TP02TP03TP04TP05TP06 /* TravelerPassportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */; };
 		RC01RC02RC03RC04RC05RC06 /* RecordingPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */; };
+		TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */; };
+		PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -117,6 +119,8 @@
 		RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewPath.swift; sourceTree = "<group>"; };
 		TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelerPassportStub.swift; sourceTree = "<group>"; };
 		RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPill.swift; sourceTree = "<group>"; };
+		TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripRouteMapView.swift; sourceTree = "<group>"; };
+		PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryStrip.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -283,6 +287,8 @@
 				DS11DS12DS13DS14DS15DS16 /* DragStrip.swift */,
 				RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */,
 				RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */,
+				TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */,
+				PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -442,6 +448,8 @@
 				RP01RP02RP03RP04RP05RP06 /* RoutePreviewPath.swift in Sources */,
 				TP01TP02TP03TP04TP05TP06 /* TravelerPassportStub.swift in Sources */,
 				RC01RC02RC03RC04RC05RC06 /* RecordingPill.swift in Sources */,
+				TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */,
+				PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
