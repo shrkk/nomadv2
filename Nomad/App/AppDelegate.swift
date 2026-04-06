@@ -1,5 +1,6 @@
 import UIKit
 import FirebaseCore
+import GoogleSignIn
 
 // AppDelegate — Firebase initialization via UIApplicationDelegateAdaptor pattern.
 // FirebaseApp.configure() must be called before any Firebase service is accessed.
@@ -12,5 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         // FirebaseApp.configure() is called in NomadApp.init() before AuthManager is created
         return true
+    }
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance.handle(url)
     }
 }

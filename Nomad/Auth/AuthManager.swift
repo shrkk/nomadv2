@@ -1,5 +1,7 @@
 import FirebaseAuth
+import GoogleSignIn
 import Observation
+import UIKit
 
 // AuthManager — Firebase auth state observer.
 // Listens for auth state changes and exposes AuthState enum for routing in NomadApp.
@@ -60,6 +62,44 @@ private final class ListenerHandleBox: @unchecked Sendable {
 
     /// Sign out the current user.
     func signOut() throws {
+        GIDSignIn.sharedInstance.signOut()
         try Auth.auth().signOut()
+    }
+
+    /// Sign in with Google. Requires CLIENT_ID in GoogleService-Info.plist (enable Google Sign-In in Firebase Console first).
+    func signInWithGoogle() async throws {
+        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "CLIENT_ID") as? String else {
+            throw GoogleSignInError.notConfigured
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+
+        guard let windowScene = await UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = await windowScene.windows.first?.rootViewController else {
+            throw GoogleSignInError.noRootViewController
+        }
+
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+        guard let idToken = result.user.idToken?.tokenString else {
+            throw GoogleSignInError.missingToken
+        }
+        let credential = GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: result.user.accessToken.tokenString
+        )
+        try await Auth.auth().signIn(with: credential)
+    }
+}
+
+enum GoogleSignInError: LocalizedError {
+    case notConfigured
+    case noRootViewController
+    case missingToken
+
+    var errorDescription: String? {
+        switch self {
+        case .notConfigured: return "Google Sign-In is not configured. Enable it in Firebase Console."
+        case .noRootViewController: return "Unable to present Google Sign-In."
+        case .missingToken: return "Google Sign-In failed — missing ID token."
+        }
     }
 }

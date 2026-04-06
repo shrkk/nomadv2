@@ -50,11 +50,22 @@ struct GlobeMapView: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        // Respond to viewModel-driven camera changes
+        // Add overlays and annotations once countries are loaded
+        guard !viewModel.countries.isEmpty, !context.coordinator.overlaysAdded else { return }
+        context.coordinator.overlaysAdded = true
+        context.coordinator.addCountryOverlays(to: mapView, countries: viewModel.countries)
+        context.coordinator.addPinpointAnnotations(to: mapView)
     }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(viewModel: viewModel, onTapCountry: onTapCountry)
+    }
+
+    // MARK: - Trip Annotation
+
+    class TripAnnotation: MKPointAnnotation {
+        var tripID: String = ""
+        var countryCode: String = ""
     }
 
     @MainActor
@@ -62,10 +73,74 @@ struct GlobeMapView: UIViewRepresentable {
         let viewModel: GlobeViewModel
         let onTapCountry: (String) -> Void
         var mapView: MKMapView?
+        var overlaysAdded = false
 
         init(viewModel: GlobeViewModel, onTapCountry: @escaping (String) -> Void) {
             self.viewModel = viewModel
             self.onTapCountry = onTapCountry
+        }
+
+        // MARK: - Overlay Setup
+
+        func addCountryOverlays(to mapView: MKMapView, countries: [CountryFeature]) {
+            let visitedCodes = GlobeCountryOverlay.hardcodedVisitedCodes
+            for country in countries where visitedCodes.contains(country.isoCode) {
+                for ring in country.polygons where ring.count >= 3 {
+                    var coords = ring
+                    let polygon = MKPolygon(coordinates: &coords, count: coords.count)
+                    polygon.title = country.isoCode
+                    mapView.addOverlay(polygon, level: .aboveRoads)
+                }
+            }
+        }
+
+        func addPinpointAnnotations(to mapView: MKMapView) {
+            for trip in GlobePinpoint.StubTrip.stubTrips {
+                let annotation = TripAnnotation()
+                annotation.coordinate = CLLocationCoordinate2D(
+                    latitude: trip.latitude,
+                    longitude: trip.longitude
+                )
+                annotation.tripID = trip.id
+                annotation.countryCode = trip.countryCode
+                mapView.addAnnotation(annotation)
+            }
+        }
+
+        // MARK: - MKMapViewDelegate
+
+        func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            guard let polygon = overlay as? MKPolygon else {
+                return MKOverlayRenderer(overlay: overlay)
+            }
+            let renderer = MKPolygonRenderer(polygon: polygon)
+            renderer.fillColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.45)
+            renderer.strokeColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.8)
+            renderer.lineWidth = 1.0
+            return renderer
+        }
+
+        func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            guard let trip = annotation as? TripAnnotation else { return nil }
+            let id = "TripPinpoint"
+            let view = (mapView.dequeueReusableAnnotationView(withIdentifier: id)
+                        ?? MKAnnotationView(annotation: annotation, reuseIdentifier: id))
+            view.annotation = trip
+            view.canShowCallout = false
+
+            let dotSize: CGFloat = 14
+            let hitSize: CGFloat = 44
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: hitSize, height: hitSize))
+            view.image = renderer.image { _ in
+                let amber = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 1.0)
+                amber.setFill()
+                let offset = (hitSize - dotSize) / 2
+                UIBezierPath(
+                    ovalIn: CGRect(x: offset, y: offset, width: dotSize, height: dotSize)
+                ).fill()
+            }
+            view.frame.size = CGSize(width: hitSize, height: hitSize)
+            return view
         }
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {

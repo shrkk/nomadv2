@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseAuth
+import GoogleSignInSwift
 
 // SignUpScreen — Screen 2 of the onboarding flow.
 // Handles both "Create account" (sign-up mode) and "Sign in" (returning user mode).
@@ -15,6 +16,7 @@ struct SignUpScreen: View {
     @State private var showPassword: Bool = false
     @State private var errorMessage: String?
     @State private var isLoading: Bool = false
+    @State private var isGoogleLoading: Bool = false
 
     var body: some View {
         ScrollView {
@@ -51,6 +53,18 @@ struct SignUpScreen: View {
                 // CTA
                 ctaButton
                     .padding(.top, 32)
+
+                // Divider
+                HStack {
+                    Rectangle().frame(height: 1).foregroundColor(Color.Nomad.globeBackground.opacity(0.1))
+                    Text("or").font(AppFont.caption()).foregroundColor(Color.Nomad.globeBackground.opacity(0.4))
+                    Rectangle().frame(height: 1).foregroundColor(Color.Nomad.globeBackground.opacity(0.1))
+                }
+                .padding(.top, 20)
+
+                // Google Sign-In
+                googleButton
+                    .padding(.top, 12)
             }
             .padding(.horizontal, 16)
         }
@@ -167,6 +181,47 @@ struct SignUpScreen: View {
             }
         } catch let nsError as NSError {
             errorMessage = mapFirebaseError(nsError)
+        }
+    }
+
+    // MARK: - Google button
+
+    private var googleButton: some View {
+        Button {
+            Task { await performGoogleSignIn() }
+        } label: {
+            ZStack {
+                if isGoogleLoading {
+                    ProgressView().tint(Color.Nomad.globeBackground)
+                } else {
+                    HStack(spacing: 10) {
+                        Image(systemName: "g.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.red)
+                        Text("Continue with Google")
+                            .font(AppFont.buttonLabel())
+                            .foregroundColor(Color.Nomad.globeBackground)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color.Nomad.warmCard)
+            .cornerRadius(12)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.globeBackground.opacity(0.15), lineWidth: 1))
+        }
+        .disabled(isGoogleLoading)
+    }
+
+    private func performGoogleSignIn() async {
+        isGoogleLoading = true
+        errorMessage = nil
+        defer { isGoogleLoading = false }
+        do {
+            try await authManager.signInWithGoogle()
+            // Auth state listener fires → NomadApp routes to GlobeView
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 
