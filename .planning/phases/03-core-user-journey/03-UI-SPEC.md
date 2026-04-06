@@ -48,9 +48,9 @@ All values are SwiftUI points (1pt = 1px on non-retina, scales on retina). Scale
 | 3xl | 64pt | Page-level / full-bleed spacing |
 
 Exceptions (Phase 3 additions):
-- Touch targets (all buttons including "+" and Stop): minimum 44pt hit area per Apple HIG
+- Touch targets (all buttons including "+" and Stop Trip): minimum 44pt hit area per Apple HIG
 - Drag strip interaction height: 44pt tall touch area even if visual height is smaller
-- Recording pill: minimum 44pt height to meet touch target for Stop button
+- Recording pill: minimum 44pt height to meet touch target for Stop Trip button
 - Photo gallery thumbnails: 80×80pt visual size with 4pt corner radius, 8pt gap between thumbnails
 - Trip detail map: fixed 240pt height
 - Place pin callout: no minimum — callout is system MKAnnotationView, not a custom tap target
@@ -77,7 +77,7 @@ Phase 3 type usage by surface:
 - Trip card city name: `AppFont.subheading()` — 20pt Playfair Regular
 - Trip card date + stats: `AppFont.caption()` — 13pt Inter Regular
 - Recording pill elapsed time ("Recording — 1h 23m"): `AppFont.body()` — 16pt Inter Regular
-- "Stop" button label on pill: `AppFont.buttonLabel()` — 16pt Inter Semibold
+- "Stop Trip" button label on pill: `AppFont.buttonLabel()` — 16pt Inter Semibold
 - TripDetailSheet header (city name, DETAIL-05): `AppFont.title()` — 28pt Playfair SemiBold
 - Trip stats labels (steps, distance, etc.): `AppFont.caption()` — 13pt Inter Regular
 - Trip stats values: `AppFont.body()` — 16pt Inter Regular (amber tint on key values)
@@ -104,14 +104,14 @@ All colors use the established `Color.Nomad` namespace. No new color values are 
 Accent (`Nomad.amber`) reserved for in Phase 3:
 1. Trip card route preview Path stroke line (amber line on dark/cream strip)
 2. Recording pill pulsing dot (solid amber-tinted red — see note below)
-3. "Stop" button background on recording pill
+3. "Stop Trip" button background on recording pill
 4. Numbered place pin marker fill (amber circle with white number)
 5. Globe trip pinpoints (inherited from Phase 1 — unchanged)
 6. Drag strip pill handle indicator (amber-tinted, subtle)
 7. Key stat values in TripDetailSheet (e.g., step count, distance — amber foreground color)
 8. Active trip indicator's "+" CTA in ProfileSheet
 
-**Note on recording dot:** The pulsing indicator uses `Color.red` (system red) for the dot itself — not `Nomad.amber` — to signal urgency/active state. The amber is used for the Stop button. Do NOT use `Nomad.destructive` for this dot; use `Color.red` (system).
+**Note on recording dot:** The pulsing indicator uses `Color.red` (system red) for the dot itself — not `Nomad.amber` — to signal urgency/active state. The amber is used for the Stop Trip button. Do NOT use `Nomad.destructive` for this dot; use `Color.red` (system).
 
 Do NOT use amber for: body text, captions, date strings, stat labels, non-interactive decorative elements, map polyline (use amber for polyline — see below).
 
@@ -147,7 +147,7 @@ The drag strip replaces any legacy handle at the bottom of GlobeView and becomes
 | Height (touch) | 44pt minimum (extend hit area upward) |
 | Position | Pinned to bottom of GlobeView, above safe area inset |
 | Background | `Nomad.globeBackground` at 60% opacity with a thin 1pt top border at `Nomad.amber` 30% opacity |
-| Handle indicator | Capsule pill: 36pt wide × 4pt tall, `Nomad.amber` at 40% opacity, centered horizontally, 10pt from top of strip |
+| Handle indicator | Capsule pill: 36pt wide × 4pt tall, `Nomad.amber` at 40% opacity, centered horizontally, 8pt from top of strip |
 | Blur | System `ultraThinMaterial` beneath the strip for frosted-glass effect over the globe |
 | Text | None (no trip count label — Claude's Discretion: keep it unobtrusive) |
 | Tap behavior | Tapping anywhere on the 44pt touch area opens ProfileSheet with spring animation |
@@ -165,15 +165,15 @@ Appears on GlobeView when `LocationManager.isRecording == true`. Disappears afte
 |----------|--------------|
 | Position | Top-center of screen, 16pt below the safe area top inset (Dynamic Island clearance) |
 | Width | Hug content + 16pt horizontal padding each side |
-| Height | 44pt minimum (touch target for Stop button) |
+| Height | 44pt minimum (touch target for Stop Trip button) |
 | Corner radius | 22pt (fully rounded pill) |
 | Background | `Nomad.globeBackground` at 85% opacity + system `thinMaterial` blur underneath |
 | Border | 1pt stroke, `Nomad.amber` at 30% opacity |
 | Left element | Pulsing red dot: `Color.red`, 8pt diameter, 2-second pulse animation (scale 1.0→1.4→1.0, opacity 1.0→0.6→1.0, ease-in-out, repeat forever) |
 | Center text | "Recording — Xh Xm" in `AppFont.body()` (16pt Inter Regular), `Nomad.cream` color. Show hours only when elapsed ≥ 1h; otherwise show "Xm Xs". |
-| Right element | "Stop" button: `AppFont.buttonLabel()` (16pt Inter Semibold), `Nomad.amber` foreground, no background fill, 8pt left padding from text |
+| Right element | "Stop Trip" button: `AppFont.buttonLabel()` (16pt Inter Semibold), `Nomad.amber` foreground, no background fill, 8pt left padding from text |
 | Shadow | Drop shadow: `Nomad.globeBackground` at 20% opacity, radius 8pt, y-offset 4pt |
-| Tap "Stop" | Triggers name dialog (D-05 flow); pill remains visible until finalization completes, then fades out with 0.3s opacity transition |
+| Tap "Stop Trip" | Triggers name dialog (D-05 flow); pill remains visible until finalization completes, then fades out with 0.3s opacity transition |
 
 **Elapsed timer formatting:**
 - 0–59 seconds: "0m 45s"
@@ -186,7 +186,7 @@ Source: CONTEXT.md D-07, D-08, specifics ("pulsing red dot", "Recording — 1h 2
 
 ### Trip Name Dialog
 
-Appears after user taps Stop on the recording pill.
+Appears after user taps Stop Trip on the recording pill.
 
 | Property | Specification |
 |----------|--------------|
@@ -334,7 +334,7 @@ Source: CONTEXT.md D-11, D-12
 | ProfileSheet "+" button accessibility label | "Start new trip" |
 | ProfileSheet Profile button accessibility label | "Open Traveler Passport" |
 | Recording pill | "Recording — {elapsed}" |
-| Recording pill Stop button | "Stop" |
+| Recording pill Stop button | "Stop Trip" |
 | Trip name dialog title | "Name Your Trip" |
 | Trip name dialog message | "Give this trip a name to save it." |
 | Trip name dialog text field placeholder | "e.g. Afternoon in Shibuya" |
@@ -367,7 +367,7 @@ Source: CONTEXT.md D-05, D-07, D-08; REQUIREMENTS.md PANEL-01 through PANEL-06, 
 | Tap drag strip | ProfileSheet slides up. Spring: damping 0.85, response 0.4. |
 | Drag strip upward | ProfileSheet opens as drag progresses. Native `.sheet` detent behavior. |
 | Tap "+" in ProfileSheet | `LocationManager.startRecording(tripId:)` called immediately. ProfileSheet dismisses. Recording pill appears on globe with 0.3s fade-in. |
-| Tap "Stop" on pill | Trip name `UIAlertController` presented. Pill remains visible. |
+| Tap "Stop Trip" on pill | Trip name `UIAlertController` presented. Pill remains visible. |
 | Save Trip in dialog | `TripService.finalizeTrip(...)` called. Pill fades out (0.3s). ProfileSheet reopens showing new trip at top. |
 | Discard Trip in dialog | `LocationManager.stopRecording()` called. SwiftData route points for this tripId purged. Pill fades out (0.3s). |
 | Tap trip card | TripDetailSheet slides up over ProfileSheet. Spring: damping 0.85, response 0.4. |
