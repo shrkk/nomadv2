@@ -103,6 +103,24 @@ Plans:
 
 ---
 
+### Phase 03.1: Country Detail View (INSERTED)
+
+**Goal:** When a user taps a highlighted country on the globe, a bottom sheet slides up showing: a country header, a horizontally scrollable city strip (cities grouped by proximity), a full-width per-city photo carousel with a temperature notch, location subheadings, a stats pill (logs / km / photos), and trip log entries for the selected city.
+
+**Depends on:** Phase 3
+
+**Success Criteria:**
+1. Tapping a visited country on the globe presents the Country Detail sheet animating up from the bottom panel.
+2. The sheet header shows the country name top-left with a back/dismiss control.
+3. A horizontal strip shows thumbnail cards for each visited city in the country, grouped by geographic proximity (same clustering logic as trip route grouping).
+4. Selecting a city card scrolls the main carousel to that city's photos.
+5. The full-width photo carousel shows the user's photos for the selected city; a pill notch centered at the top displays the temperature (current via WeatherKit or historical from trip data).
+6. Below the photo card: location name in a large subheading, city + country in a smaller lighter subheading.
+7. A stats pill row shows: number of trip logs, total km traveled, and total photos taken in that city.
+8. Below the stats pill, trip log entries for that city are listed in chronological order.
+
+**Plans:** TBD
+
 ### Phase 4: Traveler Passport & Archetype System
 
 **Goal:** Build the identity and shareability layer: the Traveler Passport view with a flat world map of visited countries and lifetime stats, the 8-archetype scoring engine reading from denormalized `placeCounts`, the archetype label with minimum-trip threshold, and the shareable portrait-format passport card and trip card exportable to Photos or the share sheet.

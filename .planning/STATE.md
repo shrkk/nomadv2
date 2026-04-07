@@ -34,6 +34,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 | 1 | Foundation Spikes & Globe Shell | Complete |
 | 2 | Data & Auth Foundation | Complete |
 | 3 | Core User Journey | Complete |
+| 3.1 | Country Detail View | Not started (INSERTED) |
 | 4 | Traveler Passport & Archetype System | Not started |
 
 ## Key Decisions Made During Init
@@ -51,6 +52,11 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 1. RealityKit/ARView globe rendering on physical device
 2. Country GeoJSON polygon projection onto sphere surface
 3. Stacked SwiftUI bottom sheet navigation validation
+
+## Accumulated Context
+
+### Roadmap Evolution
+- Phase 3.1 inserted after Phase 3: Country Detail View (URGENT) — globe country tap triggers a detail sheet with city photo strip, per-city photo carousel with temperature notch, stats pill, and trip logs.
 
 ---
 *Initialized: 2026-04-03*
