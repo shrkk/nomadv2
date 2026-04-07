@@ -14,6 +14,7 @@ struct NomadApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var authManager: AuthManager
     @State private var userService: UserService
+    @State private var locationManager = LocationManager()
     // Coordinator lives here so its step position survives auth state changes mid-onboarding.
     @State private var onboardingCoordinator = OnboardingCoordinator()
 
@@ -28,6 +29,7 @@ struct NomadApp: App {
             content
                 .environment(authManager)
                 .environment(userService)
+                .environment(locationManager)
                 .modelContainer(for: [RoutePoint.self, TripLocal.self])
         }
     }
