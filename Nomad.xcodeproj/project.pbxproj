@@ -62,6 +62,8 @@
 		WS01WS02WS03WS04WS05WS06 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */; };
 		PC01PC02PC03PC04PC05PC06 /* PlaceCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */; };
 		PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */; };
+		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
+		CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */; };
 		RC01RC02RC03RC04RC05RC06 /* RecordingPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */; };
 		RP01RP02RP03RP04RP05RP06 /* RoutePreviewPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */; };
 		TD01TD02TD03TD04TD05TD06 /* TripDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */; };
@@ -124,6 +126,8 @@
 		WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
 		PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCategoryService.swift; sourceTree = "<group>"; };
 		PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryStrip.swift; sourceTree = "<group>"; };
+		CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailSheet.swift; sourceTree = "<group>"; };
+		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
 		RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPill.swift; sourceTree = "<group>"; };
 		RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewPath.swift; sourceTree = "<group>"; };
 		TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDocument.swift; sourceTree = "<group>"; };
@@ -292,6 +296,7 @@
 				RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */,
 				TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */,
 				PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */,
+				CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -302,6 +307,7 @@
 				FF05AA06BB07CC08DD09EE06 /* ProfileSheet.swift */,
 				BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */,
 				TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */,
+				CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */,
 			);
 			path = Sheets;
 			sourceTree = "<group>";
@@ -468,6 +474,8 @@
 				RC01RC02RC03RC04RC05RC06 /* RecordingPill.swift in Sources */,
 				TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */,
 				PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */,
+				CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */,
+				CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
