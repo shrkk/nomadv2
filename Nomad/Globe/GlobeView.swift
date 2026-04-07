@@ -203,5 +203,185 @@ struct GlobeView: View {
         .task {
             await viewModel.loadGlobeData()
         }
+        .onChange(of: showNameAlert) { _, show in
+            if show {
+                presentTripNameAlert()
+            }
+        }
+    }
+
+    // MARK: - Trip Name Alert
+
+    /// Present UIAlertController with text field for trip naming (D-05).
+    /// UIAlertController used (not SwiftUI .alert) to support text field with disable-until-populated Save button.
+    private func presentTripNameAlert() {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = scene.windows.first?.rootViewController else {
+            showNameAlert = false
+            return
+        }
+
+        // Find the topmost presented view controller
+        var topVC = rootVC
+        while let presented = topVC.presentedViewController { topVC = presented }
+
+        let alert = UIAlertController(
+            title: "Name Your Trip",
+            message: "Give this trip a name to save it.",
+            preferredStyle: .alert
+        )
+        alert.addTextField { field in
+            field.placeholder = "e.g. Afternoon in Shibuya"
+        }
+
+        let saveAction = UIAlertAction(title: "Save Trip", style: .default) { [weak alert] _ in
+            let name = alert?.textFields?.first?.text ?? ""
+            guard !name.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+            Task { @MainActor in
+                await self.saveTrip(name: name)
+            }
+        }
+        saveAction.isEnabled = false  // Disabled until text field has content
+        alert.addAction(saveAction)
+
+        let discardAction = UIAlertAction(title: "Discard Trip", style: .destructive) { _ in
+            Task { @MainActor in
+                self.discardTrip()
+            }
+        }
+        alert.addAction(discardAction)
+
+        // Enable Save only when text is non-empty
+        // Use nonisolated(unsafe) to suppress Swift 6 Sendable warning for UIKit notification callback
+        let textField = alert.textFields?.first
+        NotificationCenter.default.addObserver(
+            forName: UITextField.textDidChangeNotification,
+            object: textField,
+            queue: .main
+        ) { [weak textField] _ in
+            // Accessing UIKit properties on main queue (queue: .main above)
+            let text = textField?.text ?? ""
+            DispatchQueue.main.async {
+                saveAction.isEnabled = !text.trimmingCharacters(in: .whitespaces).isEmpty
+            }
+        }
+
+        topVC.present(alert, animated: true) {
+            self.showNameAlert = false
+        }
+    }
+
+    // MARK: - Trip Lifecycle
+
+    /// Finalize trip: fetch route points, stop recording, query HealthKit, call TripService.
+    private func saveTrip(name: String) async {
+        guard let tripId = activeTripId,
+              let uid = Auth.auth().currentUser?.uid else { return }
+
+        let routePoints = locationManager.fetchUnsyncedPoints(tripId: tripId)
+        locationManager.stopRecording()
+
+        let startDate = recordingStartDate ?? Date()
+        let endDate = Date()
+
+        // Query HealthKit for step count (TRIP-05)
+        let steps = await queryStepCount(start: startDate, end: endDate)
+
+        // Calculate distance from route points
+        let distance = calculateDistance(from: routePoints)
+
+        let tripService = TripService()
+        do {
+            try await tripService.finalizeTrip(
+                userId: uid,
+                tripId: tripId,
+                cityName: name,
+                startDate: startDate,
+                endDate: endDate,
+                routePoints: routePoints,
+                stepCount: steps,
+                distanceMeters: distance
+            )
+            locationManager.markPointsSynced(routePoints)
+
+            // Update visited countries so globe highlights the new country (Success Criterion 6)
+            // TripService.finalizeTrip already detects codes internally; derive them from route points
+            let coords = routePoints.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) }
+            var countryCodes: [String] = []
+            let geocoder = CLGeocoder()
+            let sampleIndices = [0, coords.count / 2, coords.count - 1].filter { $0 < coords.count }
+            for idx in sampleIndices {
+                if let placemarks = try? await geocoder.reverseGeocodeLocation(coords[idx]),
+                   let code = placemarks.first?.isoCountryCode,
+                   !countryCodes.contains(code) {
+                    countryCodes.append(code)
+                }
+            }
+            if !countryCodes.isEmpty {
+                try await tripService.updateUserVisitedCountries(userId: uid, newCodes: countryCodes)
+            }
+
+            // Refresh globe data to show the new trip and updated country highlights
+            await viewModel.loadGlobeData()
+        } catch {
+            print("[Trip] Finalization error: \(error)")
+        }
+
+        activeTripId = nil
+        recordingStartDate = nil
+    }
+
+    /// Discard trip: stop recording and purge SwiftData route points.
+    /// Uses the existing modelContext property declared above (no duplicate declaration).
+    private func discardTrip() {
+        guard let tripId = activeTripId else { return }
+        locationManager.stopRecording()
+        let descriptor = FetchDescriptor<RoutePoint>(
+            predicate: #Predicate<RoutePoint> { $0.tripId == tripId }
+        )
+        if let points = try? modelContext.fetch(descriptor) {
+            for point in points {
+                modelContext.delete(point)
+            }
+            try? modelContext.save()
+        }
+        activeTripId = nil
+        recordingStartDate = nil
+    }
+
+    // MARK: - HealthKit Step Count
+
+    /// Query cumulative step count from HealthKit for the trip duration (TRIP-05).
+    private func queryStepCount(start: Date, end: Date) async -> Int {
+        let healthStore = HKHealthStore()
+        guard HKHealthStore.isHealthDataAvailable(),
+              let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return 0 }
+
+        return await withCheckedContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(withStart: start, end: end)
+            let query = HKStatisticsQuery(
+                quantityType: stepType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, result, _ in
+                let steps = Int(result?.sumQuantity()?.doubleValue(for: .count()) ?? 0)
+                continuation.resume(returning: steps)
+            }
+            healthStore.execute(query)
+        }
+    }
+
+    // MARK: - Distance Calculation
+
+    /// Calculate total route distance in meters from GPS route points.
+    private func calculateDistance(from points: [RoutePoint]) -> Double {
+        guard points.count > 1 else { return 0 }
+        var total: Double = 0
+        for i in 1..<points.count {
+            let prev = CLLocation(latitude: points[i-1].latitude, longitude: points[i-1].longitude)
+            let curr = CLLocation(latitude: points[i].latitude, longitude: points[i].longitude)
+            total += curr.distance(from: prev)
+        }
+        return total
     }
 }

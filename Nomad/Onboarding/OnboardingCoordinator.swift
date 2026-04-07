@@ -1,7 +1,7 @@
 import Observation
 
 // OnboardingCoordinator — step state machine driving the onboarding flow.
-// D-03: Step order: welcome → signUp → handle → locationPermission → photosPermission → discoveryScope → homeCity
+// D-03: Step order: welcome → signUp → handle → locationPermission → photosPermission → healthPermission → discoveryScope → homeCity
 // D-04: Handle text and validation state shared across screens.
 // D-06: discoveryScope defaults to "awayOnly" per UI-SPEC (Card 2 pre-selected).
 // D-07: Home city name and coordinates accumulated here for final Firestore write.
@@ -12,6 +12,7 @@ enum OnboardingStep: Int, CaseIterable {
     case handle
     case locationPermission
     case photosPermission
+    case healthPermission
     case discoveryScope
     case homeCity
 }
@@ -51,8 +52,8 @@ enum OnboardingStep: Int, CaseIterable {
 
     // MARK: - Progress dots
 
-    /// Number of progress dots shown on screens 2–7.
-    var progressDotCount: Int { 6 }
+    /// Number of progress dots shown on screens 2–8.
+    var progressDotCount: Int { 7 }
 
     /// 0-based dot index that should appear active. nil for the welcome screen.
     var activeDotIndex: Int? {
@@ -62,8 +63,9 @@ enum OnboardingStep: Int, CaseIterable {
         case .handle: return 1
         case .locationPermission: return 2
         case .photosPermission: return 3
-        case .discoveryScope: return 4
-        case .homeCity: return 5
+        case .healthPermission: return 4
+        case .discoveryScope: return 5
+        case .homeCity: return 6
         }
     }
 }

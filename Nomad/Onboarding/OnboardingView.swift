@@ -27,6 +27,8 @@ struct OnboardingView: View {
                     LocationPermissionScreen(coordinator: coordinator)
                 case .photosPermission:
                     PhotosPermissionScreen(coordinator: coordinator)
+                case .healthPermission:
+                    HealthPermissionScreen(coordinator: coordinator)
                 case .discoveryScope:
                     DiscoveryScopeScreen(coordinator: coordinator)
                 case .homeCity:

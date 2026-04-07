@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 02
-last_updated: "2026-04-06T04:23:52.814Z"
+status: Executing Phase 03.1
+last_updated: "2026-04-07T00:37:08.284Z"
 progress:
-  total_phases: 4
-  completed_phases: 1
-  total_plans: 8
-  completed_plans: 4
-  percent: 50
+  total_phases: 5
+  completed_phases: 3
+  total_plans: 16
+  completed_plans: 12
+  percent: 75
 ---
 
 # Project State
@@ -19,7 +19,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A traveler opens Nomad after a trip and immediately sees a beautiful, shareable visual of everywhere they went that day — and over time, a growing picture of who they are as a traveler.
-**Current focus:** Phase 02 — data-auth-foundation
+**Current focus:** Phase 03.1 — country-detail-view
 
 ## Current Status
 
@@ -51,6 +51,14 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 1. RealityKit/ARView globe rendering on physical device
 2. Country GeoJSON polygon projection onto sphere surface
 3. Stacked SwiftUI bottom sheet navigation validation
+
+<<<<<<< Updated upstream
+=======
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 3.1 inserted after Phase 3: Country Detail View (URGENT) — globe country tap triggers a detail sheet with city photo strip, per-city photo carousel with temperature notch, stats pill, and trip logs.
 
 ---
 *Initialized: 2026-04-03*
