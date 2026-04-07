@@ -147,21 +147,42 @@ struct CountryDetailSheet: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
-                // Country Header Row
+                // 1. Country Header Row
                 countryHeaderRow
                     .padding(.top, 16)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
 
-                // City Strip
+                // 2. City Strip
                 cityStripSection
 
-                // Photo Carousel — Plan 03 will add here
-                // Location Identity — Plan 03 will add here
-                // Stats Pill — Plan 03 will add here
-                // Trip Logs — Plan 03 will add here
+                // 3-5. Photo Carousel, Stats Pill, Trip Logs (only when clusters loaded)
+                if !viewModel.clusters.isEmpty {
+                    // 3. Photo Carousel + Location Identity Block
+                    CityPhotoCarousel(
+                        clusters: viewModel.clusters,
+                        selectedCityIndex: $viewModel.selectedCityIndex,
+                        photos: viewModel.photos,
+                        temperatures: viewModel.temperatures,
+                        countryName: viewModel.countryName
+                    )
+                    .padding(.top, 16)
 
-                // Placeholder for Plan 03 content
+                    // 4. Stats Pill
+                    StatsPillRow(
+                        tripCount: viewModel.selectedCluster?.tripCount ?? 0,
+                        distanceKm: viewModel.selectedCluster?.totalDistanceKm ?? 0,
+                        photoCount: viewModel.photoCountPerCluster[viewModel.selectedCluster?.id ?? UUID()] ?? 0
+                    )
+                    .padding(.top, 16)
+
+                    // 5. Trip Logs Section
+                    tripLogsSection
+                        .padding(.top, 24)
+                        .padding(.horizontal, 16)
+                }
+
+                // Loading state
                 if viewModel.isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity)
@@ -236,6 +257,33 @@ struct CountryDetailSheet: View {
                 .padding(.horizontal, 16)
             }
             .frame(height: 100)
+        }
+    }
+
+    // MARK: - Trip Logs Section
+
+    @ViewBuilder
+    private var tripLogsSection: some View {
+        let trips = (viewModel.selectedCluster?.trips ?? [])
+            .sorted { $0.startDate < $1.startDate }
+
+        if trips.isEmpty, let cluster = viewModel.selectedCluster {
+            // Empty state per UI-SPEC Copywriting
+            Text("No trips logged for \(cluster.cityName).")
+                .font(AppFont.caption())
+                .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 32)
+        } else {
+            VStack(spacing: 8) {
+                ForEach(trips) { trip in
+                    TripLogCard(trip: trip) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                            openTripDetail(trip)
+                        }
+                    }
+                }
+            }
         }
     }
 

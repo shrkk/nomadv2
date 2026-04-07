@@ -58,8 +58,19 @@ struct ProfileSheet: View {
         // not a sibling of GlobeView's sheet slot.
         // Result: dismissing TripDetailSheet does NOT auto-dismiss ProfileSheet.
         .sheet(isPresented: $showTripDetail) {
-            if let trip = detailTrip {
-                TripDetailSheet(trip: trip)
+            if let stub = detailTrip {
+                // Convert stub to TripDocument for TripDetailSheet
+                TripDetailSheet(trip: TripDocument(
+                    id: stub.id,
+                    cityName: stub.cityName,
+                    startDate: Date(),
+                    endDate: Date(),
+                    stepCount: 0,
+                    distanceMeters: 0,
+                    routePreview: [[stub.latitude, stub.longitude]],
+                    visitedCountryCodes: [stub.countryCode],
+                    placeCounts: [:]
+                ))
             }
         }
     }
