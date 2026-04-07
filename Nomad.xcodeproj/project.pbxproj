@@ -64,6 +64,10 @@
 		PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */; };
 		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
 		CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */; };
+		CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */; };
+		TN01TN02TN03TN04TN05TN06 /* TemperatureNotchPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */; };
+		SP01SP02SP03SP04SP05SP06 /* StatsPillRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */; };
+		TL01TL02TL03TL04TL05TL06 /* TripLogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */; };
 		RC01RC02RC03RC04RC05RC06 /* RecordingPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */; };
 		RP01RP02RP03RP04RP05RP06 /* RoutePreviewPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */; };
 		TD01TD02TD03TD04TD05TD06 /* TripDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */; };
@@ -128,6 +132,10 @@
 		PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryStrip.swift; sourceTree = "<group>"; };
 		CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailSheet.swift; sourceTree = "<group>"; };
 		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
+		CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityPhotoCarousel.swift; sourceTree = "<group>"; };
+		TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureNotchPill.swift; sourceTree = "<group>"; };
+		SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsPillRow.swift; sourceTree = "<group>"; };
+		TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLogCard.swift; sourceTree = "<group>"; };
 		RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPill.swift; sourceTree = "<group>"; };
 		RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewPath.swift; sourceTree = "<group>"; };
 		TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDocument.swift; sourceTree = "<group>"; };
@@ -297,6 +305,10 @@
 				TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */,
 				PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */,
 				CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */,
+				CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */,
+				TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */,
+				SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */,
+				TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -476,6 +488,10 @@
 				PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */,
 				CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */,
 				CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */,
+				CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */,
+				TN01TN02TN03TN04TN05TN06 /* TemperatureNotchPill.swift in Sources */,
+				SP01SP02SP03SP04SP05SP06 /* StatsPillRow.swift in Sources */,
+				TL01TL02TL03TL04TL05TL06 /* TripLogCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

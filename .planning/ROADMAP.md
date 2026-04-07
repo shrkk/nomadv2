@@ -12,7 +12,6 @@
 - [ ] **Phase 1: Foundation Spikes & Globe Shell** — Validate the two highest-risk architectural unknowns (RealityKit globe + stacked sheet navigation), establish the GeoJSON polygon pipeline, connect Firebase, and lock in the design system. Nothing else starts until this phase proves the core architecture works on a physical device.
 - [ ] **Phase 2: Data & Auth Foundation** — Build the complete location recording pipeline (background GPS, CLVisit detection, route simplification), place categorization via MKLocalSearch, Firebase Auth, and the full onboarding flow.
 - [ ] **Phase 3: Core User Journey** — Assemble the primary product loop: profile panel with trip history, manual + auto trip logging UX, active recording indicator, and the full trip detail view with GPS trace, photo gallery, and HealthKit steps.
-- [ ] **Phase 3.1: Country Detail View (INSERTED)** — When a user taps a highlighted country on the globe, a bottom sheet slides up with country header, city strip, photo carousel with temperature notch, stats pill, and trip log entries.
 - [ ] **Phase 4: Traveler Passport & Archetype System** — Build the identity layer that gives users a reason to keep logging: the Traveler Passport with world map and lifetime stats, the 8-archetype scoring engine, and the shareable passport and trip card export.
 
 ---
@@ -92,41 +91,7 @@ Plans:
 6. The globe home view highlights visited countries using `visitedCountryCodes` from the user document, and renders trip pinpoints for each logged trip; tapping a pinpoint slides up the profile panel scrolled to that trip.
 7. The profile panel has a Profile button that opens the Traveler Passport (stub view acceptable in this phase — full implementation is Phase 4).
 
-**Plans:** 4 plans
-
-Plans:
-- [x] 03-01-PLAN.md — TripDocument model, GlobeViewModel Firestore fetch, environment injection
-- [x] 03-02-PLAN.md — Drag strip, ProfileSheet with route preview cards, Passport stub
-- [x] 03-03-PLAN.md — Recording pill, trip start/stop/name flow, VisitMonitor dismiss counter
-- [x] 03-04-PLAN.md — TripDetailSheet with MapKit route map, stats row, photo gallery
-
-**UI hint**: yes
-
----
-
-### Phase 03.1: Country Detail View (INSERTED)
-
-**Goal:** When a user taps a highlighted country on the globe, a bottom sheet slides up showing: a country header, a horizontally scrollable city strip (cities grouped by proximity), a full-width per-city photo carousel with a temperature notch, location subheadings, a stats pill (logs / km / photos), and trip log entries for the selected city.
-
-**Depends on:** Phase 3
-
-**Success Criteria:**
-1. Tapping a visited country on the globe presents the Country Detail sheet animating up from the bottom panel.
-2. The sheet header shows the country name top-left with a back/dismiss control.
-3. A horizontal strip shows thumbnail cards for each visited city in the country, grouped by geographic proximity (same clustering logic as trip route grouping).
-4. Selecting a city card scrolls the main carousel to that city's photos.
-5. The full-width photo carousel shows the user's photos for the selected city; a pill notch centered at the top displays the temperature (current via WeatherKit or historical from trip data).
-6. Below the photo card: location name in a large subheading, city + country in a smaller lighter subheading.
-7. A stats pill row shows: number of trip logs, total km traveled, and total photos taken in that city.
-8. Below the stats pill, trip log entries for that city are listed in chronological order.
-
-**Plans:** 4 plans
-
-Plans:
-- [ ] 03.1-01-PLAN.md — WeatherKit entitlement + CityCluster data model + WeatherService wrapper
-- [ ] 03.1-02-PLAN.md — CountryDetailSheet container, ViewModel, country header, city thumbnail strip
-- [ ] 03.1-03-PLAN.md — Photo carousel, temperature notch, location identity, stats pill, trip log cards
-- [ ] 03.1-04-PLAN.md — GlobeView wiring (country tap handler, JourneyPill hide, end-to-end verification)
+**Plans:** TBD
 
 **UI hint**: yes
 
@@ -160,8 +125,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
 | 2. Data & Auth Foundation | 0/4 | Planned | - |
-| 3. Core User Journey | 0/4 | Planned | - |
-| 3.1. Country Detail View | 0/4 | Planned | - |
+| 3. Core User Journey | 0/3 | Not started | - |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
 
 ---
@@ -248,8 +212,6 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 
 **Phase 3 after Phase 2:** The core user journey (panel -> trip -> detail) is straightforward to build once the data pipeline is proven. Photo matching, HealthKit steps, and trip logging UX all have well-documented Apple patterns. This phase builds UI on a solid foundation rather than assuming the pipeline works.
 
-**Phase 3.1 after Phase 3:** Country Detail View builds on top of the trip data, ProfileSheet patterns, TripDetailSheet, and globe interaction from Phase 3. It reuses existing data (GlobeViewModel.trips) and extends the globe tap handler.
-
 **Phase 4 last:** The archetype engine reads from `placeCounts` written by the Phase 2 pipeline and accumulated across trips logged in Phase 3. Passport stats require real trip data to validate scoring thresholds. Shareable card export is the final feature to polish — it benefits from the design system being fully applied in prior phases.
 
 ---
@@ -265,14 +227,10 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 | 2 | MKLocalPointsOfInterestRequest undocumented rate limits | MEDIUM | Coordinate-keyed cache (per ~100m grid cell) to avoid re-querying same location |
 | 3 | PHAsset.location nil for iCloud shared photos | LOW | Date-range fallback implemented from the start (DETAIL-04) |
 | 3 | MapKit annotation clustering needed at scale (> 10 pins per region) | MEDIUM | Use MKClusterAnnotation for globe pin layer |
-| 3.1 | WeatherKit entitlement missing causes runtime crash | HIGH | Wave 0 task adds entitlement before any WeatherKit code |
-| 3.1 | Multiple .sheet modifiers conflict (only one presents at a time) | MEDIUM | Mutually exclusive boolean state; set showProfileSheet=false before showCountryDetail=true |
 | 4 | Archetype thresholds are estimates — real data may not distribute as expected | MEDIUM | Make thresholds configurable from day one (ARCH-02); plan internal review with sample data |
 
 ---
 *Roadmap defined: 2026-04-03*
 *Phase 1 planned: 2026-04-04*
 *Phase 2 planned: 2026-04-05*
-*Phase 3 planned: 2026-04-06*
-*Phase 3.1 planned: 2026-04-06*
 *Granularity: coarse*

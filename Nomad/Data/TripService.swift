@@ -39,12 +39,9 @@ final class TripService {
         let countryCodes = await detectCountryCodes(from: coordinates)
 
         // 5. Write trip document with all D-14 denormalized fields
-        // Flatten [[lat,lon]] → [lat,lon,lat,lon,...] — Firestore rejects nested arrays.
-        let flatPreview: [Double] = previewRoute.flatMap { $0 }
-
         let tripRef = FirestoreSchema.tripDoc(userId, tripId: tripId)
         try await tripRef.setData([
-            FirestoreSchema.TripFields.routePreview: flatPreview,
+            FirestoreSchema.TripFields.routePreview: previewRoute,
             FirestoreSchema.TripFields.visitedCountryCodes: countryCodes,
             FirestoreSchema.TripFields.placeCounts: placeCounts,
             FirestoreSchema.TripFields.cityName: cityName,
@@ -89,24 +86,6 @@ final class TripService {
         try await userRef.updateData([
             "visitedCountryCodes": FieldValue.arrayUnion(newCodes)
         ])
-    }
-
-    // MARK: - Read
-
-    /// Fetch all trips for a user, ordered by startDate descending (newest first).
-    /// T-03-01: userId must be Auth.auth().currentUser?.uid — enforced at call site in GlobeViewModel.
-    func fetchTrips(userId: String) async throws -> [TripDocument] {
-        let snapshot = try await FirestoreSchema.tripsCollection(userId)
-            .order(by: FirestoreSchema.TripFields.startDate, descending: true)
-            .getDocuments()
-        return snapshot.documents.compactMap { TripDocument(snapshot: $0) }
-    }
-
-    /// Fetch visitedCountryCodes from user document.
-    /// T-03-01: userId must be Auth.auth().currentUser?.uid — enforced at call site in GlobeViewModel.
-    func fetchVisitedCountryCodes(userId: String) async throws -> [String] {
-        let doc = try await FirestoreSchema.userDoc(userId).getDocument()
-        return doc.data()?["visitedCountryCodes"] as? [String] ?? []
     }
 
     // MARK: - Private
