@@ -1,5 +1,8 @@
 import SwiftUI
 import MapKit
+import SwiftData
+import HealthKit
+import FirebaseAuth
 
 // MARK: - GlobeMapView
 //
@@ -180,6 +183,11 @@ struct GlobeMapView: UIViewRepresentable {
 @MainActor
 struct GlobeView: View {
     @State private var viewModel = GlobeViewModel()
+    @State private var locationManager = LocationManager()
+    @State private var showNameAlert = false
+    @State private var activeTripId: String? = nil
+    @State private var recordingStartDate: Date? = nil
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         ZStack {
