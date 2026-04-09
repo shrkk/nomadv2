@@ -13,7 +13,7 @@
 		2095C50EF52A480D82069BA8 /* NomadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96AB8F13EB564CBDA2460F55 /* NomadApp.swift */; };
 		358134412F872D0E009B0E97 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 358134402F872D0E009B0E97 /* WidgetKit.framework */; };
 		358134432F872D0E009B0E97 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 358134422F872D0E009B0E97 /* SwiftUI.framework */; };
-		AC71V1TY2F872D0E009B0E01 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC71V1TY2F872D0E009B0E00 /* ActivityKit.framework */; };
+		AC710001AF872D0E009B0E01 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC710001AF872D0E009B0E00 /* ActivityKit.framework */; };
 		358134502F872D10009B0E97 /* NomadLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3581343E2F872D0E009B0E97 /* NomadLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4B751712728A4FCDB10D3B6F /* AppFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 268B146F356F475EABAC6436 /* AppFont.swift */; };
 		6177082FC3E140AE8F013860 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 48686796E0384FFF865DA1B2 /* FirebaseFirestore */; };
@@ -114,7 +114,7 @@
 		3581343E2F872D0E009B0E97 /* NomadLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NomadLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		358134402F872D0E009B0E97 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		358134422F872D0E009B0E97 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		AC71V1TY2F872D0E009B0E00 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
+		AC710001AF872D0E009B0E00 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
 		42CD8ECB346049A2A67D41DE /* PanelGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelGradient.swift; sourceTree = "<group>"; };
 		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
 		528632E14E3F411192BA5560 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -216,7 +216,7 @@
 			files = (
 				358134432F872D0E009B0E97 /* SwiftUI.framework in Frameworks */,
 				358134412F872D0E009B0E97 /* WidgetKit.framework in Frameworks */,
-				AC71V1TY2F872D0E009B0E01 /* ActivityKit.framework in Frameworks */,
+				AC710001AF872D0E009B0E01 /* ActivityKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
