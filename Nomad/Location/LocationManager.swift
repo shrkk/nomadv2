@@ -116,6 +116,10 @@ final class LocationManager: NSObject {
     /// Request a new ActivityKit Live Activity for the active trip.
     /// Caller must end any stale activities before calling this (see GlobeView).
     func startLiveActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            print("[LiveActivity] Activities not enabled — check Settings > Nomad > Live Activities")
+            return
+        }
         let initialState = TripActivityAttributes.ContentState(
             distanceKm: 0,
             elapsedSeconds: 0,
@@ -129,8 +133,9 @@ final class LocationManager: NSObject {
                 content: ActivityContent(state: initialState, staleDate: nil),
                 pushType: nil  // local-only — no push tokens for v1
             )
+            print("[LiveActivity] Started successfully")
         } catch {
-            print("[LiveActivity] Failed to start: \(error)")
+            print("[LiveActivity] Failed to start: \(error.localizedDescription)")
         }
     }
 
