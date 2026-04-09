@@ -63,7 +63,7 @@ struct OnboardingView: View {
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.7))
+                        .foregroundColor(Color.Nomad.textSecondary)
                         .frame(width: 44, height: 44)
                 }
                 .padding(.top, 8)
@@ -83,8 +83,8 @@ struct OnboardingView: View {
             ForEach(0..<coordinator.progressDotCount, id: \.self) { index in
                 Circle()
                     .fill(index == coordinator.activeDotIndex
-                          ? Color.Nomad.amber
-                          : Color.Nomad.warmCard)
+                          ? Color.white
+                          : Color.white.opacity(0.30))
                     .frame(width: 8, height: 8)
             }
         }

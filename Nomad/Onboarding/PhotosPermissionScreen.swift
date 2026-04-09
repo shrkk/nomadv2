@@ -16,16 +16,16 @@ struct PhotosPermissionScreen: View {
             VStack(spacing: 16) {
                 Image(systemName: "photo.on.rectangle.angled")
                     .font(.system(size: 40))
-                    .foregroundColor(Color.Nomad.amber)
+                    .foregroundColor(Color.Nomad.textPrimary)
 
                 Text("Bring your trips to life")
                     .font(AppFont.title())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text("Nomad matches your photos to each trip by date and location, automatically building a gallery for every journey.")
                     .font(AppFont.body())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.75))
+                    .foregroundColor(Color.Nomad.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
             }
@@ -38,17 +38,17 @@ struct PhotosPermissionScreen: View {
             } label: {
                 Text("Connect your photos")
                     .font(AppFont.buttonLabel())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.panelBlack)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Color.Nomad.amber)
+                    .background(Color.Nomad.accent)
                     .cornerRadius(12)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
     }
 
     // MARK: - Permission request

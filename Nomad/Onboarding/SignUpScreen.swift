@@ -24,14 +24,14 @@ struct SignUpScreen: View {
                 // Header
                 Text(coordinator.isSignInMode ? "Welcome back" : "Create your account")
                     .font(AppFont.title())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .padding(.top, 32)
 
                 // Subheader (sign-up mode only)
                 if !coordinator.isSignInMode {
                     Text("We'll keep your journey private and secure.")
                         .font(AppFont.body())
-                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.6))
+                        .foregroundColor(Color.Nomad.textSecondary)
                         .padding(.top, 8)
                 }
 
@@ -46,7 +46,7 @@ struct SignUpScreen: View {
                 if !coordinator.isSignInMode {
                     Text("8+ characters")
                         .font(AppFont.caption())
-                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.5))
+                        .foregroundColor(Color.Nomad.textSecondary)
                         .padding(.top, 4)
                 }
 
@@ -56,9 +56,9 @@ struct SignUpScreen: View {
 
                 // Divider
                 HStack {
-                    Rectangle().frame(height: 1).foregroundColor(Color.Nomad.globeBackground.opacity(0.1))
-                    Text("or").font(AppFont.caption()).foregroundColor(Color.Nomad.globeBackground.opacity(0.4))
-                    Rectangle().frame(height: 1).foregroundColor(Color.Nomad.globeBackground.opacity(0.1))
+                    Rectangle().frame(height: 1).foregroundColor(Color.white.opacity(0.10))
+                    Text("or").font(AppFont.caption()).foregroundColor(Color.Nomad.textSecondary)
+                    Rectangle().frame(height: 1).foregroundColor(Color.white.opacity(0.10))
                 }
                 .padding(.top, 20)
 
@@ -68,7 +68,7 @@ struct SignUpScreen: View {
             }
             .padding(.horizontal, 16)
         }
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
@@ -78,14 +78,18 @@ struct SignUpScreen: View {
         VStack(alignment: .leading, spacing: 4) {
             TextField("Email address", text: $email)
                 .font(AppFont.body())
-                .foregroundColor(Color.Nomad.globeBackground)
+                .foregroundColor(Color.Nomad.textPrimary)
                 .autocapitalization(.none)
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .autocorrectionDisabled()
                 .frame(height: 48)
                 .padding(.horizontal, 12)
-                .background(Color.Nomad.warmCard)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.35))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                )
                 .cornerRadius(12)
 
             if let error = errorMessage, error.contains("email") || error.contains("Email") {
@@ -111,7 +115,7 @@ struct SignUpScreen: View {
                     }
                 }
                 .font(AppFont.body())
-                .foregroundColor(Color.Nomad.globeBackground)
+                .foregroundColor(Color.Nomad.textPrimary)
                 .frame(height: 48)
                 .padding(.horizontal, 12)
                 .padding(.trailing, 44)
@@ -121,11 +125,15 @@ struct SignUpScreen: View {
                 } label: {
                     Image(systemName: showPassword ? "eye" : "eye.slash")
                         .font(.system(size: 16))
-                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.4))
+                        .foregroundColor(Color.Nomad.textSecondary)
                         .frame(width: 44, height: 44)
                 }
             }
-            .background(Color.Nomad.warmCard)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.35))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+            )
             .cornerRadius(12)
 
             if let error = errorMessage, !error.contains("email") && !error.contains("Email") {
@@ -148,16 +156,16 @@ struct SignUpScreen: View {
             ZStack {
                 if isLoading {
                     ProgressView()
-                        .tint(Color.Nomad.globeBackground)
+                        .tint(Color.Nomad.panelBlack)
                 } else {
                     Text(label)
                         .font(AppFont.buttonLabel())
-                        .foregroundColor(Color.Nomad.globeBackground)
+                        .foregroundColor(Color.Nomad.panelBlack)
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .background(Color.Nomad.amber.opacity(isDisabled ? 0.5 : 1.0))
+            .background(Color.Nomad.accent.opacity(isDisabled ? 0.3 : 1.0))
             .cornerRadius(12)
         }
         .disabled(isDisabled)
@@ -192,7 +200,7 @@ struct SignUpScreen: View {
         } label: {
             ZStack {
                 if isGoogleLoading {
-                    ProgressView().tint(Color.Nomad.globeBackground)
+                    ProgressView().tint(Color.Nomad.textPrimary)
                 } else {
                     HStack(spacing: 10) {
                         Image(systemName: "g.circle.fill")
@@ -200,15 +208,15 @@ struct SignUpScreen: View {
                             .foregroundColor(.red)
                         Text("Continue with Google")
                             .font(AppFont.buttonLabel())
-                            .foregroundColor(Color.Nomad.globeBackground)
+                            .foregroundColor(Color.Nomad.textPrimary)
                     }
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .background(Color.Nomad.warmCard)
+            .background(Color.black.opacity(0.35))
             .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.globeBackground.opacity(0.15), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
         }
         .disabled(isGoogleLoading)
     }

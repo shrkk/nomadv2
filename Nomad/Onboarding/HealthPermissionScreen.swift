@@ -15,16 +15,16 @@ struct HealthPermissionScreen: View {
             VStack(spacing: 16) {
                 Image(systemName: "figure.walk")
                     .font(.system(size: 40))
-                    .foregroundColor(Color.Nomad.amber)
+                    .foregroundColor(Color.Nomad.textPrimary)
 
                 Text("Count every step")
                     .font(AppFont.title())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text("Nomad reads your step count from Apple Health to show how far you walked on each trip.")
                     .font(AppFont.body())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.75))
+                    .foregroundColor(Color.Nomad.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8)
             }
@@ -37,17 +37,17 @@ struct HealthPermissionScreen: View {
             } label: {
                 Text("Connect Apple Health")
                     .font(AppFont.buttonLabel())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.panelBlack)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Color.Nomad.amber)
+                    .background(Color.Nomad.accent)
                     .cornerRadius(12)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
     }
 
     // MARK: - Permission request

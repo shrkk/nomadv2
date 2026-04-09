@@ -13,13 +13,13 @@ struct DiscoveryScopeScreen: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("When should Nomad log trips?")
                 .font(AppFont.title())
-                .foregroundColor(Color.Nomad.globeBackground)
+                .foregroundColor(Color.Nomad.textPrimary)
                 .padding(.top, 32)
                 .padding(.horizontal, 16)
 
             Text("You can change this anytime in settings.")
                 .font(AppFont.caption())
-                .foregroundColor(Color.Nomad.globeBackground.opacity(0.5))
+                .foregroundColor(Color.Nomad.textSecondary)
                 .padding(.top, 8)
                 .padding(.horizontal, 16)
 
@@ -51,17 +51,17 @@ struct DiscoveryScopeScreen: View {
             } label: {
                 Text("Continue")
                     .font(AppFont.buttonLabel())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.panelBlack)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Color.Nomad.amber)
+                    .background(Color.Nomad.accent)
                     .cornerRadius(12)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
     }
 }
 
@@ -87,17 +87,17 @@ private struct ScopeCard: View {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 24))
-                    .foregroundColor(Color.Nomad.amber)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .frame(width: 32)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(label)
                         .font(AppFont.buttonLabel())
-                        .foregroundColor(Color.Nomad.globeBackground)
+                        .foregroundColor(Color.Nomad.textPrimary)
 
                     Text(description)
                         .font(AppFont.caption())
-                        .foregroundColor(Color.Nomad.globeBackground.opacity(0.65))
+                        .foregroundColor(Color.Nomad.textSecondary)
                 }
 
                 Spacer()
@@ -105,17 +105,17 @@ private struct ScopeCard: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(Color.Nomad.amber)
+                        .foregroundColor(Color.Nomad.accent)
                 }
             }
             .padding(16)
             .frame(minHeight: 88)
-            .background(isSelected ? Color.Nomad.amber.opacity(0.1) : Color.Nomad.warmCard)
+            .background(isSelected ? Color.white.opacity(0.10) : Color.black.opacity(0.35))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isSelected ? Color.Nomad.amber : Color.Nomad.warmCard,
+                        isSelected ? Color.white : Color.white.opacity(0.15),
                         lineWidth: isSelected ? 2 : 1
                     )
             )

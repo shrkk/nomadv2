@@ -59,16 +59,16 @@ struct LocationPermissionScreen: View {
             VStack(spacing: 16) {
                 Image(systemName: "location.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(Color.Nomad.amber)
+                    .foregroundColor(Color.Nomad.textPrimary)
 
                 Text("Keep your journey alive")
                     .font(AppFont.title())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text("Nomad tracks your route in the background, even when your phone is locked. This is what paints your path on the globe.")
                     .font(AppFont.body())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.75))
+                    .foregroundColor(Color.Nomad.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(8) // 1.5 line height approximation
             }
@@ -82,17 +82,17 @@ struct LocationPermissionScreen: View {
             } label: {
                 Text("Enable background location")
                     .font(AppFont.buttonLabel())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.panelBlack)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Color.Nomad.amber)
+                    .background(Color.Nomad.accent)
                     .cornerRadius(12)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
         .onChange(of: requester.didReceiveResult) { _, received in
             if received {
                 coordinator.advance()

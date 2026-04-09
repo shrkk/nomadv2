@@ -31,12 +31,12 @@ struct HomeCityScreen: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Your home base")
                     .font(AppFont.title())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .padding(.top, 32)
 
                 Text("We've detected your home city. Confirm it's right so we know when you've set off on an adventure.")
                     .font(AppFont.body())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.75))
+                    .foregroundColor(Color.Nomad.textSecondary)
                     .lineSpacing(8)
                     .padding(.top, 8)
 
@@ -63,7 +63,7 @@ struct HomeCityScreen: View {
             .padding(.bottom, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .task {
             await detectHomeCity()
@@ -78,7 +78,7 @@ struct HomeCityScreen: View {
             HStack {
                 Spacer()
                 ProgressView()
-                    .tint(Color.Nomad.amber)
+                    .tint(Color.Nomad.accent)
                     .scaleEffect(1.2)
                 Spacer()
             }
@@ -97,7 +97,7 @@ struct HomeCityScreen: View {
                 } label: {
                     Text("That's not right")
                         .font(AppFont.caption())
-                        .foregroundColor(Color.Nomad.amber)
+                        .foregroundColor(Color.Nomad.accent)
                         .underline()
                 }
             }
@@ -108,22 +108,26 @@ struct HomeCityScreen: View {
         HStack(spacing: 12) {
             Image(systemName: "mappin.circle.fill")
                 .font(.system(size: 24))
-                .foregroundColor(Color.Nomad.amber)
+                .foregroundColor(Color.Nomad.accent)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(detectedCity ?? "")
                     .font(AppFont.subheading())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
 
                 Text("Your home city")
                     .font(AppFont.caption())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.5))
+                    .foregroundColor(Color.Nomad.textSecondary)
             }
 
             Spacer()
         }
         .padding(16)
-        .background(Color.Nomad.warmCard)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.black.opacity(0.35))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+        )
         .cornerRadius(12)
     }
 
@@ -132,18 +136,22 @@ struct HomeCityScreen: View {
             if detectionFailed {
                 Text("Could not detect your city")
                     .font(AppFont.body())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundColor(Color.Nomad.textSecondary)
                     .padding(.bottom, 8)
             }
 
             TextField("City name", text: $editedCityName)
                 .font(AppFont.body())
-                .foregroundColor(Color.Nomad.globeBackground)
+                .foregroundColor(Color.Nomad.textPrimary)
                 .autocapitalization(.words)
                 .keyboardType(.default)
                 .frame(height: 48)
                 .padding(.horizontal, 12)
-                .background(Color.Nomad.warmCard)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.35))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                )
                 .cornerRadius(12)
         }
         .transition(.opacity.animation(.easeInOut(duration: 0.1)))
@@ -172,16 +180,16 @@ struct HomeCityScreen: View {
             ZStack {
                 if isSaving {
                     ProgressView()
-                        .tint(Color.Nomad.globeBackground)
+                        .tint(Color.Nomad.panelBlack)
                 } else {
                     Text(ctaLabel)
                         .font(AppFont.buttonLabel())
-                        .foregroundColor(Color.Nomad.globeBackground)
+                        .foregroundColor(Color.Nomad.panelBlack)
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .background(Color.Nomad.amber.opacity(isEnabled ? 1.0 : 0.5))
+            .background(Color.Nomad.accent.opacity(isEnabled ? 1.0 : 0.3))
             .cornerRadius(12)
         }
         .disabled(!isEnabled)

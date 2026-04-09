@@ -43,10 +43,10 @@ struct WelcomeScreen: View {
                         } label: {
                             Text("Get started")
                                 .font(AppFont.buttonLabel())
-                                .foregroundColor(Color.Nomad.globeBackground)
+                                .foregroundColor(Color.Nomad.panelBlack)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 48)
-                                .background(Color.Nomad.amber)
+                                .background(Color.Nomad.accent)
                                 .cornerRadius(12)
                         }
                         .padding(.horizontal, 16)

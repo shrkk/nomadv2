@@ -29,12 +29,12 @@ struct HandleScreen: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Choose your handle")
                     .font(AppFont.title())
-                    .foregroundColor(Color.Nomad.globeBackground)
+                    .foregroundColor(Color.Nomad.textPrimary)
                     .padding(.top, 32)
 
                 Text("This is how other travelers will find you.")
                     .font(AppFont.body())
-                    .foregroundColor(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundColor(Color.Nomad.textSecondary)
                     .padding(.top, 8)
 
                 handleField
@@ -55,7 +55,7 @@ struct HandleScreen: View {
             }
             .padding(.horizontal, 16)
         }
-        .background(Color.Nomad.cream.ignoresSafeArea())
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onChange(of: handleText) { _, newValue in
             onHandleTextChanged(newValue)
@@ -68,12 +68,12 @@ struct HandleScreen: View {
         HStack(spacing: 4) {
             Text("@")
                 .font(AppFont.body())
-                .foregroundColor(Color.Nomad.globeBackground.opacity(0.6))
+                .foregroundColor(Color.Nomad.textSecondary)
                 .padding(.leading, 12)
 
             TextField("", text: $handleText)
                 .font(AppFont.body())
-                .foregroundColor(Color.Nomad.globeBackground)
+                .foregroundColor(Color.Nomad.textPrimary)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .keyboardType(.asciiCapable)
@@ -82,7 +82,11 @@ struct HandleScreen: View {
                 .padding(.trailing, 12)
         }
         .frame(height: 48)
-        .background(Color.Nomad.warmCard)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.black.opacity(0.35))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+        )
         .cornerRadius(12)
     }
 
@@ -93,11 +97,11 @@ struct HandleScreen: View {
             EmptyView()
         case .checking:
             ProgressView()
-                .tint(Color.Nomad.globeBackground.opacity(0.5))
+                .tint(Color.Nomad.textSecondary)
                 .scaleEffect(0.8)
         case .available:
             Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(Color.Nomad.amber)
+                .foregroundColor(Color.Nomad.accent)
         case .taken:
             Image(systemName: "xmark.circle.fill")
                 .foregroundColor(Color.Nomad.destructive)
@@ -113,7 +117,7 @@ struct HandleScreen: View {
         case .available:
             Text("Available")
                 .font(AppFont.caption())
-                .foregroundColor(Color.Nomad.amber)
+                .foregroundColor(Color.Nomad.accent)
         case .taken:
             Text("Already taken")
                 .font(AppFont.caption())
@@ -138,16 +142,16 @@ struct HandleScreen: View {
             ZStack {
                 if isSubmitting {
                     ProgressView()
-                        .tint(Color.Nomad.globeBackground)
+                        .tint(Color.Nomad.panelBlack)
                 } else {
                     Text("Continue")
                         .font(AppFont.buttonLabel())
-                        .foregroundColor(Color.Nomad.globeBackground)
+                        .foregroundColor(Color.Nomad.panelBlack)
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .background(Color.Nomad.amber.opacity(isDisabled ? 0.5 : 1.0))
+            .background(Color.Nomad.accent.opacity(isDisabled ? 0.3 : 1.0))
             .cornerRadius(12)
         }
         .disabled(isDisabled)
