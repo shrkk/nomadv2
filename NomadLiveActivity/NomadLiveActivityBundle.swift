@@ -1,8 +1,12 @@
+//
+//  NomadLiveActivityBundle.swift
+//  NomadLiveActivity
+//
+//  Created by Shreyank Gupta on 4/8/26.
+//
+
 import WidgetKit
 import SwiftUI
-
-// NomadLiveActivityBundle — entry point for the NomadLiveActivity widget extension.
-// Xcode requires a @main WidgetBundle in every widget extension target.
 
 @main
 struct NomadLiveActivityBundle: WidgetBundle {
