@@ -17,11 +17,11 @@ struct JourneyPill: View {
                 HStack(spacing: 8) {
                     Image(systemName: "person.circle")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.textPrimary)
 
                     Text("Journeys")
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.textPrimary)
                 }
                 .padding(.leading, 16)
                 .padding(.trailing, 12)
@@ -29,22 +29,20 @@ struct JourneyPill: View {
 
             // Divider
             Rectangle()
-                .fill(Color.Nomad.globeBackground.opacity(0.2))
+                .fill(Color.white.opacity(0.20))
                 .frame(width: 1, height: 24)
 
             // Log trip button
             Button(action: onStartTrip) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 22))
-                    .foregroundStyle(Color.Nomad.amber)
+                    .foregroundStyle(Color.Nomad.accent)
                     .padding(.leading, 12)
                     .padding(.trailing, 16)
             }
         }
         .frame(height: 48)
-        .background(Color.Nomad.warmCard)
-        .clipShape(Capsule())
-        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 4)
+        .floatingPillSurface()
         .gesture(
             DragGesture(minimumDistance: 10)
                 .onEnded { value in

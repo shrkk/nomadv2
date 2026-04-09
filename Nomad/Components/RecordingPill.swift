@@ -19,40 +19,39 @@ struct RecordingPill: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            // Pulsing red dot — 8pt diameter, Color.red
+            // Pulsing white dot — 8pt diameter, Color.white (D-04)
             Circle()
-                .fill(Color.red)
+                .fill(Color.white)
                 .frame(width: 8, height: 8)
                 .modifier(PulseAnimation())
 
             // Elapsed time text
             Text("Recording — \(elapsedText)")
                 .font(AppFont.body())  // 16pt Inter Regular
-                .foregroundStyle(Color.Nomad.cream)
+                .foregroundStyle(Color.Nomad.textPrimary)
 
             // Stop Trip button
             Button(action: onStopTrip) {
                 Text("Stop Trip")
                     .font(AppFont.buttonLabel())  // 16pt Inter Semibold
-                    .foregroundStyle(Color.Nomad.amber)
+                    .foregroundStyle(Color.Nomad.destructive)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(Color.black.opacity(0.35))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.Nomad.destructive.opacity(0.40), lineWidth: 1)
+                            )
+                    )
             }
             .padding(.leading, 8)
         }
         .padding(.horizontal, 16)
         .frame(minHeight: 44) // Touch target
-        .background(
-            Capsule()
-                .fill(.thinMaterial)
-                .overlay(
-                    Capsule()
-                        .fill(Color.Nomad.globeBackground.opacity(0.85))
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(Color.Nomad.amber.opacity(0.3), lineWidth: 1)
-                )
-        )
-        .shadow(color: Color.Nomad.globeBackground.opacity(0.2), radius: 8, y: 4)
+        .floatingPillSurface()
+        .shadow(color: .black.opacity(0.20), radius: 8, y: 4)
         .onReceive(timer) { _ in
             elapsedSeconds += 1
         }
@@ -71,15 +70,15 @@ struct RecordingPill: View {
     }
 }
 
-// Pulsing animation: scale 1.0->1.4->1.0, opacity 1.0->0.6->1.0, 2-second cycle
+// Pulsing animation: scale 1.0->1.5->1.0, opacity 1.0->0.5->1.0, 0.8s cycle (D-04)
 struct PulseAnimation: ViewModifier {
     @State private var isPulsing = false
 
     func body(content: Content) -> some View {
         content
-            .scaleEffect(isPulsing ? 1.4 : 1.0)
-            .opacity(isPulsing ? 0.6 : 1.0)
-            .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isPulsing)
+            .scaleEffect(isPulsing ? 1.5 : 1.0)
+            .opacity(isPulsing ? 0.5 : 1.0)
+            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isPulsing)
             .onAppear { isPulsing = true }
     }
 }

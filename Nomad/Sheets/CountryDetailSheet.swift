@@ -1,6 +1,7 @@
 import SwiftUI
 import Photos
 import CoreLocation
+import MapKit
 
 // MARK: - CountryDetailViewModel
 //
@@ -49,6 +50,20 @@ final class CountryDetailViewModel {
     }
 
     private func loadCluster(_ cluster: CityCluster) async {
+        // Reverse geocode centroid to get real city/locality name
+        let centroidLocation = CLLocation(
+            latitude: cluster.centroid.latitude,
+            longitude: cluster.centroid.longitude
+        )
+        if let placemarks = try? await CLGeocoder().reverseGeocodeLocation(centroidLocation),
+           let placemark = placemarks.first,
+           let idx = clusters.firstIndex(where: { $0.id == cluster.id }) {
+            let locality = placemark.locality ?? placemark.subLocality ?? placemark.administrativeArea
+            if let locality {
+                clusters[idx].cityName = locality
+            }
+        }
+
         // T-3.1-03: Check photo authorization before fetching
         let authStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         if authStatus == .authorized || authStatus == .limited {
@@ -125,6 +140,7 @@ struct CountryDetailSheet: View {
     let countryCode: String
     let countryName: String
     let trips: [TripDocument]
+    let initialCityName: String?
 
     @State private var viewModel: CountryDetailViewModel
     @Environment(\.dismiss) private var dismiss
@@ -132,10 +148,11 @@ struct CountryDetailSheet: View {
     @State private var showTripDetail = false
     @State private var selectedTripForDetail: TripDocument? = nil
 
-    init(countryCode: String, trips: [TripDocument]) {
+    init(countryCode: String, trips: [TripDocument], initialCityName: String? = nil) {
         self.countryCode = countryCode
         self.countryName = Locale.current.localizedString(forRegionCode: countryCode) ?? countryCode
         self.trips = trips
+        self.initialCityName = initialCityName
         let name = Locale.current.localizedString(forRegionCode: countryCode) ?? countryCode
         self._viewModel = State(initialValue: CountryDetailViewModel(
             countryCode: countryCode,
@@ -193,9 +210,18 @@ struct CountryDetailSheet: View {
             }
         }
         .panelGradient()
+        .presentationBackground(Color.Nomad.panelBlack)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .task { await viewModel.load() }
+        .task {
+            await viewModel.load()
+            if let cityName = initialCityName,
+               let idx = viewModel.clusters.firstIndex(where: {
+                   $0.cityName.localizedCaseInsensitiveContains(cityName)
+               }) {
+                viewModel.selectedCityIndex = idx
+            }
+        }
         .sheet(isPresented: $showTripDetail) {
             if let trip = selectedTripForDetail {
                 TripDetailSheet(trip: trip)
@@ -212,13 +238,13 @@ struct CountryDetailSheet: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 20))
-                    .foregroundStyle(Color.Nomad.amber)
+                    .foregroundStyle(Color.Nomad.textPrimary)
                     .frame(width: 44, height: 44)
             }
 
             Text(countryName)
                 .font(AppFont.title())
-                .foregroundStyle(Color.Nomad.globeBackground)
+                .foregroundStyle(Color.Nomad.textPrimary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -233,10 +259,10 @@ struct CountryDetailSheet: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("No visits yet.")
                     .font(AppFont.subheading())
-                    .foregroundStyle(Color.Nomad.globeBackground)
+                    .foregroundStyle(Color.Nomad.textPrimary)
                 Text("Log a trip in \(countryName) to see your cities here.")
                     .font(AppFont.body())
-                    .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundStyle(Color.Nomad.textSecondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -271,7 +297,7 @@ struct CountryDetailSheet: View {
             // Empty state per UI-SPEC Copywriting
             Text("No trips logged for \(cluster.cityName).")
                 .font(AppFont.caption())
-                .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                .foregroundStyle(Color.Nomad.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 32)
         } else {

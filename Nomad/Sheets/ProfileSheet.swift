@@ -44,7 +44,7 @@ struct ProfileSheet: View {
                 } label: {
                     Image(systemName: "person.circle")
                         .font(.system(size: 24))
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.textPrimary)
                         .frame(width: 44, height: 44)
                 }
 
@@ -52,7 +52,7 @@ struct ProfileSheet: View {
 
                 Text("Your Journeys")
                     .font(AppFont.title())
-                    .foregroundStyle(Color.Nomad.globeBackground)
+                    .foregroundStyle(Color.Nomad.textPrimary)
 
                 Spacer()
 
@@ -61,7 +61,7 @@ struct ProfileSheet: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 28))
-                        .foregroundStyle(Color.Nomad.amber)
+                        .foregroundStyle(Color.Nomad.accent)
                         .frame(width: 44, height: 44)
                 }
             }
@@ -74,10 +74,10 @@ struct ProfileSheet: View {
                 VStack(spacing: 8) {
                     Text("No trips yet.")
                         .font(AppFont.subheading())
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.textPrimary)
                     Text("Tap + to start recording your first trip.")
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                        .foregroundStyle(Color.Nomad.textSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -120,7 +120,7 @@ struct ProfileSheet: View {
         .ignoresSafeArea(edges: .bottom)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color.Nomad.cream)
+        .presentationBackground(Color.Nomad.panelBlack)
         // CRITICAL (INFRA-02): TripDetailSheet nested inside ProfileSheet body.
         .sheet(isPresented: $showTripDetail) {
             if let trip = detailTrip {
@@ -168,8 +168,9 @@ struct TripPreviewCard: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundStyle(.white)
                         .frame(width: 48, height: 48)
-                        .background(Color.Nomad.amber)
+                        .background(Color.Nomad.panelBlack)
                         .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
                 }
 
                 // Delete
@@ -239,24 +240,30 @@ struct TripPreviewCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(trip.cityName)
                     .font(AppFont.subheading())
-                    .foregroundStyle(Color.Nomad.globeBackground)
+                    .foregroundStyle(Color.Nomad.textPrimary)
                     .lineLimit(1)
 
                 Text(dateFormatter.string(from: trip.startDate))
                     .font(AppFont.caption())
-                    .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundStyle(Color.Nomad.textSecondary)
 
                 Text(distanceStepsLabel)
                     .font(AppFont.caption())
-                    .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundStyle(Color.Nomad.textSecondary)
             }
 
             Spacer(minLength: 0)
         }
         .frame(height: 96)
         .padding(16)
-        .background(Color.Nomad.warmCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.35))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
     }
 
     private var distanceStepsLabel: String {

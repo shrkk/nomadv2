@@ -2,6 +2,7 @@ import SwiftUI
 import MapKit
 import CoreLocation
 import FirebaseAuth
+import FirebaseFirestore
 
 // MARK: - TripDetailSheet
 //
@@ -13,22 +14,27 @@ import FirebaseAuth
 // DETAIL-05: City name displayed as trip header.
 // T-03-13: Route fetch scoped to Auth.auth().currentUser?.uid.
 
+// MARK: - TimestampedCoordinate
+
+private struct TimestampedCoordinate {
+    let coordinate: CLLocationCoordinate2D
+    let timestamp: Date
+}
+
+// MARK: - TripDetailSheet
+
 struct TripDetailSheet: View {
     let trip: TripDocument
 
     @State private var routeCoordinates: [CLLocationCoordinate2D] = []
+    @State private var timedCoordinates: [TimestampedCoordinate] = []
     @State private var isLoadingRoute = true
     @State private var routeFetchError = false
 
-    // Derived visited places for numbered pins — sampled from full route
+    // Pause-based stops: locations where user dwelled >= 90s within 40m radius
     private var visitedPlaces: [VisitedPlace] {
-        guard !routeCoordinates.isEmpty else { return [] }
-        // Sample every ~20th point matching TripService.sampleStopCoordinates pattern
-        let stride = max(1, routeCoordinates.count / 20)
-        return routeCoordinates.enumerated().compactMap { idx, coord in
-            guard idx % stride == 0 else { return nil }
-            return VisitedPlace(coordinate: coord, index: (idx / stride) + 1)
-        }
+        let stops = detectPauseStops(from: timedCoordinates)
+        return stops.enumerated().map { VisitedPlace(coordinate: $1, index: $0 + 1) }
     }
 
     private var boundingBox: (minLat: Double, maxLat: Double, minLon: Double, maxLon: Double)? {
@@ -39,15 +45,42 @@ struct TripDetailSheet: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
 
-                // MARK: Header — DETAIL-05: city name
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(trip.cityName)
-                        .font(AppFont.title())       // 28pt Playfair Display SemiBold
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                // MARK: Header — DETAIL-05: city name + Open in Maps
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(trip.cityName)
+                            .font(AppFont.title())       // 28pt Playfair Display SemiBold
+                            .foregroundStyle(Color.Nomad.textPrimary)
 
-                    Text(formattedDateRange())
-                        .font(AppFont.body())        // 16pt Inter Regular
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                        Text(formattedDateRange())
+                            .font(AppFont.body())        // 16pt Inter Regular
+                            .foregroundStyle(Color.Nomad.textSecondary)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        openInMaps()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "map")
+                                .font(.system(size: 13, weight: .medium))
+                            Text("Maps")
+                                .font(AppFont.caption())
+                        }
+                        .foregroundStyle(Color.Nomad.textPrimary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.black.opacity(0.35))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.20), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 24)
@@ -64,7 +97,7 @@ struct TripDetailSheet: View {
                 if routeFetchError {
                     Text("Could not load route. Pull down to retry.")
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.5))
+                        .foregroundStyle(Color.Nomad.textSecondary)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 8)
                         .padding(.horizontal, 16)
@@ -88,11 +121,85 @@ struct TripDetailSheet: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .panelGradient()
-        .presentationDetents([.large])
+        .presentationBackground(Color.Nomad.panelBlack)
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .task {
             await fetchRoutePoints()
         }
+    }
+
+    // MARK: - Pause Detection
+    //
+    // Scans timestamped GPS points for dwell periods: consecutive points that stay
+    // within `radiusMeters` of a cluster anchor for at least `minDuration` seconds.
+    // Each qualifying dwell emits one stop at the centroid of the cluster.
+
+    private func detectPauseStops(
+        from points: [TimestampedCoordinate],
+        radiusMeters: Double = 40,
+        minDuration: TimeInterval = 90
+    ) -> [CLLocationCoordinate2D] {
+        guard points.count > 1 else { return [] }
+
+        var stops: [CLLocationCoordinate2D] = []
+        var clusterStart = 0
+
+        for i in 1..<points.count {
+            let anchor = CLLocation(
+                latitude: points[clusterStart].coordinate.latitude,
+                longitude: points[clusterStart].coordinate.longitude
+            )
+            let current = CLLocation(
+                latitude: points[i].coordinate.latitude,
+                longitude: points[i].coordinate.longitude
+            )
+
+            if anchor.distance(from: current) > radiusMeters {
+                // User moved out of cluster — check if dwell was long enough
+                let duration = points[i - 1].timestamp.timeIntervalSince(points[clusterStart].timestamp)
+                if duration >= minDuration {
+                    stops.append(centroid(of: Array(points[clusterStart..<i])))
+                }
+                clusterStart = i
+            }
+        }
+
+        // Check the final cluster
+        if let last = points.last {
+            let duration = last.timestamp.timeIntervalSince(points[clusterStart].timestamp)
+            if duration >= minDuration {
+                stops.append(centroid(of: Array(points[clusterStart...])))
+            }
+        }
+
+        return stops
+    }
+
+    private func centroid(of points: [TimestampedCoordinate]) -> CLLocationCoordinate2D {
+        let lat = points.map(\.coordinate.latitude).reduce(0, +) / Double(points.count)
+        let lon = points.map(\.coordinate.longitude).reduce(0, +) / Double(points.count)
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+
+    // MARK: - Open in Apple Maps
+
+    private func openInMaps() {
+        let coord = routeCoordinates.first
+            ?? CLLocationCoordinate2D(
+                latitude: trip.routePreview.first?[0] ?? 0,
+                longitude: trip.routePreview.first?[1] ?? 0
+            )
+        let placemark = MKPlacemark(coordinate: coord)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = trip.cityName
+        mapItem.openInMaps(launchOptions: [
+            MKLaunchOptionsMapCenterKey: NSValue(mkCoordinate: coord),
+            MKLaunchOptionsMapSpanKey: NSValue(mkCoordinateSpan: MKCoordinateSpan(
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.05
+            ))
+        ])
     }
 
     // MARK: - Stats Row
@@ -111,20 +218,19 @@ struct TripDetailSheet: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Color.Nomad.warmCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .innerCardSurface()
     }
 
     private func statCell(value: String, label: String) -> some View {
         VStack(spacing: 4) {
             Text(value)
                 .font(AppFont.body())    // 16pt Inter Regular
-                .foregroundStyle(Color.Nomad.amber)
+                .foregroundStyle(Color.Nomad.accent)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
                 .font(AppFont.caption()) // 13pt Inter Regular
-                .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                .foregroundStyle(Color.Nomad.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -134,11 +240,11 @@ struct TripDetailSheet: View {
         let (symbol, name) = topCategoryInfo()
         VStack(spacing: 4) {
             Image(systemName: symbol)
-                .foregroundStyle(Color.Nomad.amber)
+                .foregroundStyle(Color.Nomad.accent)
                 .font(.system(size: 14, weight: .regular))
             Text(name)
                 .font(AppFont.caption())
-                .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                .foregroundStyle(Color.Nomad.textSecondary)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
@@ -155,13 +261,18 @@ struct TripDetailSheet: View {
             let snapshot = try await FirestoreSchema.routePointsCollection(uid, tripId: trip.id)
                 .order(by: "timestamp")
                 .getDocuments()
-            let coords = snapshot.documents.compactMap { doc -> CLLocationCoordinate2D? in
+            let timed = snapshot.documents.compactMap { doc -> TimestampedCoordinate? in
                 let data = doc.data()
                 guard let lat = data["latitude"] as? Double,
-                      let lon = data["longitude"] as? Double else { return nil }
-                return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                      let lon = data["longitude"] as? Double,
+                      let ts = data["timestamp"] as? Timestamp else { return nil }
+                return TimestampedCoordinate(
+                    coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                    timestamp: ts.dateValue()
+                )
             }
-            routeCoordinates = coords
+            timedCoordinates = timed
+            routeCoordinates = timed.map(\.coordinate)
         } catch {
             print("[TripDetail] Route fetch error: \(error)")
             routeFetchError = true
