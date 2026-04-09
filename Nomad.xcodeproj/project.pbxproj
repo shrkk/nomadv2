@@ -808,7 +808,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GU72X6JZ98;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NomadLiveActivity/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NomadLiveActivity;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -841,7 +841,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GU72X6JZ98;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NomadLiveActivity/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NomadLiveActivity;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
