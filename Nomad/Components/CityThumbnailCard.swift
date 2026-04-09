@@ -19,15 +19,15 @@ struct CityThumbnailCard: View {
             // City name label
             Text(cityName)
                 .font(AppFont.caption())
-                .foregroundStyle(Color.Nomad.globeBackground)
+                .foregroundStyle(Color.Nomad.textPrimary)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: 64)
 
-            // Selection dot — amber when selected, clear spacer when not
+            // Selection dot — white when selected, clear spacer when not
             if isSelected {
                 Circle()
-                    .fill(Color.Nomad.amber)
+                    .fill(Color.white)
                     .frame(width: 4, height: 4)
             } else {
                 Color.clear
@@ -36,6 +36,8 @@ struct CityThumbnailCard: View {
         }
         .frame(width: 64)
         .contentShape(Rectangle())
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isSelected)
     }
 
     // MARK: - Image Area
@@ -52,15 +54,16 @@ struct CityThumbnailCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.Nomad.warmCard)
+                    .fill(Color.Nomad.panelBlack)
                     .frame(width: 64, height: 80)
             }
         }
         .overlay {
-            if isSelected {
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.Nomad.amber, lineWidth: 2)
-            }
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(
+                    isSelected ? Color.white : Color.white.opacity(0.15),
+                    lineWidth: isSelected ? 2 : 1
+                )
         }
     }
 }
@@ -73,6 +76,6 @@ struct CityThumbnailCard: View {
         CityThumbnailCard(cityName: "Innsbruck", photo: nil, isSelected: false)
     }
     .padding()
-    .background(Color.Nomad.cream)
+    .background(Color.Nomad.panelBlack)
 }
 #endif

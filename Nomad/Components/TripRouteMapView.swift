@@ -38,8 +38,8 @@ struct TripRouteMapView: UIViewRepresentable {
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
-        mapView.isScrollEnabled = false
-        mapView.isZoomEnabled = false
+        mapView.isScrollEnabled = true
+        mapView.isZoomEnabled = true
         mapView.isRotateEnabled = false
         mapView.isPitchEnabled = false
         mapView.mapType = .standard
@@ -83,7 +83,7 @@ struct TripRouteMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                renderer.strokeColor = UIColor(Color.Nomad.amber)
+                renderer.strokeColor = UIColor.white
                 renderer.lineWidth = 3
                 return renderer
             }
@@ -100,15 +100,15 @@ struct TripRouteMapView: UIViewRepresentable {
             annotationView.annotation = annotation
             annotationView.canShowCallout = true
 
-            // Draw amber circle with white number using UIGraphicsImageRenderer
+            // Draw white circle with dark number using UIGraphicsImageRenderer
             let size: CGFloat = 24
             let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
             let image = renderer.image { _ in
-                UIColor(Color.Nomad.amber).setFill()
+                UIColor.white.setFill()
                 UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size, height: size)).fill()
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 11, weight: .semibold),
-                    .foregroundColor: UIColor.white
+                    .foregroundColor: UIColor.black
                 ]
                 let text = "\(numbered.index)" as NSString
                 let textSize = text.size(withAttributes: attrs)
@@ -179,12 +179,12 @@ struct TripRouteMapContainer: View {
             if isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity)
-                    .frame(height: 240)
-                    .background(Color.Nomad.warmCard)
+                    .frame(height: 280)
+                    .background(Color.Nomad.panelBlack)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 TripRouteMapView(routeCoordinates: routeCoordinates, places: places)
-                    .frame(height: 240)
+                    .frame(height: 280)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }

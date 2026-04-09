@@ -12,7 +12,7 @@ struct TemperatureNotchPill: View {
     var body: some View {
         Text(temperature)
             .font(AppFont.caption())
-            .foregroundStyle(Color.Nomad.cream)
+            .foregroundStyle(Color.Nomad.textPrimary)
             .padding(.horizontal, 12)
             .frame(height: 28)
             .background(
@@ -20,7 +20,7 @@ struct TemperatureNotchPill: View {
                     .fill(Color.Nomad.globeBackground.opacity(0.9))
                     .overlay(
                         Capsule()
-                            .stroke(Color.Nomad.cream.opacity(0.2), lineWidth: 1)
+                            .stroke(Color.white.opacity(0.20), lineWidth: 1)
                     )
             )
     }
@@ -34,6 +34,6 @@ struct TemperatureNotchPill: View {
         TemperatureNotchPill(temperature: "—°C")
     }
     .padding()
-    .background(Color.Nomad.cream)
+    .background(Color.Nomad.panelBlack)
 }
 #endif

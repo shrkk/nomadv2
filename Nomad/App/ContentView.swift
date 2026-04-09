@@ -18,7 +18,7 @@ struct ContentView: View {
                     HStack {
                         Spacer()
                         Capsule()
-                            .fill(Color.Nomad.warmCard)
+                            .fill(Color.white.opacity(0.30))
                             .frame(width: 36, height: 4)
                         Spacer()
                     }
@@ -26,29 +26,28 @@ struct ContentView: View {
 
                     Text("Your Journeys")
                         .font(AppFont.title())
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.textPrimary)
 
                     Text("5 countries visited")
                         .font(AppFont.subheading())
-                        .foregroundStyle(Color.Nomad.amber)
+                        .foregroundStyle(Color.Nomad.accent)
 
                     Text("Tap a country on the globe to explore your trips.")
                         .font(AppFont.body())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.7))
+                        .foregroundStyle(Color.Nomad.textSecondary)
 
                     Text("Phase 1 — Design System Spike")
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.4))
+                        .foregroundStyle(Color.Nomad.textSecondary)
 
                     Button(action: {}) {
                         Text("Start a Trip")
                             .font(AppFont.buttonLabel())
-                            .foregroundStyle(Color.Nomad.cream)
+                            .foregroundStyle(Color.Nomad.textPrimary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color.Nomad.amber)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .buttonStyle(GlassButtonStyle())
                     .padding(.top, 8)
                 }
                 .padding(.horizontal, 16)

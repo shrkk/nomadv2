@@ -30,6 +30,7 @@ struct CityPhotoCarousel: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 320)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
 
             // Location Identity Block
             locationIdentityBlock
@@ -45,17 +46,17 @@ struct CityPhotoCarousel: View {
         if authStatus == .denied || authStatus == .restricted {
             // Permission denied state
             ZStack {
-                Color.Nomad.warmCard
+                Color.Nomad.panelBlack
                     .frame(maxWidth: .infinity)
                     .frame(height: 320)
                 VStack(spacing: 8) {
                     Text("Allow photo access in Settings.")
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                        .foregroundStyle(Color.Nomad.textSecondary)
                         .multilineTextAlignment(.center)
                     Link("Open Settings", destination: URL(string: UIApplication.openSettingsURLString)!)
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.amber)
+                        .foregroundStyle(Color.Nomad.accent)
                 }
                 .padding(.horizontal, 16)
             }
@@ -70,12 +71,12 @@ struct CityPhotoCarousel: View {
         } else {
             // Empty / loading placeholder
             ZStack {
-                Color.Nomad.warmCard
+                Color.Nomad.panelBlack
                     .frame(maxWidth: .infinity)
                     .frame(height: 320)
                 Text("No photos for \(cluster.cityName).")
                     .font(AppFont.caption())
-                    .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundStyle(Color.Nomad.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
             }
@@ -86,12 +87,12 @@ struct CityPhotoCarousel: View {
 
     @ViewBuilder
     private func temperatureOverlay(for cluster: CityCluster) -> some View {
-        // Only show pill when temperature is non-nil (nil inner value = hide pill)
-        if let tempOptional = temperatures[cluster.id], let temp = tempOptional {
-            TemperatureNotchPill(temperature: temp)
-                .offset(y: -14)
+        // Show pill when fetch has completed (key present); use placeholder when unavailable
+        if let tempOptional = temperatures[cluster.id] {
+            TemperatureNotchPill(temperature: tempOptional ?? "--°C")
+                .padding(.top, 12)
         }
-        // else: pill hidden per UI-SPEC Unavailable state
+        // Key absent = still loading, hide pill
     }
 
     // MARK: - Location Identity Block
@@ -103,12 +104,12 @@ struct CityPhotoCarousel: View {
         return VStack(alignment: .leading, spacing: 4) {
             Text(cityName)
                 .font(AppFont.subheading())
-                .foregroundStyle(Color.Nomad.globeBackground)
+                .foregroundStyle(Color.Nomad.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("\(countryName), \(cityName)")
                 .font(AppFont.body())
-                .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                .foregroundStyle(Color.Nomad.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.top, 16)
@@ -134,6 +135,6 @@ private extension Array {
         temperatures: [:],
         countryName: "Austria"
     )
-    .background(Color.Nomad.cream)
+    .background(Color.Nomad.panelBlack)
 }
 #endif

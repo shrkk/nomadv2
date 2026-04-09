@@ -15,7 +15,7 @@ struct RoutePreviewPath: View {
 
     var body: some View {
         routePath(from: routePreview, in: size)
-            .stroke(Color.Nomad.amber, lineWidth: 1.5)
+            .stroke(Color.Nomad.textPrimary, lineWidth: 1.5)
     }
 
     private func routePath(from preview: [[Double]], in size: CGSize) -> Path {
@@ -67,6 +67,6 @@ struct RoutePreviewPath: View {
             .frame(width: size.width, height: size.height)
     }
     .padding()
-    .background(Color.Nomad.warmCard)
+    .background(Color.Nomad.panelBlack)
 }
 #endif

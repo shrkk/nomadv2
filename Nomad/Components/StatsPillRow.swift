@@ -15,34 +15,40 @@ struct StatsPillRow: View {
             statCell(value: "\(tripCount)", label: "logs")
 
             Rectangle()
-                .fill(Color.Nomad.globeBackground.opacity(0.15))
+                .fill(Color.white.opacity(0.15))
                 .frame(width: 1, height: 20)
 
             statCell(value: String(format: "%.1f", distanceKm), label: "km")
 
             Rectangle()
-                .fill(Color.Nomad.globeBackground.opacity(0.15))
+                .fill(Color.white.opacity(0.15))
                 .frame(width: 1, height: 20)
 
             statCell(value: "\(photoCount)", label: "photos")
         }
         .frame(maxWidth: .infinity)
         .frame(height: 44)
-        .background(Color.Nomad.warmCard)
-        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .background(
+            RoundedRectangle(cornerRadius: 22)
+                .fill(Color.black.opacity(0.35))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
         .padding(.horizontal, 16)
     }
 
     @ViewBuilder
     private func statCell(value: String, label: String) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 4) {
             Text(value)
                 .font(AppFont.body())
-                .foregroundStyle(Color.Nomad.amber)
+                .foregroundStyle(Color.Nomad.accent)
 
             Text(label)
                 .font(AppFont.caption())
-                .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                .foregroundStyle(Color.Nomad.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -55,6 +61,6 @@ struct StatsPillRow: View {
         StatsPillRow(tripCount: 0, distanceKm: 0, photoCount: 0)
     }
     .padding()
-    .background(Color.Nomad.cream)
+    .background(Color.Nomad.panelBlack)
 }
 #endif

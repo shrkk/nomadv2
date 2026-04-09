@@ -17,20 +17,29 @@ struct DragStrip: View {
 
     var body: some View {
         ZStack {
-            // Card-style background: warmCard color, rounded top corners only
+            // Glass surface: panelBlack base with ultraThinMaterial overlay, rounded top corners
             UnevenRoundedRectangle(
                 topLeadingRadius: 16,
                 bottomLeadingRadius: 0,
                 bottomTrailingRadius: 0,
                 topTrailingRadius: 16
             )
-            .fill(Color.Nomad.warmCard)
+            .fill(Color.Nomad.panelBlack)
+            .overlay(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 16,
+                    bottomLeadingRadius: 0,
+                    bottomTrailingRadius: 0,
+                    topTrailingRadius: 16
+                )
+                .fill(.ultraThinMaterial)
+            )
 
-            // Amber capsule handle — centered, 10pt from top
+            // White capsule handle — centered, 8pt from top (UI-SPEC: 36x4pt, white 30%)
             Capsule()
-                .fill(Color.Nomad.amber.opacity(0.5))
+                .fill(Color.white.opacity(0.30))
                 .frame(width: 36, height: 4)
-                .padding(.top, 10)
+                .padding(.top, 8)
                 .frame(maxHeight: .infinity, alignment: .top)
         }
         .frame(height: 44)

@@ -25,7 +25,7 @@ struct PhotoGalleryStrip: View {
                 VStack(spacing: 8) {
                     Text("Allow photo access in Settings to see trip photos.")
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                        .foregroundStyle(Color.Nomad.textSecondary)
                         .multilineTextAlignment(.center)
                     Button("Open Settings") {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -33,7 +33,7 @@ struct PhotoGalleryStrip: View {
                         }
                     }
                     .font(AppFont.caption())
-                    .foregroundStyle(Color.Nomad.amber)
+                    .foregroundStyle(Color.Nomad.accent)
                 }
                 .padding(.horizontal, 16)
             } else if isLoading {
@@ -44,7 +44,7 @@ struct PhotoGalleryStrip: View {
                 // Empty state per UI-SPEC Copywriting
                 Text("No photos for this trip.")
                     .font(AppFont.caption())
-                    .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                    .foregroundStyle(Color.Nomad.textSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             } else {

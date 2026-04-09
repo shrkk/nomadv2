@@ -26,20 +26,19 @@ struct TripLogCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(trip.cityName)
                         .font(AppFont.body())
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.textPrimary)
                         .lineLimit(2)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Text(formattedDate)
                         .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.globeBackground.opacity(0.6))
+                        .foregroundStyle(Color.Nomad.textSecondary)
                 }
 
                 Spacer()
             }
             .padding(12)
-            .background(Color.Nomad.warmCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .innerCardSurface()
         }
         .buttonStyle(.plain)
     }
@@ -49,7 +48,7 @@ struct TripLogCard: View {
     private var routeStrip: some View {
         GeometryReader { geo in
             ZStack {
-                Color.Nomad.globeBackground.opacity(0.9)
+                Color.Nomad.panelBlack
 
                 if trip.routePreview.count >= 2 {
                     RoutePreviewPath(routePreview: trip.routePreview, size: geo.size)
@@ -57,7 +56,7 @@ struct TripLogCard: View {
                 } else {
                     Image(systemName: "mappin.circle")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.Nomad.amber)
+                        .foregroundStyle(Color.Nomad.accent)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 6))
@@ -87,6 +86,6 @@ struct TripLogCard: View {
         TripLogCard(trip: sampleTrip, onTap: {})
     }
     .padding()
-    .background(Color.Nomad.cream)
+    .background(Color.Nomad.panelBlack)
 }
 #endif
