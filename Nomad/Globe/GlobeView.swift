@@ -1,3 +1,4 @@
+import ActivityKit
 import SwiftUI
 import MapKit
 import FirebaseAuth
@@ -247,6 +248,13 @@ struct GlobeView: View {
                         recordingStartDate = Date()
                         locationManager.startRecording(tripId: tripId)
                         viewModel.showProfileSheet = false
+                        // End any stale Live Activity before starting a new one.
+                        Task {
+                            for activity in Activity<TripActivityAttributes>.activities {
+                                await activity.end(nil, dismissalPolicy: .immediate)
+                            }
+                        }
+                        locationManager.startLiveActivity()
                     }
                 )
             }
@@ -280,6 +288,13 @@ struct GlobeView: View {
                             activeTripId = tripId
                             recordingStartDate = Date()
                             locationManager.startRecording(tripId: tripId)
+                            // End any stale Live Activity before starting a new one.
+                            Task {
+                                for activity in Activity<TripActivityAttributes>.activities {
+                                    await activity.end(nil, dismissalPolicy: .immediate)
+                                }
+                            }
+                            locationManager.startLiveActivity()
                         }
                     )
                     .padding(.bottom, 24)
@@ -369,6 +384,7 @@ struct GlobeView: View {
 
         let routePoints = locationManager.fetchUnsyncedPoints(tripId: tripId)
         locationManager.stopRecording()
+        await locationManager.endLiveActivity()
 
         let startDate = recordingStartDate ?? Date()
         let endDate = Date()
@@ -425,6 +441,9 @@ struct GlobeView: View {
     private func discardTrip() {
         guard let tripId = activeTripId else { return }
         locationManager.stopRecording()
+        Task {
+            await locationManager.endLiveActivity()
+        }
         let descriptor = FetchDescriptor<RoutePoint>(
             predicate: #Predicate<RoutePoint> { $0.tripId == tripId }
         )
