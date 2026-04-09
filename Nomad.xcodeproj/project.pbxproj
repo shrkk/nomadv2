@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,6 +11,9 @@
 		0763037B4AD447589AF4A519 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0D4685C4D8644F089CB0C03D /* FirebaseAuth */; };
 		14781ED6E9FF43CFA1727A08 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DED0A3A5378443E9B959AD5 /* AppColors.swift */; };
 		2095C50EF52A480D82069BA8 /* NomadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96AB8F13EB564CBDA2460F55 /* NomadApp.swift */; };
+		358134412F872D0E009B0E97 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 358134402F872D0E009B0E97 /* WidgetKit.framework */; };
+		358134432F872D0E009B0E97 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 358134422F872D0E009B0E97 /* SwiftUI.framework */; };
+		358134502F872D10009B0E97 /* NomadLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3581343E2F872D0E009B0E97 /* NomadLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4B751712728A4FCDB10D3B6F /* AppFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 268B146F356F475EABAC6436 /* AppFont.swift */; };
 		6177082FC3E140AE8F013860 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 48686796E0384FFF865DA1B2 /* FirebaseFirestore */; };
 		6D05384D05EA4CB0A467BDDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCDCF7500B445F5AEBDF02F /* AppDelegate.swift */; };
@@ -35,8 +38,11 @@
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */; };
 		C98FE2FDD90349E0B94C1E03 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4477F0441A44305908292A1 /* Inter-Regular.ttf */; };
 		CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */; };
+		CC31DD32EE33FF34AA35BB36 /* CityCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */; };
+		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
+		CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */; };
+		CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */; };
 		DS01DS02DS03DS04DS05DS06 /* DragStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = DS11DS12DS13DS14DS15DS16 /* DragStrip.swift */; };
-		JP01JP02JP03JP04JP05JP06 /* JourneyPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = JP11JP12JP13JP14JP15JP16 /* JourneyPill.swift */; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* GeoJSONParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */; };
 		EE05FF06AA07BB08CC09DD05 /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF05AA06BB07CC08DD09EE06 /* ProfileSheet.swift */; };
 		F360014E61104CF6BF9FDC5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 20975FB83A0E434BA323E8C7 /* Assets.xcassets */; };
@@ -45,6 +51,8 @@
 		GI01GI02GI03GI04GI05GI06 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = GI11GI12GI13GI14GI15GI16 /* GoogleSignIn */; };
 		GI02GI03GI04GI05GI06GI07 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = GI12GI13GI14GI15GI16GI17 /* GoogleSignInSwift */; };
 		GS01GS02GS03GS04GS05GS06 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = GS11GS12GS13GS14GS15GS16 /* GoogleService-Info.plist */; };
+		HP01HP02HP03HP04HP05HP06 /* HealthPermissionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = HP11HP12HP13HP14HP15HP16 /* HealthPermissionScreen.swift */; };
+		JP01JP02JP03JP04JP05JP06 /* JourneyPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = JP11JP12JP13JP14JP15JP16 /* JourneyPill.swift */; };
 		LC01LC02LC03LC04LC05LC06 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LC11LC12LC13LC14LC15LC16 /* LocationManager.swift */; };
 		LC02LC03LC04LC05LC06LC07 /* VisitMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = LC12LC13LC14LC15LC16LC17 /* VisitMonitor.swift */; };
 		LC03LC04LC05LC06LC07LC08 /* RouteSimplifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = LC13LC14LC15LC16LC17LC18 /* RouteSimplifier.swift */; };
@@ -55,26 +63,45 @@
 		OB05OB06OB07OB08OB09OB10 /* HandleScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB15OB16OB17OB18OB19OB20 /* HandleScreen.swift */; };
 		OB06OB07OB08OB09OB10OB11 /* LocationPermissionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB16OB17OB18OB19OB20OB21 /* LocationPermissionScreen.swift */; };
 		OB07OB08OB09OB10OB11OB12 /* PhotosPermissionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB17OB18OB19OB20OB21OB22 /* PhotosPermissionScreen.swift */; };
-		HP01HP02HP03HP04HP05HP06 /* HealthPermissionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = HP11HP12HP13HP14HP15HP16 /* HealthPermissionScreen.swift */; };
 		OB08OB09OB10OB11OB12OB13 /* DiscoveryScopeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB18OB19OB20OB21OB22OB23 /* DiscoveryScopeScreen.swift */; };
 		OB09OB10OB11OB12OB13OB14 /* HomeCityScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = OB19OB20OB21OB22OB23OB24 /* HomeCityScreen.swift */; };
-		CC31DD32EE33FF34AA35BB36 /* CityCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */; };
-		WS01WS02WS03WS04WS05WS06 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */; };
 		PC01PC02PC03PC04PC05PC06 /* PlaceCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */; };
 		PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */; };
-		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
-		CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */; };
-		CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */; };
-		TN01TN02TN03TN04TN05TN06 /* TemperatureNotchPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */; };
-		SP01SP02SP03SP04SP05SP06 /* StatsPillRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */; };
-		TL01TL02TL03TL04TL05TL06 /* TripLogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */; };
 		RC01RC02RC03RC04RC05RC06 /* RecordingPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */; };
 		RP01RP02RP03RP04RP05RP06 /* RoutePreviewPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */; };
+		SP01SP02SP03SP04SP05SP06 /* StatsPillRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */; };
 		TD01TD02TD03TD04TD05TD06 /* TripDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */; };
+		TL01TL02TL03TL04TL05TL06 /* TripLogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */; };
+		TN01TN02TN03TN04TN05TN06 /* TemperatureNotchPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */; };
 		TP01TP02TP03TP04TP05TP06 /* TravelerPassportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */; };
 		TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */; };
 		TS01TS02TS03TS04TS05TS06 /* TripService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TS11TS12TS13TS14TS15TS16 /* TripService.swift */; };
+		WS01WS02WS03WS04WS05WS06 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3581344E2F872D10009B0E97 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C53AE09C1F6E442DA8B6C9DD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3581343D2F872D0E009B0E97;
+			remoteInfo = NomadLiveActivityExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		358134512F872D10009B0E97 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				358134502F872D10009B0E97 /* NomadLiveActivityExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0191C5FEC2C84767ADCC712A /* Nomad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nomad.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,6 +110,9 @@
 		268B146F356F475EABAC6436 /* AppFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFont.swift; sourceTree = "<group>"; };
 		2C9CB6DB828A4E6F9C335D66 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		358134392F84611F009B0E97 /* Nomad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Nomad.entitlements; sourceTree = "<group>"; };
+		3581343E2F872D0E009B0E97 /* NomadLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NomadLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		358134402F872D0E009B0E97 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		358134422F872D0E009B0E97 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		42CD8ECB346049A2A67D41DE /* PanelGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelGradient.swift; sourceTree = "<group>"; };
 		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
 		528632E14E3F411192BA5560 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -104,15 +134,20 @@
 		BBFF11223344556677889900 /* earth-texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-texture.jpg"; sourceTree = "<group>"; };
 		BBFF22334455667788990011 /* earth-day.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-day.jpg"; sourceTree = "<group>"; };
 		BBFF33445566778899001122 /* earth-night.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-night.jpg"; sourceTree = "<group>"; };
+		CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityCluster.swift; sourceTree = "<group>"; };
+		CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailSheet.swift; sourceTree = "<group>"; };
+		CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityPhotoCarousel.swift; sourceTree = "<group>"; };
+		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
 		D32422AB49024EB385B48A1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D4477F0441A44305908292A1 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryFeature.swift; sourceTree = "<group>"; };
 		DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobePinpoint.swift; sourceTree = "<group>"; };
 		DS11DS12DS13DS14DS15DS16 /* DragStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragStrip.swift; sourceTree = "<group>"; };
-		JP11JP12JP13JP14JP15JP16 /* JourneyPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyPill.swift; sourceTree = "<group>"; };
 		F6A7B8C9D0E1F2A3B4C5D6E7 /* GeoJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoJSONParser.swift; sourceTree = "<group>"; };
 		FF05AA06BB07CC08DD09EE06 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
 		GS11GS12GS13GS14GS15GS16 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		HP11HP12HP13HP14HP15HP16 /* HealthPermissionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthPermissionScreen.swift; sourceTree = "<group>"; };
+		JP11JP12JP13JP14JP15JP16 /* JourneyPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyPill.swift; sourceTree = "<group>"; };
 		LC11LC12LC13LC14LC15LC16 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		LC12LC13LC14LC15LC16LC17 /* VisitMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitMonitor.swift; sourceTree = "<group>"; };
 		LC13LC14LC15LC16LC17LC18 /* RouteSimplifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteSimplifier.swift; sourceTree = "<group>"; };
@@ -123,26 +158,44 @@
 		OB15OB16OB17OB18OB19OB20 /* HandleScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandleScreen.swift; sourceTree = "<group>"; };
 		OB16OB17OB18OB19OB20OB21 /* LocationPermissionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPermissionScreen.swift; sourceTree = "<group>"; };
 		OB17OB18OB19OB20OB21OB22 /* PhotosPermissionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosPermissionScreen.swift; sourceTree = "<group>"; };
-		HP11HP12HP13HP14HP15HP16 /* HealthPermissionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthPermissionScreen.swift; sourceTree = "<group>"; };
 		OB18OB19OB20OB21OB22OB23 /* DiscoveryScopeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryScopeScreen.swift; sourceTree = "<group>"; };
 		OB19OB20OB21OB22OB23OB24 /* HomeCityScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCityScreen.swift; sourceTree = "<group>"; };
-		CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityCluster.swift; sourceTree = "<group>"; };
-		WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
 		PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCategoryService.swift; sourceTree = "<group>"; };
 		PG11PG12PG13PG14PG15PG16 /* PhotoGalleryStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryStrip.swift; sourceTree = "<group>"; };
-		CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailSheet.swift; sourceTree = "<group>"; };
-		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
-		CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityPhotoCarousel.swift; sourceTree = "<group>"; };
-		TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureNotchPill.swift; sourceTree = "<group>"; };
-		SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsPillRow.swift; sourceTree = "<group>"; };
-		TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLogCard.swift; sourceTree = "<group>"; };
 		RC11RC12RC13RC14RC15RC16 /* RecordingPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPill.swift; sourceTree = "<group>"; };
 		RP11RP12RP13RP14RP15RP16 /* RoutePreviewPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewPath.swift; sourceTree = "<group>"; };
+		SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsPillRow.swift; sourceTree = "<group>"; };
 		TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDocument.swift; sourceTree = "<group>"; };
+		TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLogCard.swift; sourceTree = "<group>"; };
+		TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureNotchPill.swift; sourceTree = "<group>"; };
 		TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelerPassportStub.swift; sourceTree = "<group>"; };
 		TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripRouteMapView.swift; sourceTree = "<group>"; };
 		TS11TS12TS13TS14TS15TS16 /* TripService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripService.swift; sourceTree = "<group>"; };
+		WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		358134542F872D10009B0E97 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3581343D2F872D0E009B0E97 /* NomadLiveActivityExtension */;
+		};
+		358134692F872EF4009B0E97 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				NomadLiveActivityBundle.swift,
+				TripActivityAttributes.swift,
+				TripLiveActivity.swift,
+			);
+			target = 0A511892DA484B5B8E3B9D89 /* Nomad */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		358134442F872D0E009B0E97 /* NomadLiveActivity */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (358134692F872EF4009B0E97 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 358134542F872D10009B0E97 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = NomadLiveActivity; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1982D9C01012430C81E37168 /* Frameworks */ = {
@@ -154,6 +207,15 @@
 				6177082FC3E140AE8F013860 /* FirebaseFirestore in Frameworks */,
 				GI01GI02GI03GI04GI05GI06 /* GoogleSignIn in Frameworks */,
 				GI02GI03GI04GI05GI06GI07 /* GoogleSignInSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3581343B2F872D0E009B0E97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				358134432F872D0E009B0E97 /* SwiftUI.framework in Frameworks */,
+				358134412F872D0E009B0E97 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,6 +243,15 @@
 				20975FB83A0E434BA323E8C7 /* Assets.xcassets */,
 			);
 			path = Nomad;
+			sourceTree = "<group>";
+		};
+		3581343F2F872D0E009B0E97 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				358134402F872D0E009B0E97 /* WidgetKit.framework */,
+				358134422F872D0E009B0E97 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		5B92EEB797944183B407C00F /* Firebase */ = {
@@ -211,6 +282,8 @@
 			isa = PBXGroup;
 			children = (
 				2003323777C24083B48CEEFA /* Nomad */,
+				358134442F872D0E009B0E97 /* NomadLiveActivity */,
+				3581343F2F872D0E009B0E97 /* Frameworks */,
 				BB1A0507A57B4D2AAEFF7AC8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -270,6 +343,7 @@
 			isa = PBXGroup;
 			children = (
 				0191C5FEC2C84767ADCC712A /* Nomad.app */,
+				3581343E2F872D0E009B0E97 /* NomadLiveActivityExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -361,10 +435,12 @@
 				75F106EDB76C44D7B3E2D41F /* Sources */,
 				1982D9C01012430C81E37168 /* Frameworks */,
 				561D23BCD6174AF98E8AA66C /* Resources */,
+				358134512F872D10009B0E97 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3581344F2F872D10009B0E97 /* PBXTargetDependency */,
 			);
 			name = Nomad;
 			packageProductDependencies = (
@@ -378,6 +454,28 @@
 			productReference = 0191C5FEC2C84767ADCC712A /* Nomad.app */;
 			productType = "com.apple.product-type.application";
 		};
+		3581343D2F872D0E009B0E97 /* NomadLiveActivityExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 358134552F872D10009B0E97 /* Build configuration list for PBXNativeTarget "NomadLiveActivityExtension" */;
+			buildPhases = (
+				3581343A2F872D0E009B0E97 /* Sources */,
+				3581343B2F872D0E009B0E97 /* Frameworks */,
+				3581343C2F872D0E009B0E97 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				358134442F872D0E009B0E97 /* NomadLiveActivity */,
+			);
+			name = NomadLiveActivityExtension;
+			packageProductDependencies = (
+			);
+			productName = NomadLiveActivityExtension;
+			productReference = 3581343E2F872D0E009B0E97 /* NomadLiveActivityExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -385,11 +483,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					0A511892DA484B5B8E3B9D89 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					3581343D2F872D0E009B0E97 = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -411,11 +512,19 @@
 			projectRoot = "";
 			targets = (
 				0A511892DA484B5B8E3B9D89 /* Nomad */,
+				3581343D2F872D0E009B0E97 /* NomadLiveActivityExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3581343C2F872D0E009B0E97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		561D23BCD6174AF98E8AA66C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -437,6 +546,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3581343A2F872D0E009B0E97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		75F106EDB76C44D7B3E2D41F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -496,6 +612,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3581344F2F872D10009B0E97 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3581343D2F872D0E009B0E97 /* NomadLiveActivityExtension */;
+			targetProxy = 3581344E2F872D10009B0E97 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0B85D8D0041741D29FA70B28 /* Debug */ = {
@@ -675,9 +799,84 @@
 			};
 			name = Release;
 		};
+		358134522F872D10009B0E97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GU72X6JZ98;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NomadLiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NomadLiveActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nomadshreyank.app.NomadLiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		358134532F872D10009B0E97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GU72X6JZ98;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NomadLiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NomadLiveActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nomadshreyank.app.NomadLiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		358134552F872D10009B0E97 /* Build configuration list for PBXNativeTarget "NomadLiveActivityExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				358134522F872D10009B0E97 /* Debug */,
+				358134532F872D10009B0E97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		604BB53155A147BAA7BB0C5D /* Build configuration list for PBXNativeTarget "Nomad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

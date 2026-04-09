@@ -104,7 +104,7 @@ Plans:
 **Requirements**: TBD
 **Depends on:** Phase 3
 
-**Plans:** 3 plans
+**Plans:** 0/1 plans executed
 
 Plans:
 - [ ] 03.2-01-PLAN.md — Design system foundation (replace AppColors, AppFont, PanelGradient with new tokens and glass surface recipe)
@@ -140,7 +140,7 @@ Plans:
 | 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
 | 2. Data & Auth Foundation | 0/4 | Planned | - |
 | 3. Core User Journey | 0/3 | Not started | - |
-| 03.2. UI Redesign & Live Activity Widget | 0/3 | Planned | - |
+| 03.2. UI Redesign & Live Activity Widget | 0/1 | Planned    |  |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
 
 ---

@@ -39,6 +39,8 @@
 	<string>Nomad uses your location to track trips and detect your home city.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Nomad matches photos from your library to trips by date and location.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PlayfairDisplay-Regular.otf</string>
