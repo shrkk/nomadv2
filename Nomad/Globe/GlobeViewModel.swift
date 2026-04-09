@@ -29,6 +29,7 @@ class GlobeViewModel {
     var trips: [TripDocument] = []
     var visitedCountryCodes: [String] = []
     var scrollToTripId: String? = nil
+    var selectedInitialCity: String? = nil
 
     // MARK: - Country Detail Sheet
 
