@@ -97,20 +97,6 @@ Plans:
 
 ---
 
-### Phase 03.2: UI Redesign & Live Activity Widget (INSERTED)
-
-**Goal:** Replace the warm amber/cream design system with a true black/white minimalist glassmorphic aesthetic across every user-facing surface, and implement an ActivityKit Live Activity widget showing active trip stats in the Dynamic Island and Lock Screen.
-
-**Requirements**: TBD
-**Depends on:** Phase 3
-
-**Plans:** 3 plans
-
-Plans:
-- [ ] 03.2-01-PLAN.md — Design system foundation (replace AppColors, AppFont, PanelGradient with new tokens and glass surface recipe)
-- [ ] 03.2-02-PLAN.md — Token sweep across all 25 files (globe chrome, sheets, components, onboarding)
-- [ ] 03.2-03-PLAN.md — Live Activity widget (ActivityKit Dynamic Island + Lock Screen banner)
-
 ### Phase 4: Traveler Passport & Archetype System
 
 **Goal:** Build the identity and shareability layer: the Traveler Passport view with a flat world map of visited countries and lifetime stats, the 8-archetype scoring engine reading from denormalized `placeCounts`, the archetype label with minimum-trip threshold, and the shareable portrait-format passport card and trip card exportable to Photos or the share sheet.
@@ -140,7 +126,6 @@ Plans:
 | 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
 | 2. Data & Auth Foundation | 0/4 | Planned | - |
 | 3. Core User Journey | 0/3 | Not started | - |
-| 03.2. UI Redesign & Live Activity Widget | 0/3 | Planned | - |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
 
 ---
@@ -194,7 +179,7 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 | TRIP-04 | Active trip indicator visible on globe home view | Phase 3 | Pending |
 | TRIP-05 | Trip captures GPS trace, places, categories, steps, date, city | Phase 3 | Pending |
 | TRIP-06 | User can stop and name a trip | Phase 3 | Pending |
-| TRIP-07 | Trip route stored with full GPS subcollection + 50-point preview array | Phase 3 | Pending |
+| TRIP-07 | Trip stored with full GPS subcollection + 50-point preview array | Phase 3 | Pending |
 | DETAIL-01 | Map shows GPS trace polyline + named place pins in visit order | Phase 3 | Pending |
 | DETAIL-02 | Trip stats: steps, distance, duration, places, top category | Phase 3 | Pending |
 | DETAIL-03 | Photo gallery from Photos — PHAssets matched by date + bounding box | Phase 3 | Pending |
@@ -248,5 +233,4 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 *Roadmap defined: 2026-04-03*
 *Phase 1 planned: 2026-04-04*
 *Phase 2 planned: 2026-04-05*
-*Phase 03.2 planned: 2026-04-08*
 *Granularity: coarse*
