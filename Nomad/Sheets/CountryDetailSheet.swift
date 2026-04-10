@@ -1,7 +1,7 @@
 import SwiftUI
 import Photos
 import CoreLocation
-import MapKit
+@preconcurrency import MapKit
 
 // MARK: - CountryDetailViewModel
 //
@@ -211,7 +211,7 @@ struct CountryDetailSheet: View {
         }
         .panelGradient()
         .presentationBackground(Color.Nomad.panelBlack)
-        .presentationDetents([.large])
+        .presentationDetents([.fraction(0.25), .medium, .large])
         .presentationDragIndicator(.visible)
         .task {
             await viewModel.load()

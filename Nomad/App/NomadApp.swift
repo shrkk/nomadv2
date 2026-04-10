@@ -46,8 +46,16 @@ struct NomadApp: App {
             if authManager.onboardingComplete {
                 GlobeView()
             } else {
-                // Authenticated but onboarding not finished (e.g. Google sign-in mid-flow).
+                // Authenticated but onboarding not finished (e.g. Google sign-in mid-flow,
+                // or returning user on new device). Skip past welcome/signUp since auth
+                // is already established — avoids re-prompting for login on every launch.
                 OnboardingView(coordinator: onboardingCoordinator)
+                    .onAppear {
+                        if onboardingCoordinator.currentStep == .welcome
+                            || onboardingCoordinator.currentStep == .signUp {
+                            onboardingCoordinator.currentStep = .handle
+                        }
+                    }
             }
         }
     }

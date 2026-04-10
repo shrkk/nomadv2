@@ -1,4 +1,4 @@
-import FirebaseFirestore
+@preconcurrency import FirebaseFirestore
 import CoreLocation
 
 // TripDocument — read-only model decoded from Firestore trip documents.

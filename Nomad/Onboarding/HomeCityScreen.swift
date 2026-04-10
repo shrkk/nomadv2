@@ -213,12 +213,17 @@ struct HomeCityScreen: View {
         let oneShotManager = CLLocationManager()
         do {
             let location = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<CLLocation, Error>) in
-                let delegate = OneTimeLocationDelegate(continuation: continuation)
-                // Delegate holds strong ref to continuation; store on manager via objc runtime.
-                // We keep delegate alive by storing it in the delegate itself (retained by manager).
+                let delegate = OneTimeLocationDelegate(continuation: continuation, manager: oneShotManager)
                 oneShotManager.delegate = delegate
-                oneShotManager.desiredAccuracy = kCLLocationAccuracyKilometer
-                oneShotManager.requestLocation()
+                oneShotManager.desiredAccuracy = kCLLocationAccuracyBest
+                oneShotManager.startUpdatingLocation()
+
+                // 10-second timeout — if no fresh fix arrives, fail to manual entry
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(10))
+                    guard !delegate.delivered else { return }
+                    delegate.timeout()
+                }
             }
 
             let geocoder = CLGeocoder()
@@ -261,8 +266,16 @@ struct HomeCityScreen: View {
 
         if isEditing || detectionFailed {
             finalCity = editedCityName.trimmingCharacters(in: .whitespaces)
-            finalLat = 0
-            finalLon = 0
+            // Forward-geocode the typed city name to get coordinates
+            let geocoder = CLGeocoder()
+            if let placemarks = try? await geocoder.geocodeAddressString(finalCity),
+               let loc = placemarks.first?.location {
+                finalLat = loc.coordinate.latitude
+                finalLon = loc.coordinate.longitude
+            } else {
+                finalLat = 0
+                finalLon = 0
+            }
         } else {
             finalCity = detectedCity ?? ""
             finalLat = detectedLatitude
@@ -303,29 +316,46 @@ struct HomeCityScreen: View {
 
 private final class OneTimeLocationDelegate: NSObject, CLLocationManagerDelegate {
     private var continuation: CheckedContinuation<CLLocation, Error>?
-    private var didDeliver = false
+    private(set) var delivered = false
+    private weak var managedManager: CLLocationManager?
     // Strong self-reference keeps this delegate alive until delivery,
     // since CLLocationManager.delegate is weak.
     private var selfRetain: OneTimeLocationDelegate?
 
-    init(continuation: CheckedContinuation<CLLocation, Error>) {
+    init(continuation: CheckedContinuation<CLLocation, Error>, manager: CLLocationManager) {
         self.continuation = continuation
+        self.managedManager = manager
         super.init()
         selfRetain = self
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard !didDeliver, let location = locations.first else { return }
-        didDeliver = true
+        guard !delivered, let location = locations.last else { return }
+        // Reject stale/cached locations older than 60 seconds
+        let age = abs(location.timestamp.timeIntervalSinceNow)
+        if age > 60 { return }
+        delivered = true
+        manager.stopUpdatingLocation()
         continuation?.resume(returning: location)
         continuation = nil
         selfRetain = nil
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        guard !didDeliver else { return }
-        didDeliver = true
+        guard !delivered else { return }
+        delivered = true
+        manager.stopUpdatingLocation()
         continuation?.resume(throwing: error)
+        continuation = nil
+        selfRetain = nil
+    }
+
+    /// Called from the timeout task if no fresh location arrived in time.
+    func timeout() {
+        guard !delivered else { return }
+        delivered = true
+        managedManager?.stopUpdatingLocation()
+        continuation?.resume(throwing: CLError(.geocodeFoundNoResult))
         continuation = nil
         selfRetain = nil
     }

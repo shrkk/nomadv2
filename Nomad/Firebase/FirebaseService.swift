@@ -1,4 +1,4 @@
-import FirebaseFirestore
+@preconcurrency import FirebaseFirestore
 
 // FirebaseService — INFRA-03 stub validation.
 // Provides async writeStubUser / readStubUser for Firestore connectivity proof.

@@ -1,8 +1,8 @@
 import SwiftUI
-import MapKit
+@preconcurrency import MapKit
 import CoreLocation
-import FirebaseAuth
-import FirebaseFirestore
+@preconcurrency import FirebaseAuth
+@preconcurrency import FirebaseFirestore
 
 // MARK: - TripDetailSheet
 //

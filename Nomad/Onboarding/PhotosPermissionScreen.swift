@@ -34,7 +34,7 @@ struct PhotosPermissionScreen: View {
             Spacer()
 
             Button {
-                requestPhotosPermission()
+                Task { await requestPhotosPermission() }
             } label: {
                 Text("Connect your photos")
                     .font(AppFont.buttonLabel())
@@ -53,11 +53,10 @@ struct PhotosPermissionScreen: View {
 
     // MARK: - Permission request
 
-    private func requestPhotosPermission() {
-        PHPhotoLibrary.requestAuthorization(for: .readWrite) { _ in
-            DispatchQueue.main.async {
-                coordinator.advance()
-            }
+    private func requestPhotosPermission() async {
+        _ = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+        await MainActor.run {
+            coordinator.advance()
         }
     }
 }

@@ -1,5 +1,5 @@
 import SwiftUI
-import MapKit
+@preconcurrency import MapKit
 import CoreLocation
 
 // MARK: - VisitedPlace
@@ -14,7 +14,7 @@ struct VisitedPlace {
 
 // MARK: - NumberedAnnotation
 
-final class NumberedAnnotation: MKPointAnnotation {
+final class NumberedAnnotation: MKPointAnnotation, @unchecked Sendable {
     let index: Int
 
     init(coordinate: CLLocationCoordinate2D, index: Int) {
@@ -150,14 +150,14 @@ struct TripRouteMapView: UIViewRepresentable {
                 longitude: numbered.coordinate.longitude
             )
 
-            CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, _ in
-                guard let self = self else { return }
-                self.isGeocoding = false
+            CLGeocoder().reverseGeocodeLocation(location) { placemarks, _ in
                 let name = placemarks?.first?.name
                     ?? placemarks?.first?.locality
                     ?? "Unknown"
-                self.geocodeCache[key] = name
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.isGeocoding = false
+                    self.geocodeCache[key] = name
                     numbered.title = name
                 }
             }

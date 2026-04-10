@@ -1,4 +1,4 @@
-import FirebaseFirestore
+@preconcurrency import FirebaseFirestore
 import CoreLocation
 import SwiftData
 
@@ -107,6 +107,18 @@ final class TripService {
     func fetchVisitedCountryCodes(userId: String) async throws -> [String] {
         let doc = try await FirestoreSchema.userDoc(userId).getDocument()
         return doc.data()?["visitedCountryCodes"] as? [String] ?? []
+    }
+
+    /// Fetch full route coordinates for a trip, ordered by timestamp.
+    func fetchRouteCoordinates(userId: String, tripId: String) async throws -> [CLLocationCoordinate2D] {
+        let snapshot = try await FirestoreSchema.routePointsCollection(userId, tripId: tripId)
+            .order(by: "timestamp")
+            .getDocuments()
+        return snapshot.documents.compactMap { doc -> CLLocationCoordinate2D? in
+            guard let lat = doc.data()["latitude"] as? Double,
+                  let lon = doc.data()["longitude"] as? Double else { return nil }
+            return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        }
     }
 
     // MARK: - Private

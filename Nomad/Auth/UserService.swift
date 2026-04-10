@@ -1,4 +1,4 @@
-import FirebaseFirestore
+@preconcurrency import FirebaseFirestore
 import Observation
 
 // UserService — Firestore user document and handle management.

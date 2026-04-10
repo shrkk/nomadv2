@@ -1,4 +1,4 @@
-import MapKit
+@preconcurrency import MapKit
 import CoreLocation
 
 // PlaceCategoryService — POI-based place categorization for traveler archetype computation.

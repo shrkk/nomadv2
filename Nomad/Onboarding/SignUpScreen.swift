@@ -1,6 +1,6 @@
 import SwiftUI
-import FirebaseAuth
-import GoogleSignInSwift
+@preconcurrency import FirebaseAuth
+@preconcurrency import GoogleSignInSwift
 
 // SignUpScreen — Screen 2 of the onboarding flow.
 // Handles both "Create account" (sign-up mode) and "Sign in" (returning user mode).
@@ -181,7 +181,10 @@ struct SignUpScreen: View {
         do {
             if coordinator.isSignInMode {
                 try await authManager.signIn(email: email, password: password)
-                // AuthManager listener will flip authState → NomadApp routes accordingly.
+                // AuthManager listener will flip authState → NomadApp routes to GlobeView
+                // once onboardingComplete syncs. Advance coordinator so the user isn't
+                // stuck on the sign-up screen while that async check runs.
+                coordinator.advance()
             } else {
                 _ = try await authManager.signUp(email: email, password: password)
                 coordinator.email = email

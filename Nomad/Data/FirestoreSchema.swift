@@ -1,4 +1,4 @@
-import FirebaseFirestore
+@preconcurrency import FirebaseFirestore
 
 // FirestoreSchema — type-safe Firestore path constants and helpers.
 // D-12: Centralised collection/document paths prevent string literal scatter.

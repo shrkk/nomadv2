@@ -1,10 +1,30 @@
 import ActivityKit
 import SwiftUI
-import MapKit
-import FirebaseAuth
+@preconcurrency import MapKit
+@preconcurrency import FirebaseAuth
 import HealthKit
 import SwiftData
 import CoreLocation
+import Photos
+
+// MARK: - CGRect aspect-fill helper
+
+private extension CGRect {
+    /// Returns a rect that aspect-fills this rect for a source image size.
+    func aspectFill(for imageSize: CGSize) -> CGRect {
+        let scaleX = width / imageSize.width
+        let scaleY = height / imageSize.height
+        let scale = max(scaleX, scaleY)
+        let newW = imageSize.width * scale
+        let newH = imageSize.height * scale
+        return CGRect(
+            x: origin.x + (width - newW) / 2,
+            y: origin.y + (height - newH) / 2,
+            width: newW,
+            height: newH
+        )
+    }
+}
 
 // MARK: - GlobeMapView
 //
@@ -15,6 +35,11 @@ import CoreLocation
 struct GlobeMapView: UIViewRepresentable {
     let viewModel: GlobeViewModel
     let onTapCountry: (String) -> Void
+    // Explicit tracked values so SwiftUI triggers updateUIView when these change
+    var homeCityCoordinate: CLLocationCoordinate2D?
+    var homeCityName: String?
+    var tripPhotos: [String: UIImage]
+    var activeRouteCoordinates: [CLLocationCoordinate2D]
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView(frame: .zero)
@@ -58,33 +83,59 @@ struct GlobeMapView: UIViewRepresentable {
         // Only proceed once countries are loaded
         guard !viewModel.countries.isEmpty else { return }
 
-        let newCodes = Set(viewModel.visitedCountryCodes)
-
-        // Diff visitedCountryCodes: if the set changed, remove old overlays and re-add
-        if newCodes != context.coordinator.cachedVisitedCodes {
-            mapView.removeOverlays(mapView.overlays)
-            context.coordinator.overlaysAdded = false
-            context.coordinator.cachedVisitedCodes = newCodes
-        }
-
-        // Add overlays when countries AND visitedCountryCodes are both loaded
-        if !context.coordinator.overlaysAdded && !newCodes.isEmpty {
-            context.coordinator.overlaysAdded = true
-            context.coordinator.addCountryOverlays(
-                to: mapView,
-                countries: viewModel.countries,
-                visitedCodes: newCodes
-            )
-        }
-
-        // Diff trip pinpoints: re-add when trip count changes
+        // Diff trip pinpoints: re-add when trip count or photos change
         let newTripCount = viewModel.trips.count
-        if newTripCount != context.coordinator.cachedTripCount {
-            // Remove existing pinpoint annotations
+        let newPhotoCount = tripPhotos.count
+        if newTripCount != context.coordinator.cachedTripCount
+            || newPhotoCount != context.coordinator.cachedPhotoCount {
             let existing = mapView.annotations.filter { $0 is TripAnnotation }
             mapView.removeAnnotations(existing)
             context.coordinator.cachedTripCount = newTripCount
-            context.coordinator.addPinpointAnnotations(to: mapView, trips: viewModel.trips)
+            context.coordinator.cachedPhotoCount = newPhotoCount
+            context.coordinator.addPinpointAnnotations(
+                to: mapView, trips: viewModel.trips, photos: tripPhotos
+            )
+        }
+
+        // Diff home city pin (driven by tracked homeCityCoordinate property)
+        let hasHome = mapView.annotations.contains { $0 is HomeAnnotation }
+        if let coord = homeCityCoordinate, !hasHome {
+            let home = HomeAnnotation()
+            home.coordinate = coord
+            home.cityName = homeCityName ?? ""
+            home.title = homeCityName
+            mapView.addAnnotation(home)
+        } else if homeCityCoordinate == nil && hasHome {
+            let existing = mapView.annotations.filter { $0 is HomeAnnotation }
+            mapView.removeAnnotations(existing)
+        }
+
+        // Orient globe to home city on first load
+        if let coord = homeCityCoordinate, !context.coordinator.didOrientToHome {
+            context.coordinator.didOrientToHome = true
+            let camera = MKMapCamera(
+                lookingAtCenter: coord,
+                fromDistance: 40_000_000,
+                pitch: 0,
+                heading: 0
+            )
+            mapView.setCamera(camera, animated: true)
+        }
+
+        // Diff active route overlay
+        let newRouteCount = activeRouteCoordinates.count
+        if newRouteCount != context.coordinator.cachedRoutePointCount {
+            // Remove existing route overlays
+            let existing = mapView.overlays.filter { $0 is MKPolyline }
+            mapView.removeOverlays(existing)
+            context.coordinator.cachedRoutePointCount = newRouteCount
+
+            // Draw new route if we have coordinates
+            if newRouteCount >= 2 {
+                var coords = activeRouteCoordinates
+                let polyline = MKPolyline(coordinates: &coords, count: coords.count)
+                mapView.addOverlay(polyline, level: .aboveRoads)
+            }
         }
     }
 
@@ -98,6 +149,11 @@ struct GlobeMapView: UIViewRepresentable {
         var tripID: String = ""
         var countryCode: String = ""
         var cityName: String = ""
+        var photo: UIImage? = nil
+    }
+
+    class HomeAnnotation: MKPointAnnotation {
+        var cityName: String = ""
     }
 
     @MainActor
@@ -105,29 +161,19 @@ struct GlobeMapView: UIViewRepresentable {
         let viewModel: GlobeViewModel
         let onTapCountry: (String) -> Void
         var mapView: MKMapView?
-        var overlaysAdded = false
-        var cachedVisitedCodes: Set<String> = []
         var cachedTripCount: Int = -1
+        var cachedPhotoCount: Int = -1
+        var cachedRoutePointCount: Int = 0
+        var didOrientToHome = false
 
         init(viewModel: GlobeViewModel, onTapCountry: @escaping (String) -> Void) {
             self.viewModel = viewModel
             self.onTapCountry = onTapCountry
         }
 
-        // MARK: - Overlay Setup
+        // MARK: - Pin Setup
 
-        func addCountryOverlays(to mapView: MKMapView, countries: [CountryFeature], visitedCodes: Set<String>) {
-            for country in countries where visitedCodes.contains(country.isoCode) {
-                for ring in country.polygons where ring.count >= 3 {
-                    var coords = ring
-                    let polygon = MKPolygon(coordinates: &coords, count: coords.count)
-                    polygon.title = country.isoCode
-                    mapView.addOverlay(polygon, level: .aboveRoads)
-                }
-            }
-        }
-
-        func addPinpointAnnotations(to mapView: MKMapView, trips: [TripDocument]) {
+        func addPinpointAnnotations(to mapView: MKMapView, trips: [TripDocument], photos: [String: UIImage]) {
             for trip in trips {
                 guard let coord = trip.coordinate else { continue }
                 let annotation = TripAnnotation()
@@ -135,50 +181,352 @@ struct GlobeMapView: UIViewRepresentable {
                 annotation.tripID = trip.id
                 annotation.countryCode = trip.visitedCountryCodes.first ?? ""
                 annotation.cityName = trip.cityName
+                annotation.photo = photos[trip.id]
                 mapView.addAnnotation(annotation)
+            }
+        }
+
+        // MARK: - Pin Shape Drawing
+
+        /// Classic map-pin outline: circle head with a pointed tail, matching the
+        /// reference silhouette (thick stroke, circular photo inset).
+        private func pinPath(width: CGFloat, height: CGFloat) -> UIBezierPath {
+            // The circle occupies the top portion; the tail tapers to a point.
+            let borderInset: CGFloat = 3          // keep path inside canvas for stroke
+            let circleD = width - borderInset * 2 // circle diameter
+            let circleR = circleD / 2
+            let cx = width / 2
+            let cy = borderInset + circleR        // circle center Y
+            let tipY = height - borderInset
+
+            // Angle where the tangent lines from the tip meet the circle (~38°)
+            let halfSpread: CGFloat = .pi * 0.28
+
+            let path = UIBezierPath()
+            // Arc: most of the circle (from right-tangent around top to left-tangent)
+            let rightAngle = CGFloat.pi / 2 - halfSpread  // ~right side going down
+            let leftAngle  = CGFloat.pi / 2 + halfSpread  // ~left side going down
+            path.addArc(withCenter: CGPoint(x: cx, y: cy), radius: circleR,
+                        startAngle: rightAngle, endAngle: leftAngle, clockwise: true)
+            // Line to tip
+            path.addLine(to: CGPoint(x: cx, y: tipY))
+            path.close()
+            return path
+        }
+
+        /// Renders the full pin image with 3D shadow, photo thumbnail in circular
+        /// inset, and thick dark border matching the reference icon.
+        private func renderPinImage(photo: UIImage?, pinWidth: CGFloat, pinHeight: CGFloat) -> UIImage {
+            // Extra canvas space for the drop shadow
+            let shadowPad: CGFloat = 8
+            let canvasW = pinWidth + shadowPad * 2
+            let canvasH = pinHeight + shadowPad + shadowPad / 2
+            let dx = shadowPad   // shift pin drawing right by shadow padding
+            let dy = shadowPad / 2
+
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: canvasW, height: canvasH))
+            return renderer.image { ctx in
+                let gc = ctx.cgContext
+
+                // Build pin path offset into canvas
+                let path = pinPath(width: pinWidth, height: pinHeight)
+                let translate = CGAffineTransform(translationX: dx, y: dy)
+                path.apply(translate)
+
+                // --- 3D drop shadow ---
+                gc.saveGState()
+                gc.setShadow(offset: CGSize(width: 0, height: 4), blur: 6,
+                             color: UIColor.black.withAlphaComponent(0.55).cgColor)
+                UIColor(white: 0.15, alpha: 1.0).setFill()
+                path.fill()
+                gc.restoreGState()
+
+                // --- Photo or fallback inside the full pin shape ---
+                gc.saveGState()
+                path.addClip()
+                if let photo {
+                    let imageRect = CGRect(x: dx, y: dy, width: pinWidth, height: pinHeight)
+                    photo.draw(in: imageRect.aspectFill(for: photo.size))
+                } else {
+                    UIColor(white: 0.15, alpha: 1.0).setFill()
+                    path.fill()
+                }
+                gc.restoreGState()
+
+                // --- Thick dark border (matches reference icon) ---
+                UIColor(white: 0.12, alpha: 1.0).setStroke()
+                path.lineWidth = 4.0
+                path.stroke()
+
+                // --- Circular photo inset ring (the inner circle from the reference) ---
+                let circleR = (pinWidth - 6) / 2
+                let cx = dx + pinWidth / 2
+                let cy = dy + 3 + circleR  // 3 = borderInset
+                let insetR = circleR * 0.52
+                let ringPath = UIBezierPath(arcCenter: CGPoint(x: cx, y: cy),
+                                            radius: insetR,
+                                            startAngle: 0, endAngle: .pi * 2, clockwise: true)
+
+                // If we have a photo, clip photo into the inner circle and add ring
+                if let photo {
+                    gc.saveGState()
+                    ringPath.addClip()
+                    let insetRect = CGRect(x: cx - insetR, y: cy - insetR,
+                                           width: insetR * 2, height: insetR * 2)
+                    photo.draw(in: insetRect.aspectFill(for: photo.size))
+                    gc.restoreGState()
+                }
+
+                // Inner circle border (visible ring from the reference)
+                UIColor(white: 0.12, alpha: 1.0).setStroke()
+                ringPath.lineWidth = 3.0
+                ringPath.stroke()
+
+                // If no photo, draw camera icon in center
+                if photo == nil {
+                    let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
+                    if let icon = UIImage(systemName: "camera.fill")?
+                        .withTintColor(.white, renderingMode: .alwaysOriginal)
+                        .withConfiguration(config) {
+                        let iconSize = icon.size
+                        icon.draw(at: CGPoint(x: cx - iconSize.width / 2,
+                                              y: cy - iconSize.height / 2))
+                    }
+                }
+            }
+        }
+
+        /// Renders a cluster pin: same pin shape with a count badge in the top-right.
+        private func renderClusterPinImage(photo: UIImage?, count: Int,
+                                           pinWidth: CGFloat, pinHeight: CGFloat) -> UIImage {
+            let shadowPad: CGFloat = 8
+            let badgeSize: CGFloat = 22
+            let canvasW = pinWidth + shadowPad * 2
+            let canvasH = pinHeight + shadowPad + shadowPad / 2
+
+            // Render the base pin
+            let basePin = renderPinImage(photo: photo, pinWidth: pinWidth, pinHeight: pinHeight)
+
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: canvasW, height: canvasH))
+            return renderer.image { _ in
+                basePin.draw(at: .zero)
+
+                // Badge circle — top-right corner of the pin canvas
+                let badgeX = canvasW - badgeSize - 2
+                let badgeY: CGFloat = 0
+                let badgeRect = CGRect(x: badgeX, y: badgeY, width: badgeSize, height: badgeSize)
+
+                UIColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 1.0).setFill()
+                UIBezierPath(ovalIn: badgeRect).fill()
+                UIColor.white.setStroke()
+                let borderPath = UIBezierPath(ovalIn: badgeRect.insetBy(dx: 1, dy: 1))
+                borderPath.lineWidth = 1.5
+                borderPath.stroke()
+
+                // Count text
+                let text = "\(count)" as NSString
+                let attrs: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: 12, weight: .bold),
+                    .foregroundColor: UIColor.white,
+                ]
+                let textSize = text.size(withAttributes: attrs)
+                let textOrigin = CGPoint(
+                    x: badgeRect.midX - textSize.width / 2,
+                    y: badgeRect.midY - textSize.height / 2
+                )
+                text.draw(at: textOrigin, withAttributes: attrs)
             }
         }
 
         // MARK: - MKMapViewDelegate
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-            guard let polygon = overlay as? MKPolygon else {
-                return MKOverlayRenderer(overlay: overlay)
+            if let polyline = overlay as? MKPolyline {
+                let renderer = MKPolylineRenderer(polyline: polyline)
+                renderer.strokeColor = UIColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 0.9)
+                renderer.lineWidth = 2.0
+                renderer.lineCap = .round
+                renderer.lineJoin = .round
+                return renderer
             }
-            let renderer = MKPolygonRenderer(polygon: polygon)
-            renderer.fillColor = UIColor.white.withAlphaComponent(0.40)
-            renderer.strokeColor = UIColor.white.withAlphaComponent(0.60)
-            renderer.lineWidth = 1.0
-            return renderer
+            return MKOverlayRenderer(overlay: overlay)
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            // Home city pin with house icon on accent circle
+            if let home = annotation as? HomeAnnotation {
+                let id = "HomePinpoint"
+                let view = (mapView.dequeueReusableAnnotationView(withIdentifier: id)
+                            ?? MKAnnotationView(annotation: annotation, reuseIdentifier: id))
+                view.annotation = home
+                view.canShowCallout = true
+
+                let size: CGFloat = 44
+                let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+                view.image = renderer.image { ctx in
+                    UIColor(red: 0.95, green: 0.75, blue: 0.3, alpha: 1.0).setFill()
+                    UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size, height: size)).fill()
+                    UIColor.white.setStroke()
+                    let border = UIBezierPath(ovalIn: CGRect(x: 1.5, y: 1.5, width: size - 3, height: size - 3))
+                    border.lineWidth = 3
+                    border.stroke()
+                    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
+                    if let icon = UIImage(systemName: "house.fill")?
+                        .withTintColor(.white, renderingMode: .alwaysOriginal)
+                        .withConfiguration(config) {
+                        let iconSize = icon.size
+                        let origin = CGPoint(x: (size - iconSize.width) / 2, y: (size - iconSize.height) / 2)
+                        icon.draw(at: origin)
+                    }
+                }
+                view.frame.size = CGSize(width: size, height: size)
+                return view
+            }
+
+            // Cluster annotation — multiple trips grouped together
+            if let cluster = annotation as? MKClusterAnnotation {
+                let id = "TripCluster"
+                let view = (mapView.dequeueReusableAnnotationView(withIdentifier: id)
+                            ?? MKAnnotationView(annotation: annotation, reuseIdentifier: id))
+                view.annotation = cluster
+                view.canShowCallout = false
+
+                // Use the first member's photo for the cluster pin
+                let memberPhoto = (cluster.memberAnnotations.first as? TripAnnotation)?.photo
+                let pinWidth: CGFloat = 56
+                let pinHeight: CGFloat = 76
+                let shadowPad: CGFloat = 8
+                let pinImage = renderClusterPinImage(
+                    photo: memberPhoto,
+                    count: cluster.memberAnnotations.count,
+                    pinWidth: pinWidth, pinHeight: pinHeight
+                )
+                view.image = pinImage
+                let canvasW = pinWidth + shadowPad * 2
+                let canvasH = pinHeight + shadowPad + shadowPad / 2
+                view.frame.size = CGSize(width: canvasW, height: canvasH)
+                view.centerOffset = CGPoint(x: 0, y: -canvasH / 2)
+                return view
+            }
+
             guard let trip = annotation as? TripAnnotation else { return nil }
             let id = "TripPinpoint"
             let view = (mapView.dequeueReusableAnnotationView(withIdentifier: id)
                         ?? MKAnnotationView(annotation: annotation, reuseIdentifier: id))
             view.annotation = trip
             view.canShowCallout = false
+            view.clusteringIdentifier = "TripCluster"
 
-            let dotSize: CGFloat = 14
-            let hitSize: CGFloat = 44
-            let renderer = UIGraphicsImageRenderer(size: CGSize(width: hitSize, height: hitSize))
-            view.image = renderer.image { _ in
-                UIColor.white.setFill()
-                let offset = (hitSize - dotSize) / 2
-                UIBezierPath(
-                    ovalIn: CGRect(x: offset, y: offset, width: dotSize, height: dotSize)
-                ).fill()
-            }
-            view.frame.size = CGSize(width: hitSize, height: hitSize)
+            let pinWidth: CGFloat = 56
+            let pinHeight: CGFloat = 76
+            let shadowPad: CGFloat = 8
+            let pinImage = renderPinImage(photo: trip.photo, pinWidth: pinWidth, pinHeight: pinHeight)
+            view.image = pinImage
+            let canvasW = pinWidth + shadowPad * 2
+            let canvasH = pinHeight + shadowPad + shadowPad / 2
+            view.frame.size = CGSize(width: canvasW, height: canvasH)
+            view.centerOffset = CGPoint(x: 0, y: -canvasH / 2)
             return view
         }
 
+        func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+            // Clear route overlay when user zooms out past ~500km
+            if mapView.camera.centerCoordinateDistance > 500_000
+                && !viewModel.activeRouteCoordinates.isEmpty {
+                viewModel.clearRouteOverlay()
+            }
+        }
+
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            // Home pin — let MKMapView show the native callout; no further action.
+            if view.annotation is HomeAnnotation { return }
+
+            // Cluster tap — zoom in to split into individual pins
+            if let cluster = view.annotation as? MKClusterAnnotation {
+                mapView.deselectAnnotation(view.annotation, animated: false)
+                spawnRipples(on: view)
+
+                // Compute bounding rect of all member annotations with padding
+                var minLat = 90.0, maxLat = -90.0, minLon = 180.0, maxLon = -180.0
+                for member in cluster.memberAnnotations {
+                    let c = member.coordinate
+                    minLat = min(minLat, c.latitude)
+                    maxLat = max(maxLat, c.latitude)
+                    minLon = min(minLon, c.longitude)
+                    maxLon = max(maxLon, c.longitude)
+                }
+                // Zoom to show all members with generous padding
+                let center = CLLocationCoordinate2D(
+                    latitude: (minLat + maxLat) / 2,
+                    longitude: (minLon + maxLon) / 2
+                )
+                let camera = MKMapCamera(
+                    lookingAtCenter: center,
+                    fromDistance: 80_000,
+                    pitch: 0,
+                    heading: 0
+                )
+                mapView.setCamera(camera, animated: true)
+                return
+            }
+
             guard let trip = view.annotation as? TripAnnotation else { return }
             mapView.deselectAnnotation(view.annotation, animated: false)
-            viewModel.selectedInitialCity = trip.cityName
-            viewModel.animateToCountry(code: trip.countryCode)
+
+            // --- Ripple ping animation on the pin ---
+            spawnRipples(on: view)
+
+            // --- Zoom tight into the city (street-level, top-down) ---
+            let camera = MKMapCamera(
+                lookingAtCenter: trip.coordinate,
+                fromDistance: 30_000,
+                pitch: 0,
+                heading: 0
+            )
+            mapView.setCamera(camera, animated: true)
+
+            // --- Fetch route data and draw polyline overlay ---
+            if let tripDoc = viewModel.trips.first(where: { $0.id == trip.tripID }) {
+                Task {
+                    await self.viewModel.loadRouteOverlay(for: tripDoc)
+                }
+            }
+
+            // Show detail sheet after zoom settles
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+                self.viewModel.selectedInitialCity = trip.cityName
+                self.viewModel.animateToCountry(code: trip.countryCode)
+            }
+        }
+
+        /// Spawn concentric ripple rings expanding outward from the pin.
+        private func spawnRipples(on pinView: MKAnnotationView) {
+            let rippleCount = 3
+            for i in 0..<rippleCount {
+                let ripple = UIView()
+                ripple.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+                ripple.center = CGPoint(x: pinView.bounds.midX, y: pinView.bounds.midY)
+                ripple.layer.cornerRadius = 10
+                ripple.layer.borderWidth = 2.5
+                ripple.layer.borderColor = UIColor.white.cgColor
+                ripple.backgroundColor = .clear
+                ripple.alpha = 0.9
+                pinView.addSubview(ripple)
+
+                let delay = Double(i) * 0.25
+                UIView.animate(
+                    withDuration: 1.2,
+                    delay: delay,
+                    options: [.curveEaseOut],
+                    animations: {
+                        ripple.transform = CGAffineTransform(scaleX: 8, y: 8)
+                        ripple.alpha = 0
+                    },
+                    completion: { _ in
+                        ripple.removeFromSuperview()
+                    }
+                )
+            }
         }
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
@@ -209,7 +557,11 @@ struct GlobeView: View {
                 viewModel: viewModel,
                 onTapCountry: { code in
                     viewModel.animateToCountry(code: code)
-                }
+                },
+                homeCityCoordinate: viewModel.homeCityCoordinate,
+                homeCityName: viewModel.homeCityName,
+                tripPhotos: viewModel.tripPhotos,
+                activeRouteCoordinates: viewModel.activeRouteCoordinates
             )
             .ignoresSafeArea()
             .sheet(isPresented: $viewModel.showProfileSheet) {
@@ -230,7 +582,8 @@ struct GlobeView: View {
                             }
                         }
                         locationManager.startLiveActivity()
-                    }
+                    },
+                    homeCityName: viewModel.homeCityName
                 )
             }
             .sheet(isPresented: $viewModel.showCountryDetail) {
@@ -342,9 +695,8 @@ struct GlobeView: View {
             object: textField,
             queue: .main
         ) { [weak textField] _ in
-            // Accessing UIKit properties on main queue (queue: .main above)
-            let text = textField?.text ?? ""
-            DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                let text = textField?.text ?? ""
                 saveAction.isEnabled = !text.trimmingCharacters(in: .whitespaces).isEmpty
             }
         }

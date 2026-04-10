@@ -18,6 +18,7 @@ struct ProfileSheet: View {
     let scrollToTripId: String?
     let onStartTrip: (() -> Void)?
     var onDeleteTrip: ((TripDocument) -> Void)? = nil
+    var homeCityName: String? = nil
 
     @State private var showTripDetail = false
     @State private var detailTrip: TripDocument? = nil
@@ -67,7 +68,21 @@ struct ProfileSheet: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 44)
-            .padding(.bottom, 16)
+            .padding(.bottom, homeCityName != nil ? 8 : 16)
+
+            // MARK: Home city
+            if let homeCityName {
+                HStack(spacing: 6) {
+                    Image(systemName: "house.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.Nomad.textSecondary)
+                    Text(homeCityName)
+                        .font(AppFont.caption())
+                        .foregroundStyle(Color.Nomad.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 12)
+            }
 
             // MARK: Trip list or empty state
             if trips.isEmpty {
