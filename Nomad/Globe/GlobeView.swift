@@ -438,11 +438,13 @@ struct GlobeMapView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            print("[Globe] didSelect annotation: \(type(of: view.annotation))")
             // Home pin — let MKMapView show the native callout; no further action.
-            if view.annotation is HomeAnnotation { return }
+            if view.annotation is HomeAnnotation { print("[Globe] HomeAnnotation — ignoring"); return }
 
-            // Cluster tap — zoom in to split into individual pins
+            // Cluster tap — zoom in, then open sheet for the country
             if let cluster = view.annotation as? MKClusterAnnotation {
+                print("[Globe] ClusterAnnotation tapped: \(cluster.memberAnnotations.count) members")
                 mapView.deselectAnnotation(view.annotation, animated: false)
                 spawnRipples(on: view)
 
@@ -467,10 +469,23 @@ struct GlobeMapView: UIViewRepresentable {
                     heading: 0
                 )
                 mapView.setCamera(camera, animated: true)
+
+                // After zoom, open sheet for the first trip's country
+                if let firstTrip = cluster.memberAnnotations.first as? TripAnnotation {
+                    let cityName = firstTrip.cityName
+                    let countryCode = firstTrip.countryCode
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 1_400_000_000)
+                        print("[Globe] Presenting sheet from cluster: city=\(cityName) country=\(countryCode)")
+                        self.viewModel.selectedInitialCity = cityName
+                        self.viewModel.animateToCountry(code: countryCode)
+                    }
+                }
                 return
             }
 
-            guard let trip = view.annotation as? TripAnnotation else { return }
+            guard let trip = view.annotation as? TripAnnotation else { print("[Globe] Not a TripAnnotation — ignoring"); return }
+            print("[Globe] TripAnnotation tapped: city=\(trip.cityName) country=\(trip.countryCode)")
             mapView.deselectAnnotation(view.annotation, animated: false)
 
             // --- Ripple ping animation on the pin ---
@@ -493,9 +508,14 @@ struct GlobeMapView: UIViewRepresentable {
             }
 
             // Show detail sheet after zoom settles
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
-                self.viewModel.selectedInitialCity = trip.cityName
-                self.viewModel.animateToCountry(code: trip.countryCode)
+            let cityName = trip.cityName
+            let countryCode = trip.countryCode
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 1_400_000_000)
+                print("[Globe] Presenting sheet: city=\(cityName) country=\(countryCode)")
+                self.viewModel.selectedInitialCity = cityName
+                self.viewModel.animateToCountry(code: countryCode)
+                print("[Globe] showCountryDetail=\(self.viewModel.showCountryDetail) selectedCountryCode=\(String(describing: self.viewModel.selectedCountryCode))")
             }
         }
 
