@@ -3,48 +3,71 @@ import Photos
 
 // MARK: - CityPhotoCarousel
 //
-// Full-width paged TabView carousel showing one photo per city cluster.
-// T-3.1-05: PHPhotoLibrary authorization checked — denied/restricted state shown in carousel.
-// Synced bidirectionally with selectedCityIndex binding.
-//
-// Also contains the Location Identity Block below the photo area.
+// Multi-photo paged carousel for a single city cluster.
+// D-02: Shows ALL photos for the selected city — swipeable full-width paged carousel.
+// D-05: Photos are view-only — no tap interaction, no full-screen viewer, no zoom.
+// Inner TabView pages between photos within one city.
+// Page indicator dots shown only when 2+ photos (per UI-SPEC).
 
 struct CityPhotoCarousel: View {
-    let clusters: [CityCluster]
-    @Binding var selectedCityIndex: Int
-    let photos: [UUID: UIImage]
-    let temperatures: [UUID: String?]
+    let cluster: CityCluster
+    let photos: [UIImage]
+    let temperature: String?
     let countryName: String
+
+    @State private var photoIndex: Int = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Full-width paged TabView
-            TabView(selection: $selectedCityIndex) {
-                ForEach(Array(clusters.enumerated()), id: \.element.id) { index, cluster in
-                    ZStack(alignment: .top) {
-                        photoArea(for: cluster)
-                        temperatureOverlay(for: cluster)
+            ZStack(alignment: .top) {
+                // Inner photo TabView — pages between photos within this city
+                TabView(selection: $photoIndex) {
+                    if photos.isEmpty {
+                        emptyPhotoPlaceholder
+                            .tag(0)
+                    } else {
+                        ForEach(Array(photos.enumerated()), id: \.offset) { index, image in
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 320)
+                                .clipped()
+                                .contentShape(Rectangle()) // D-05: no tap action
+                                .tag(index)
+                        }
                     }
-                    .tag(index)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(height: 320)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(alignment: .bottom) {
+                    // Photo page indicator dots — only if 2+ photos (UI-SPEC)
+                    if photos.count >= 2 {
+                        photoPageIndicator
+                            .padding(.bottom, 8)
+                    }
+                }
+
+                // Temperature notch overlay — per cluster, not per photo
+                if let temp = temperature {
+                    TemperatureNotchPill(temperature: temp)
+                        .padding(.top, 12)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 320)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
 
             // Location Identity Block
             locationIdentityBlock
         }
     }
 
-    // MARK: - Photo Area
+    // MARK: - Empty Photo Placeholder
 
     @ViewBuilder
-    private func photoArea(for cluster: CityCluster) -> some View {
+    private var emptyPhotoPlaceholder: some View {
         // T-3.1-05: Check photo authorization
         let authStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         if authStatus == .denied || authStatus == .restricted {
-            // Permission denied state
             ZStack {
                 Color.Nomad.panelBlack
                     .frame(maxWidth: .infinity)
@@ -60,16 +83,7 @@ struct CityPhotoCarousel: View {
                 }
                 .padding(.horizontal, 16)
             }
-        } else if let uiImage = photos[cluster.id] {
-            // Photo loaded
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity)
-                .frame(height: 320)
-                .clipped()
         } else {
-            // Empty / loading placeholder
             ZStack {
                 Color.Nomad.panelBlack
                     .frame(maxWidth: .infinity)
@@ -83,31 +97,29 @@ struct CityPhotoCarousel: View {
         }
     }
 
-    // MARK: - Temperature Overlay
+    // MARK: - Photo Page Indicator Dots
 
-    @ViewBuilder
-    private func temperatureOverlay(for cluster: CityCluster) -> some View {
-        // Show pill when fetch has completed (key present); use placeholder when unavailable
-        if let tempOptional = temperatures[cluster.id] {
-            TemperatureNotchPill(temperature: tempOptional ?? "--°C")
-                .padding(.top, 12)
+    private var photoPageIndicator: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<photos.count, id: \.self) { i in
+                Circle()
+                    .fill(i == photoIndex ? Color.Nomad.accent : Color.Nomad.textSecondary.opacity(0.4))
+                    .frame(width: 8, height: 8)
+            }
         }
-        // Key absent = still loading, hide pill
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Location Identity Block
 
     private var locationIdentityBlock: some View {
-        let selectedCluster = clusters[safe: selectedCityIndex]
-        let cityName = selectedCluster?.cityName ?? ""
-
-        return VStack(alignment: .leading, spacing: 4) {
-            Text(cityName)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(cluster.cityName)
                 .font(AppFont.subheading())
                 .foregroundStyle(Color.Nomad.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text("\(countryName), \(cityName)")
+            Text("\(countryName), \(cluster.cityName)")
                 .font(AppFont.body())
                 .foregroundStyle(Color.Nomad.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -127,12 +139,14 @@ private extension Array {
 
 #if DEBUG
 #Preview {
-    let clusters: [CityCluster] = []
     CityPhotoCarousel(
-        clusters: clusters,
-        selectedCityIndex: .constant(0),
-        photos: [:],
-        temperatures: [:],
+        cluster: CityCluster(
+            cityName: "Vienna",
+            centroid: .init(latitude: 48.2082, longitude: 16.3738),
+            trips: []
+        ),
+        photos: [],
+        temperature: "22°C",
         countryName: "Austria"
     )
     .background(Color.Nomad.panelBlack)

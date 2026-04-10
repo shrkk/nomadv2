@@ -97,6 +97,20 @@ Plans:
 
 ---
 
+### Phase 03.3: City Detail View & Photo Gallery (INSERTED)
+
+**Goal:** Enhance CountryDetailSheet so that tapping a city card transitions into a city-focused view with a multi-photo carousel, city-scoped stats pill, and trip logs — with full-page horizontal swipe to navigate between cities in the country.
+
+**Requirements**: D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11
+
+**Depends on:** Phase 3
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03.3-01-PLAN.md — ViewModel all-photos-per-cluster + CityPhotoCarousel multi-photo inner TabView
+- [ ] 03.3-02-PLAN.md — CountryDetailSheet outer city TabView layout + visual verification
+
 ### Phase 03.2: UI Redesign & Live Activity Widget (INSERTED)
 
 **Goal:** Replace the warm amber/cream design system with a true black/white minimalist glassmorphic aesthetic across every user-facing surface, and implement an ActivityKit Live Activity widget showing active trip stats in the Dynamic Island and Lock Screen.
@@ -140,6 +154,7 @@ Plans:
 | 1. Foundation Spikes & Globe Shell | 0/4 | Planned | - |
 | 2. Data & Auth Foundation | 0/4 | Planned | - |
 | 3. Core User Journey | 0/3 | Not started | - |
+| 03.3. City Detail View & Photo Gallery | 0/2 | Planned | - |
 | 03.2. UI Redesign & Live Activity Widget | 0/1 | Planned    |  |
 | 4. Traveler Passport & Archetype System | 0/2 | Not started | - |
 
@@ -249,4 +264,5 @@ All 58 v1 requirement IDs mapped to exactly one phase. No unmapped requirements.
 *Phase 1 planned: 2026-04-04*
 *Phase 2 planned: 2026-04-05*
 *Phase 03.2 planned: 2026-04-08*
+*Phase 03.3 planned: 2026-04-09*
 *Granularity: coarse*

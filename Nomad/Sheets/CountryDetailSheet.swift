@@ -22,7 +22,7 @@ final class CountryDetailViewModel {
     var isLoading = true
 
     // Per-cluster state (keyed by CityCluster.id)
-    var photos: [UUID: UIImage] = [:]
+    var cityPhotos: [UUID: [UIImage]] = [:]
     var temperatures: [UUID: String?] = [:]  // nil inner value = hide pill, absent key = still loading
     var photoCountPerCluster: [UUID: Int] = [:]
 
@@ -49,6 +49,28 @@ final class CountryDetailViewModel {
         }
     }
 
+    // MARK: - Bounding Box Helper
+
+    private func boundingBox(for cluster: CityCluster) -> (minLat: Double, maxLat: Double, minLon: Double, maxLon: Double)? {
+        let coords = cluster.trips.flatMap { $0.routePreview }
+        guard !coords.isEmpty else { return nil }
+        let lats = coords.compactMap { $0.first }   // $0[0] = lat
+        let lons = coords.compactMap { $0.last }     // $0[1] = lon
+        guard !lats.isEmpty, !lons.isEmpty else { return nil }
+        return (lats.min()!, lats.max()!, lons.min()!, lons.max()!)
+    }
+
+    // MARK: - Memory Eviction
+
+    func evictDistantPhotos() {
+        let visibleRange = max(0, selectedCityIndex - 2)...min(clusters.count - 1, selectedCityIndex + 2)
+        for (index, cluster) in clusters.enumerated() {
+            if !visibleRange.contains(index) {
+                cityPhotos[cluster.id] = nil
+            }
+        }
+    }
+
     private func loadCluster(_ cluster: CityCluster) async {
         // Reverse geocode centroid to get real city/locality name
         let centroidLocation = CLLocation(
@@ -69,7 +91,7 @@ final class CountryDetailViewModel {
         if authStatus == .authorized || authStatus == .limited {
             let dateRange = cluster.dateRange
 
-            // Fetch representative photo (first by date, limited to 1)
+            // Fetch all photos for cluster date range + GPS bounding box
             let options = PHFetchOptions()
             options.predicate = NSPredicate(
                 format: "creationDate >= %@ AND creationDate <= %@",
@@ -77,16 +99,34 @@ final class CountryDetailViewModel {
                 dateRange.end as CVarArg
             )
             options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
-            options.fetchLimit = 1
+            // No fetchLimit — load all photos for the city
 
             let result = PHAsset.fetchAssets(with: .image, options: options)
-            if let asset = result.firstObject {
-                let screenWidth = await UIScreen.main.bounds.width
-                let targetSize = CGSize(width: screenWidth * 3, height: 960)
+            let bbox = boundingBox(for: cluster)
+            var matchedAssets: [PHAsset] = []
+            result.enumerateObjects { asset, _, _ in
+                if let loc = asset.location, let bbox = bbox {
+                    let lat = loc.coordinate.latitude
+                    let lon = loc.coordinate.longitude
+                    if lat >= bbox.minLat && lat <= bbox.maxLat &&
+                       lon >= bbox.minLon && lon <= bbox.maxLon {
+                        matchedAssets.append(asset)
+                    }
+                } else {
+                    // nil location — date-range-only fallback (DETAIL-04 pattern)
+                    matchedAssets.append(asset)
+                }
+            }
+
+            // Load images with opportunistic delivery
+            let screenWidth = await UIScreen.main.bounds.width
+            let targetSize = CGSize(width: screenWidth * 3, height: 960)
+            var loadedImages: [UIImage] = []
+            for asset in matchedAssets {
                 let image: UIImage? = await withCheckedContinuation { cont in
                     var resumed = false
                     let reqOptions = PHImageRequestOptions()
-                    reqOptions.deliveryMode = .highQualityFormat
+                    reqOptions.deliveryMode = .opportunistic
                     reqOptions.isSynchronous = false
                     reqOptions.isNetworkAccessAllowed = true
 
@@ -103,20 +143,10 @@ final class CountryDetailViewModel {
                         }
                     }
                 }
-                if let image = image {
-                    photos[cluster.id] = image
-                }
+                if let image { loadedImages.append(image) }
             }
-
-            // Count total photos for stats pill
-            let countOptions = PHFetchOptions()
-            countOptions.predicate = NSPredicate(
-                format: "creationDate >= %@ AND creationDate <= %@",
-                dateRange.start as CVarArg,
-                dateRange.end as CVarArg
-            )
-            let allAssets = PHAsset.fetchAssets(with: .image, options: countOptions)
-            photoCountPerCluster[cluster.id] = allAssets.count
+            cityPhotos[cluster.id] = loadedImages
+            photoCountPerCluster[cluster.id] = loadedImages.count
         }
 
         // Fetch temperature regardless of photo auth
@@ -162,51 +192,35 @@ struct CountryDetailSheet: View {
     }
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: true) {
-            VStack(alignment: .leading, spacing: 0) {
-                // 1. Country Header Row
-                countryHeaderRow
-                    .padding(.top, 16)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
+        VStack(spacing: 0) {
+            // 1. Country Header Row — PERSISTENT, outside TabView (D-04)
+            countryHeaderRow
+                .padding(.top, 16)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
 
-                // 2. City Strip
+            // Loading state
+            if viewModel.isLoading {
+                Spacer()
+                ProgressView()
+                Spacer()
+            } else if viewModel.clusters.isEmpty {
+                // Empty state — no cities
                 cityStripSection
-
-                // 3-5. Photo Carousel, Stats Pill, Trip Logs (only when clusters loaded)
-                if !viewModel.clusters.isEmpty {
-                    // 3. Photo Carousel + Location Identity Block
-                    CityPhotoCarousel(
-                        clusters: viewModel.clusters,
-                        selectedCityIndex: $viewModel.selectedCityIndex,
-                        photos: viewModel.photos,
-                        temperatures: viewModel.temperatures,
-                        countryName: viewModel.countryName
-                    )
-                    .padding(.top, 16)
-
-                    // 4. Stats Pill
-                    StatsPillRow(
-                        tripCount: viewModel.selectedCluster?.tripCount ?? 0,
-                        distanceKm: viewModel.selectedCluster?.totalDistanceKm ?? 0,
-                        photoCount: viewModel.photoCountPerCluster[viewModel.selectedCluster?.id ?? UUID()] ?? 0
-                    )
-                    .padding(.top, 16)
-
-                    // 5. Trip Logs Section
-                    tripLogsSection
-                        .padding(.top, 24)
-                        .padding(.horizontal, 16)
+                Spacer()
+            } else {
+                // 2. Outer city TabView — full page swipe between cities (D-08)
+                TabView(selection: $viewModel.selectedCityIndex) {
+                    ForEach(Array(viewModel.clusters.enumerated()), id: \.element.id) { index, cluster in
+                        cityDetailPage(for: cluster, at: index)
+                            .tag(index)
+                    }
                 }
-
-                // Loading state
-                if viewModel.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 48)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(maxHeight: .infinity)
+                .onChange(of: viewModel.selectedCityIndex) { _, _ in
+                    viewModel.evictDistantPhotos()
                 }
-
-                Spacer(minLength: 64) // bottom scroll clearance
             }
         }
         .panelGradient()
@@ -250,12 +264,47 @@ struct CountryDetailSheet: View {
         }
     }
 
+    // MARK: - City Detail Page
+
+    @ViewBuilder
+    private func cityDetailPage(for cluster: CityCluster, at index: Int) -> some View {
+        ScrollView(.vertical, showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 0) {
+                // City strip — repeated per page with correct selection state (D-07)
+                cityStripSection
+
+                // Multi-photo carousel (D-02) — uses CityPhotoCarousel from Plan 01
+                CityPhotoCarousel(
+                    cluster: cluster,
+                    photos: viewModel.cityPhotos[cluster.id] ?? [],
+                    temperature: viewModel.temperatures[cluster.id].flatMap { $0 },
+                    countryName: viewModel.countryName
+                )
+                .padding(.top, 16)
+
+                // Stats pill — city-scoped (D-10)
+                StatsPillRow(
+                    tripCount: cluster.tripCount,
+                    distanceKm: cluster.totalDistanceKm,
+                    photoCount: viewModel.photoCountPerCluster[cluster.id] ?? 0
+                )
+                .padding(.top, 16)
+
+                // Trip logs — city-scoped (D-11)
+                tripLogsSection(for: cluster)
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+
+                Spacer(minLength: 64) // bottom scroll clearance
+            }
+        }
+    }
+
     // MARK: - City Strip Section
 
     @ViewBuilder
     private var cityStripSection: some View {
         if viewModel.clusters.isEmpty && !viewModel.isLoading {
-            // Empty state — per UI-SPEC Copywriting
             VStack(alignment: .leading, spacing: 8) {
                 Text("No visits yet.")
                     .font(AppFont.subheading())
@@ -272,11 +321,13 @@ struct CountryDetailSheet: View {
                     ForEach(Array(viewModel.clusters.enumerated()), id: \.element.id) { index, cluster in
                         CityThumbnailCard(
                             cityName: cluster.cityName,
-                            photo: viewModel.photos[cluster.id],
+                            photo: viewModel.cityPhotos[cluster.id]?.first,
                             isSelected: index == viewModel.selectedCityIndex
                         )
                         .onTapGesture {
-                            viewModel.selectedCityIndex = index
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                                viewModel.selectedCityIndex = index
+                            }
                         }
                     }
                 }
@@ -289,12 +340,10 @@ struct CountryDetailSheet: View {
     // MARK: - Trip Logs Section
 
     @ViewBuilder
-    private var tripLogsSection: some View {
-        let trips = (viewModel.selectedCluster?.trips ?? [])
-            .sorted { $0.startDate < $1.startDate }
+    private func tripLogsSection(for cluster: CityCluster) -> some View {
+        let trips = cluster.trips.sorted { $0.startDate < $1.startDate }
 
-        if trips.isEmpty, let cluster = viewModel.selectedCluster {
-            // Empty state per UI-SPEC Copywriting
+        if trips.isEmpty {
             Text("No trips logged for \(cluster.cityName).")
                 .font(AppFont.caption())
                 .foregroundStyle(Color.Nomad.textSecondary)
