@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "updated_at": "2026-04-10T23:27:18.592Z",
+    "version": 2
+  },
+  "languages": [
+    "Swift",
+    "TypeScript"
+  ],
+  "frameworks": [
+    "SwiftUI",
+    "MapKit",
+    "SwiftData",
+    "Firebase",
+    "ActivityKit",
+    "HealthKit",
+    "Photos",
+    "CoreLocation"
+  ],
+  "tools": [
+    "Xcode",
+    "Firebase CLI"
+  ],
+  "build_system": "Xcode (SPM dependencies via Xcode project)",
+  "test_framework": "XCTest (not yet configured)",
+  "package_manager": "Swift Package Manager (iOS), npm (Cloud Functions)",
+  "content_formats": [
+    "GeoJSON (country boundaries)",
+    "Custom fonts (Inter TTF, Playfair OTF)",
+    "Firestore documents (user/trip schema)"
+  ]
+}

@@ -614,7 +614,10 @@ struct GlobeView: View {
                     CountryDetailSheet(
                         countryCode: code,
                         trips: countryTrips,
-                        initialCityName: viewModel.selectedInitialCity
+                        initialCityName: viewModel.selectedInitialCity,
+                        onDeleteTrip: { trip in
+                            viewModel.deleteTrip(trip)
+                        }
                     )
                 }
             }

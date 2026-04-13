@@ -1,0 +1,353 @@
+{
+  "_meta": {
+    "updated_at": "2026-04-10T23:27:19.112Z",
+    "version": 2
+  },
+  "entries": {
+    "Nomad/App/NomadApp.swift": {
+      "exports": [
+        "NomadApp"
+      ],
+      "imports": [
+        "SwiftUI",
+        "SwiftData",
+        "FirebaseCore"
+      ],
+      "type": "entry-point"
+    },
+    "Nomad/App/ContentView.swift": {
+      "exports": [
+        "ContentView"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "module"
+    },
+    "Nomad/App/AppDelegate.swift": {
+      "exports": [
+        "AppDelegate"
+      ],
+      "imports": [
+        "UIKit"
+      ],
+      "type": "module"
+    },
+    "Nomad/Globe/GlobeView.swift": {
+      "exports": [
+        "GlobeView",
+        "GlobeMapView"
+      ],
+      "imports": [
+        "ActivityKit",
+        "SwiftUI",
+        "MapKit",
+        "FirebaseAuth",
+        "HealthKit",
+        "SwiftData",
+        "CoreLocation",
+        "Photos"
+      ],
+      "type": "module"
+    },
+    "Nomad/Globe/GlobeViewModel.swift": {
+      "exports": [
+        "GlobeViewModel"
+      ],
+      "imports": [
+        "SwiftUI",
+        "Observation",
+        "CoreLocation",
+        "Photos",
+        "FirebaseAuth"
+      ],
+      "type": "module"
+    },
+    "Nomad/Globe/GlobePinpoint.swift": {
+      "exports": [
+        "GlobePinpoint"
+      ],
+      "imports": [],
+      "type": "module"
+    },
+    "Nomad/Globe/GlobeCountryOverlay.swift": {
+      "exports": [
+        "GlobeCountryOverlay"
+      ],
+      "imports": [],
+      "type": "module"
+    },
+    "Nomad/Auth/AuthManager.swift": {
+      "exports": [
+        "AuthManager",
+        "AuthState",
+        "GoogleSignInError"
+      ],
+      "imports": [
+        "FirebaseAuth",
+        "FirebaseFirestore",
+        "GoogleSignIn",
+        "Observation",
+        "UIKit"
+      ],
+      "type": "module"
+    },
+    "Nomad/Auth/UserService.swift": {
+      "exports": [
+        "UserService"
+      ],
+      "imports": [
+        "FirebaseFirestore",
+        "Observation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/TripService.swift": {
+      "exports": [
+        "TripService"
+      ],
+      "imports": [
+        "FirebaseFirestore",
+        "CoreLocation",
+        "SwiftData"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/FirestoreSchema.swift": {
+      "exports": [
+        "FirestoreSchema"
+      ],
+      "imports": [
+        "FirebaseFirestore"
+      ],
+      "type": "config"
+    },
+    "Nomad/Data/CityCluster.swift": {
+      "exports": [
+        "CityCluster",
+        "clusterTripsByProximity"
+      ],
+      "imports": [
+        "CoreLocation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/WeatherService.swift": {
+      "exports": [
+        "NomadWeatherService"
+      ],
+      "imports": [
+        "CoreLocation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/PlaceCategoryService.swift": {
+      "exports": [
+        "PlaceCategoryService"
+      ],
+      "imports": [
+        "MapKit",
+        "CoreLocation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/Models/RoutePoint.swift": {
+      "exports": [
+        "RoutePoint"
+      ],
+      "imports": [
+        "SwiftData",
+        "CoreLocation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/Models/TripDocument.swift": {
+      "exports": [
+        "TripDocument"
+      ],
+      "imports": [
+        "FirebaseFirestore",
+        "CoreLocation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Data/Models/TripLocal.swift": {
+      "exports": [
+        "TripLocal"
+      ],
+      "imports": [
+        "SwiftData",
+        "Foundation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Location/LocationManager.swift": {
+      "exports": [
+        "LocationManager"
+      ],
+      "imports": [
+        "ActivityKit",
+        "CoreLocation",
+        "SwiftData",
+        "Observation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Location/RouteSimplifier.swift": {
+      "exports": [
+        "RouteSimplifier"
+      ],
+      "imports": [
+        "CoreLocation"
+      ],
+      "type": "module"
+    },
+    "Nomad/Location/VisitMonitor.swift": {
+      "exports": [
+        "VisitMonitor"
+      ],
+      "imports": [
+        "CoreLocation",
+        "UserNotifications",
+        "Observation"
+      ],
+      "type": "module"
+    },
+    "Nomad/DesignSystem/AppColors.swift": {
+      "exports": [
+        "Color.Nomad"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "config"
+    },
+    "Nomad/DesignSystem/AppFont.swift": {
+      "exports": [
+        "AppFont"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "config"
+    },
+    "Nomad/DesignSystem/PanelGradient.swift": {
+      "exports": [
+        "PanelGradient"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "config"
+    },
+    "Nomad/GeoJSON/GeoJSONParser.swift": {
+      "exports": [
+        "GeoJSONParser"
+      ],
+      "imports": [],
+      "type": "module"
+    },
+    "Nomad/GeoJSON/CountryFeature.swift": {
+      "exports": [
+        "CountryFeature"
+      ],
+      "imports": [],
+      "type": "module"
+    },
+    "Nomad/Firebase/FirebaseService.swift": {
+      "exports": [
+        "FirebaseService"
+      ],
+      "imports": [
+        "FirebaseFirestore"
+      ],
+      "type": "module"
+    },
+    "Nomad/Sheets/CountryDetailSheet.swift": {
+      "exports": [
+        "CountryDetailSheet",
+        "CountryDetailViewModel"
+      ],
+      "imports": [
+        "SwiftUI",
+        "Photos",
+        "CoreLocation",
+        "MapKit"
+      ],
+      "type": "module"
+    },
+    "Nomad/Sheets/TripDetailSheet.swift": {
+      "exports": [
+        "TripDetailSheet"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "module"
+    },
+    "Nomad/Sheets/ProfileSheet.swift": {
+      "exports": [
+        "ProfileSheet"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "module"
+    },
+    "Nomad/Sheets/TravelerPassportStub.swift": {
+      "exports": [
+        "TravelerPassportStub"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "module"
+    },
+    "Nomad/Onboarding/OnboardingCoordinator.swift": {
+      "exports": [
+        "OnboardingCoordinator"
+      ],
+      "imports": [],
+      "type": "module"
+    },
+    "Nomad/Onboarding/OnboardingView.swift": {
+      "exports": [
+        "OnboardingView"
+      ],
+      "imports": [
+        "SwiftUI"
+      ],
+      "type": "module"
+    },
+    "NomadLiveActivity/TripActivityAttributes.swift": {
+      "exports": [
+        "TripActivityAttributes"
+      ],
+      "imports": [
+        "ActivityKit",
+        "Foundation"
+      ],
+      "type": "module"
+    },
+    "NomadLiveActivity/TripLiveActivity.swift": {
+      "exports": [
+        "TripLiveActivity"
+      ],
+      "imports": [
+        "ActivityKit"
+      ],
+      "type": "module"
+    },
+    "functions/src/index.ts": {
+      "exports": [
+        "onUserDeleted"
+      ],
+      "imports": [
+        "firebase-functions/v1",
+        "firebase-admin/app",
+        "firebase-admin/firestore"
+      ],
+      "type": "entry-point"
+    }
+  }
+}

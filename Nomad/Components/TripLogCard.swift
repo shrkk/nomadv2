@@ -9,6 +9,7 @@ import SwiftUI
 struct TripLogCard: View {
     let trip: TripDocument
     let onTap: () -> Void
+    var onDelete: (() -> Void)? = nil
 
     private var formattedDate: String {
         let formatter = DateFormatter()
@@ -17,30 +18,51 @@ struct TripLogCard: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
-            HStack(alignment: .top, spacing: 12) {
-                // Route strip: 48x36pt
-                routeStrip
+        VStack(spacing: 0) {
+            Button(action: onTap) {
+                HStack(alignment: .top, spacing: 12) {
+                    // Route strip: 48x36pt
+                    routeStrip
 
-                // Text block
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(trip.cityName)
-                        .font(AppFont.body())
-                        .foregroundStyle(Color.Nomad.textPrimary)
-                        .lineLimit(2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    // Text block
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(trip.cityName)
+                            .font(AppFont.body())
+                            .foregroundStyle(Color.Nomad.textPrimary)
+                            .lineLimit(2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Text(formattedDate)
-                        .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.textSecondary)
+                        Text(formattedDate)
+                            .font(AppFont.caption())
+                            .foregroundStyle(Color.Nomad.textSecondary)
+                    }
+
+                    Spacer()
                 }
-
-                Spacer()
             }
-            .padding(12)
-            .innerCardSurface()
+            .buttonStyle(.plain)
+
+            if let onDelete {
+                Divider()
+                    .overlay(Color.Nomad.textSecondary.opacity(0.2))
+
+                Button(action: onDelete) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 13))
+                        Text("Delete Trip")
+                            .font(AppFont.caption())
+                    }
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .buttonStyle(.plain)
+        .padding(.top, 12)
+        .padding(.horizontal, 12)
+        .innerCardSurface()
     }
 
     // MARK: - Route Strip

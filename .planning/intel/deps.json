@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "updated_at": "2026-04-10T23:27:20.660Z",
+    "version": 2
+  },
+  "entries": {
+    "FirebaseCore": {
+      "version": "SPM (latest)",
+      "type": "production",
+      "used_by": [
+        "Nomad/App/NomadApp.swift"
+      ],
+      "invocation": "implicit"
+    },
+    "FirebaseAuth": {
+      "version": "SPM (latest)",
+      "type": "production",
+      "used_by": [
+        "Nomad/Auth/AuthManager.swift",
+        "Nomad/Globe/GlobeView.swift",
+        "Nomad/Globe/GlobeViewModel.swift"
+      ],
+      "invocation": "implicit"
+    },
+    "FirebaseFirestore": {
+      "version": "SPM (latest)",
+      "type": "production",
+      "used_by": [
+        "Nomad/Data/TripService.swift",
+        "Nomad/Data/FirestoreSchema.swift",
+        "Nomad/Auth/UserService.swift",
+        "Nomad/Firebase/FirebaseService.swift"
+      ],
+      "invocation": "implicit"
+    },
+    "GoogleSignIn": {
+      "version": "SPM (latest)",
+      "type": "production",
+      "used_by": [
+        "Nomad/Auth/AuthManager.swift"
+      ],
+      "invocation": "implicit"
+    },
+    "firebase-admin": {
+      "version": "^12.0.0",
+      "type": "production",
+      "used_by": [
+        "functions/src/index.ts"
+      ],
+      "invocation": "npm run deploy"
+    },
+    "firebase-functions": {
+      "version": "^5.0.0",
+      "type": "production",
+      "used_by": [
+        "functions/src/index.ts"
+      ],
+      "invocation": "npm run deploy"
+    },
+    "typescript": {
+      "version": "^5.0.0",
+      "type": "development",
+      "used_by": [
+        "functions/src/index.ts"
+      ],
+      "invocation": "npm run build"
+    }
+  }
+}

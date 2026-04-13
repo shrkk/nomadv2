@@ -49,6 +49,19 @@ final class CountryDetailViewModel {
         }
     }
 
+    // MARK: - Trip Removal
+
+    func removeTrip(_ trip: TripDocument) {
+        for i in clusters.indices {
+            clusters[i].trips.removeAll { $0.id == trip.id }
+        }
+        // Remove empty clusters
+        clusters.removeAll { $0.trips.isEmpty }
+        if selectedCityIndex >= clusters.count {
+            selectedCityIndex = max(0, clusters.count - 1)
+        }
+    }
+
     // MARK: - Bounding Box Helper
 
     private func boundingBox(for cluster: CityCluster) -> (minLat: Double, maxLat: Double, minLon: Double, maxLon: Double)? {
@@ -171,18 +184,22 @@ struct CountryDetailSheet: View {
     let countryName: String
     let trips: [TripDocument]
     let initialCityName: String?
+    var onDeleteTrip: ((TripDocument) -> Void)? = nil
 
     @State private var viewModel: CountryDetailViewModel
     @Environment(\.dismiss) private var dismiss
 
     @State private var showTripDetail = false
     @State private var selectedTripForDetail: TripDocument? = nil
+    @State private var tripToDelete: TripDocument? = nil
+    @State private var showDeleteConfirmation = false
 
-    init(countryCode: String, trips: [TripDocument], initialCityName: String? = nil) {
+    init(countryCode: String, trips: [TripDocument], initialCityName: String? = nil, onDeleteTrip: ((TripDocument) -> Void)? = nil) {
         self.countryCode = countryCode
         self.countryName = Locale.current.localizedString(forRegionCode: countryCode) ?? countryCode
         self.trips = trips
         self.initialCityName = initialCityName
+        self.onDeleteTrip = onDeleteTrip
         let name = Locale.current.localizedString(forRegionCode: countryCode) ?? countryCode
         self._viewModel = State(initialValue: CountryDetailViewModel(
             countryCode: countryCode,
@@ -239,6 +256,22 @@ struct CountryDetailSheet: View {
         .sheet(isPresented: $showTripDetail) {
             if let trip = selectedTripForDetail {
                 TripDetailSheet(trip: trip)
+            }
+        }
+        .alert("Delete Trip", isPresented: $showDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                if let trip = tripToDelete {
+                    viewModel.removeTrip(trip)
+                    onDeleteTrip?(trip)
+                }
+                tripToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                tripToDelete = nil
+            }
+        } message: {
+            if let trip = tripToDelete {
+                Text("Delete the log for \(trip.cityName)? This cannot be undone.")
             }
         }
     }
@@ -352,11 +385,14 @@ struct CountryDetailSheet: View {
         } else {
             VStack(spacing: 8) {
                 ForEach(trips) { trip in
-                    TripLogCard(trip: trip) {
+                    TripLogCard(trip: trip, onTap: {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                             openTripDetail(trip)
                         }
-                    }
+                    }, onDelete: {
+                        tripToDelete = trip
+                        showDeleteConfirmation = true
+                    })
                 }
             }
         }

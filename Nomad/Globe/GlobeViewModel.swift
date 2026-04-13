@@ -78,6 +78,18 @@ class GlobeViewModel {
         activeRouteCoordinates = []
     }
 
+    /// Delete a trip from Firestore and remove it from local state.
+    func deleteTrip(_ trip: TripDocument) {
+        trips.removeAll { $0.id == trip.id }
+        tripPhotos.removeValue(forKey: trip.id)
+
+        Task {
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            let tripService = TripService()
+            try? await tripService.deleteTrip(userId: uid, tripId: trip.id)
+        }
+    }
+
     func loadGlobeData() async {
         do {
             let parser = GeoJSONParser()

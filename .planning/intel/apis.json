@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "updated_at": "2026-04-10T23:27:20.179Z",
+    "version": 2
+  },
+  "entries": {
+    "Firestore users/{uid}": {
+      "method": "read/write",
+      "path": "users/{uid}",
+      "params": [
+        "handle",
+        "email",
+        "homeCityName",
+        "homeCityLatitude",
+        "homeCityLongitude",
+        "discoveryScope",
+        "geofenceRadius",
+        "onboardingComplete",
+        "visitedCountryCodes"
+      ],
+      "file": "Nomad/Data/FirestoreSchema.swift",
+      "description": "User profile document with onboarding state and home city"
+    },
+    "Firestore users/{uid}/trips/{tripId}": {
+      "method": "read/write",
+      "path": "users/{uid}/trips/{tripId}",
+      "params": [
+        "cityName",
+        "startDate",
+        "endDate",
+        "stepCount",
+        "distanceMeters",
+        "routePreview",
+        "visitedCountryCodes",
+        "placeCounts",
+        "userId"
+      ],
+      "file": "Nomad/Data/TripService.swift",
+      "description": "Trip document with denormalized stats and route preview"
+    },
+    "Firestore users/{uid}/trips/{tripId}/routePoints": {
+      "method": "write",
+      "path": "users/{uid}/trips/{tripId}/routePoints",
+      "params": [
+        "latitude",
+        "longitude",
+        "timestamp",
+        "accuracy",
+        "altitude"
+      ],
+      "file": "Nomad/Data/TripService.swift",
+      "description": "GPS route points batch-written in 400-op chunks"
+    },
+    "Firestore usernames/{handle}": {
+      "method": "read/write",
+      "path": "usernames/{handle}",
+      "params": [
+        "uid"
+      ],
+      "file": "Nomad/Auth/UserService.swift",
+      "description": "Username reservation for handle uniqueness"
+    },
+    "Cloud Function onUserDeleted": {
+      "method": "trigger",
+      "path": "auth.user().onDelete",
+      "params": [
+        "user.uid"
+      ],
+      "file": "functions/src/index.ts",
+      "description": "Cleans up user doc and username reservation on Firebase Auth user deletion"
+    }
+  }
+}

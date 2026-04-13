@@ -91,6 +91,29 @@ final class TripService {
         ])
     }
 
+    // MARK: - Delete
+
+    /// Delete a trip document and its routePoints subcollection from Firestore.
+    func deleteTrip(userId: String, tripId: String) async throws {
+        // 1. Delete all routePoints in the subcollection
+        let routePointsRef = FirestoreSchema.routePointsCollection(userId, tripId: tripId)
+        let snapshot = try await routePointsRef.getDocuments()
+        let batchSize = 400
+        let chunks = stride(from: 0, to: snapshot.documents.count, by: batchSize).map {
+            Array(snapshot.documents[$0..<min($0 + batchSize, snapshot.documents.count)])
+        }
+        for chunk in chunks {
+            let batch = db.batch()
+            for doc in chunk {
+                batch.deleteDocument(doc.reference)
+            }
+            try await batch.commit()
+        }
+
+        // 2. Delete the trip document itself
+        try await FirestoreSchema.tripDoc(userId, tripId: tripId).delete()
+    }
+
     // MARK: - Read
 
     /// Fetch all trips for a user, ordered by startDate descending (newest first).
