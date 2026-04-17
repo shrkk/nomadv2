@@ -110,12 +110,12 @@ private struct ScopeCard: View {
             }
             .padding(16)
             .frame(minHeight: 88)
-            .background(isSelected ? Color.white.opacity(0.10) : Color.black.opacity(0.35))
+            .background(isSelected ? Color.Nomad.accent.opacity(0.10) : Color.Nomad.globeBackground.opacity(0.50))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isSelected ? Color.white : Color.white.opacity(0.15),
+                        isSelected ? Color.Nomad.accent : Color.Nomad.surfaceBorder.opacity(0.12),
                         lineWidth: isSelected ? 2 : 1
                     )
             )

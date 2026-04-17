@@ -54,19 +54,19 @@ struct GlobeCountryOverlay {
         let image = renderer.image { ctx in
             let cgCtx = ctx.cgContext
 
-            // Ocean background — rich deep blue
-            let oceanColor = UIColor(red: 0.08, green: 0.12, blue: 0.28, alpha: 1.0)
+            // Ocean background — deepest navy (#020920)
+            let oceanColor = UIColor(hex: 0x020920)
             cgCtx.setFillColor(oceanColor.cgColor)
             cgCtx.fill(CGRect(origin: .zero, size: size))
 
-            // Land color for unvisited countries — visible gray-blue
-            let landColor = UIColor(red: 0.22, green: 0.25, blue: 0.24, alpha: 1.0)
-            // Visited country fill: #E8A44A at 80% opacity — brighter
-            let visitedFillColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.8)
-            // Visited glow: #E8A44A at 50% opacity — more visible
-            let glowColor = UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 0.5)
-            // Border for all countries — more visible
-            let borderColor = UIColor(red: 0.35, green: 0.38, blue: 0.42, alpha: 0.6)
+            // Land color for unvisited countries — dark navy (#0C2457)
+            let landColor = UIColor(hex: 0x0C2457)
+            // Visited country fill — medium blue (#2D62D3) at 80% opacity
+            let visitedFillColor = UIColor(hex: 0x2D62D3, alpha: 0.8)
+            // Visited glow — periwinkle blue (#5E89DD) at 50% opacity
+            let glowColor = UIColor(hex: 0x5E89DD, alpha: 0.5)
+            // Border for all countries — muted indigo (#4A4A93) at 60% opacity
+            let borderColor = UIColor(hex: 0x4A4A93, alpha: 0.6)
 
             // Draw ALL countries as land masses first
             for country in countries {
@@ -117,6 +117,62 @@ struct GlobeCountryOverlay {
         }
 
         return image
+    }
+
+    // MARK: - Passport Flat Map
+
+    /// Renders a flat 2D equirectangular world map for the passport view.
+    /// Visited countries are highlighted in gold; unvisited in dark navy.
+    static func renderPassportMap(
+        countries: [CountryFeature],
+        visitedCodes: Set<String>,
+        size: CGSize = CGSize(width: 800, height: 400)
+    ) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { ctx in
+            let gc = ctx.cgContext
+
+            // Ocean — deep navy
+            gc.setFillColor(UIColor(hex: 0x0F0F28).cgColor)
+            gc.fill(CGRect(origin: .zero, size: size))
+
+            let landColor = UIColor(hex: 0x1C4396, alpha: 0.35)
+            let visitedFill = UIColor(hex: 0x5EE0DD, alpha: 0.9)   // light neon blue
+            let visitedGlow = UIColor(hex: 0x5EE0DD, alpha: 0.4)
+            let borderColor = UIColor(hex: 0x4A4A93, alpha: 0.3)
+
+            for country in countries {
+                let isVisited = visitedCodes.contains(country.isoCode)
+
+                for ring in country.polygons {
+                    guard ring.count >= 3 else { continue }
+
+                    let path = CGMutablePath()
+                    let first = geoJSONToPixel(lon: ring[0].longitude, lat: ring[0].latitude, size: size)
+                    path.move(to: first)
+                    for coord in ring.dropFirst() {
+                        path.addLine(to: geoJSONToPixel(lon: coord.longitude, lat: coord.latitude, size: size))
+                    }
+                    path.closeSubpath()
+
+                    if isVisited {
+                        gc.setShadow(offset: .zero, blur: 6, color: visitedGlow.cgColor)
+                        gc.setFillColor(visitedFill.cgColor)
+                    } else {
+                        gc.setShadow(offset: .zero, blur: 0, color: UIColor.clear.cgColor)
+                        gc.setFillColor(landColor.cgColor)
+                    }
+                    gc.addPath(path)
+                    gc.fillPath()
+
+                    gc.setShadow(offset: .zero, blur: 0, color: UIColor.clear.cgColor)
+                    gc.setStrokeColor(borderColor.cgColor)
+                    gc.setLineWidth(0.5)
+                    gc.addPath(path)
+                    gc.strokePath()
+                }
+            }
+        }
     }
 
     // MARK: - TextureResource Conversion

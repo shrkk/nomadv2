@@ -27,7 +27,7 @@ struct CityThumbnailCard: View {
             // Selection dot — white when selected, clear spacer when not
             if isSelected {
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color.Nomad.accent)
                     .frame(width: 4, height: 4)
             } else {
                 Color.clear
@@ -61,7 +61,7 @@ struct CityThumbnailCard: View {
         .overlay {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
-                    isSelected ? Color.white : Color.white.opacity(0.15),
+                    isSelected ? Color.Nomad.accent : Color.Nomad.surfaceBorder.opacity(0.12),
                     lineWidth: isSelected ? 2 : 1
                 )
         }

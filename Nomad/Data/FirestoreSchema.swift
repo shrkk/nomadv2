@@ -41,6 +41,7 @@ enum FirestoreSchema {
         static let stepCount = "stepCount"
         static let distanceMeters = "distanceMeters"
         static let userId = "userId"
+        static let locality = "locality"
     }
 
     /// User document field keys (D-15)

@@ -29,7 +29,7 @@ struct JourneyPill: View {
 
             // Divider
             Rectangle()
-                .fill(Color.white.opacity(0.20))
+                .fill(Color.Nomad.surfaceBorder.opacity(0.20))
                 .frame(width: 1, height: 24)
 
             // Log trip button
@@ -55,7 +55,7 @@ struct JourneyPill: View {
 #if DEBUG
 #Preview {
     ZStack {
-        Color.black.ignoresSafeArea()
+        Color.Nomad.globeBackground.ignoresSafeArea()
         VStack {
             Spacer()
             JourneyPill(

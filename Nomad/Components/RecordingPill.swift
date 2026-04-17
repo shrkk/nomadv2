@@ -21,7 +21,7 @@ struct RecordingPill: View {
         HStack(spacing: 8) {
             // Pulsing white dot — 8pt diameter, Color.white (D-04)
             Circle()
-                .fill(Color.white)
+                .fill(Color.Nomad.textPrimary)
                 .frame(width: 8, height: 8)
                 .modifier(PulseAnimation())
 
@@ -39,7 +39,7 @@ struct RecordingPill: View {
                     .padding(.vertical, 6)
                     .background(
                         Capsule()
-                            .fill(Color.black.opacity(0.35))
+                            .fill(Color.Nomad.globeBackground.opacity(0.50))
                             .overlay(
                                 Capsule()
                                     .stroke(Color.Nomad.destructive.opacity(0.40), lineWidth: 1)
@@ -51,7 +51,7 @@ struct RecordingPill: View {
         .padding(.horizontal, 16)
         .frame(minHeight: 44) // Touch target
         .floatingPillSurface()
-        .shadow(color: .black.opacity(0.20), radius: 8, y: 4)
+        .shadow(color: Color.Nomad.globeBackground.opacity(0.30), radius: 8, y: 4)
         .onReceive(timer) { _ in
             elapsedSeconds += 1
         }

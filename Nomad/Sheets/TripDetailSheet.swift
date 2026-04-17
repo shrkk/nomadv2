@@ -73,10 +73,10 @@ struct TripDetailSheet: View {
                         .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.black.opacity(0.35))
+                                .fill(Color.Nomad.globeBackground.opacity(0.50))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.white.opacity(0.20), lineWidth: 1)
+                                        .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
                                 )
                         )
                     }

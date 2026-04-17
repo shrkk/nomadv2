@@ -38,6 +38,7 @@
 		BAB1B9137B594C2CABFA9A0E /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9245CA396446D896EA50F6 /* FirebaseService.swift */; };
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */; };
 		C98FE2FDD90349E0B94C1E03 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4477F0441A44305908292A1 /* Inter-Regular.ttf */; };
+		A7BBB7F575AA4A84AB3428D3 /* CalSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */; };
 		CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */; };
 		CC31DD32EE33FF34AA35BB36 /* CityCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */; };
 		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
@@ -142,6 +143,7 @@
 		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
 		D32422AB49024EB385B48A1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D4477F0441A44305908292A1 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
+		5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CalSans-Regular.ttf"; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryFeature.swift; sourceTree = "<group>"; };
 		DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobePinpoint.swift; sourceTree = "<group>"; };
 		DS11DS12DS13DS14DS15DS16 /* DragStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragStrip.swift; sourceTree = "<group>"; };
@@ -268,6 +270,7 @@
 			isa = PBXGroup;
 			children = (
 				D4477F0441A44305908292A1 /* Inter-Regular.ttf */,
+				5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */,
 				2C9CB6DB828A4E6F9C335D66 /* Inter-SemiBold.ttf */,
 				0A3055CBDFA84C0790358811 /* PlayfairDisplay-Regular.otf */,
 				48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */,
@@ -533,6 +536,7 @@
 			files = (
 				F360014E61104CF6BF9FDC5B /* Assets.xcassets in Resources */,
 				C98FE2FDD90349E0B94C1E03 /* Inter-Regular.ttf in Resources */,
+				A7BBB7F575AA4A84AB3428D3 /* CalSans-Regular.ttf in Resources */,
 				A66194437CE04E958ABD4DFA /* Inter-SemiBold.ttf in Resources */,
 				9D5C59EAC5D648CA91150019 /* PlayfairDisplay-Regular.otf in Resources */,
 				005EF683D0254C09A61CA830 /* PlayfairDisplay-SemiBold.otf in Resources */,

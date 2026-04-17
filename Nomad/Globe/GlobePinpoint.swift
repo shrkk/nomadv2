@@ -57,7 +57,7 @@ struct GlobePinpoint {
         let pinpoint = ModelEntity(
             mesh: .generateSphere(radius: 0.012),
             materials: [UnlitMaterial(
-                color: UIColor(red: 0.910, green: 0.643, blue: 0.290, alpha: 1.0)  // #E8A44A
+                color: UIColor(hex: 0x5E89DD)  // Periwinkle blue accent
             )]
         )
         pinpoint.position = spherePosition(lat: trip.latitude, lon: trip.longitude)

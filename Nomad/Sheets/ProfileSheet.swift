@@ -2,27 +2,20 @@ import SwiftUI
 
 // MARK: - ProfileSheet
 //
-// Primary bottom sheet — slides up from GlobeView when DragStrip is tapped/dragged or
-// a pinpoint is selected. Contains real trip data as route preview cards and
-// hosts the NESTED second sheet (TripDetailSheet).
-//
-// INFRA-02 spike: The second sheet (.sheet(isPresented: $showTripDetail)) is attached
-// INSIDE this view's body — NOT alongside GlobeView's .sheet(). This is the only pattern
-// that avoids cascading dismissal (dismissing TripDetailSheet leaves ProfileSheet visible).
-//
-// Design: Panel gradient (D-07), Playfair Display titles, Inter body (D-08).
-// Source: PANEL-01 through PANEL-06, UI-SPEC Profile Sheet + Trip Preview Card.
+// Persistent bottom panel with three snap points: peek (handle visible),
+// half screen, and full screen. Contains two tabs: Passport and Journeys.
+// Replaces the old modal sheet + DragStrip + JourneyPill pattern.
 
 struct ProfileSheet: View {
     let trips: [TripDocument]
     let scrollToTripId: String?
     let onStartTrip: (() -> Void)?
     var onDeleteTrip: ((TripDocument) -> Void)? = nil
+    var countries: [CountryFeature] = []
     var homeCityName: String? = nil
 
     @State private var showTripDetail = false
     @State private var detailTrip: TripDocument? = nil
-    @State private var showPassport = false
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -36,125 +29,100 @@ struct ProfileSheet: View {
         return f
     }()
 
+    // MARK: - Custom peek detent
+
+    @State private var currentDetent: PresentationDetent = .height(56)
+
+    private var isPeeking: Bool {
+        currentDetent == .height(56)
+    }
+
+    // MARK: - Body
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // MARK: Header
-            HStack(alignment: .center) {
-                Button {
-                    showPassport = true
-                } label: {
-                    Image(systemName: "person.circle")
-                        .font(.system(size: 24))
-                        .foregroundStyle(Color.Nomad.textPrimary)
-                        .frame(width: 44, height: 44)
-                }
-
-                Spacer()
-
-                Text("Your Journeys")
-                    .font(AppFont.title())
-                    .foregroundStyle(Color.Nomad.textPrimary)
-
-                Spacer()
-
-                Button {
-                    onStartTrip?()
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(Color.Nomad.accent)
-                        .frame(width: 44, height: 44)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 44)
-            .padding(.bottom, homeCityName != nil ? 8 : 16)
-
-            // MARK: Home city
-            if let homeCityName {
-                HStack(spacing: 6) {
-                    Image(systemName: "house.fill")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.Nomad.textSecondary)
-                    Text(homeCityName)
-                        .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.textSecondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 12)
-            }
-
-            // MARK: Trip list or empty state
-            if trips.isEmpty {
-                VStack(spacing: 8) {
-                    Text("No trips yet.")
-                        .font(AppFont.subheading())
-                        .foregroundStyle(Color.Nomad.textPrimary)
-                    Text("Tap + to start recording your first trip.")
-                        .font(AppFont.caption())
-                        .foregroundStyle(Color.Nomad.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.horizontal, 16)
+        Group {
+            if isPeeking {
+                // Collapsed: just the pill, no full-width container
+                peekPill
+                    .padding(.top, 10)
+                    .frame(maxWidth: .infinity)
             } else {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(trips) { trip in
-                                TripPreviewCard(
-                                    trip: trip,
-                                    dateFormatter: Self.dateFormatter,
-                                    stepsFormatter: Self.stepsFormatter,
-                                    onTap: {
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                                            detailTrip = trip
-                                            showTripDetail = true
-                                        }
-                                    },
-                                    onDelete: onDeleteTrip.map { cb in { cb(trip) } },
-                                    onShare: { shareTrip(trip) }
-                                )
-                                .id(trip.id)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 24)
-                    }
-                    .onChange(of: scrollToTripId) { _, newId in
-                        guard let id = newId else { return }
-                        withAnimation {
-                            proxy.scrollTo(id, anchor: .top)
-                        }
-                    }
+                // Expanded: full panel with background
+                VStack(spacing: 0) {
+                    handleBar
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+
+                    TravelerPassport(
+                        trips: trips,
+                        visitedCountryCodes: Array(Set(trips.flatMap(\.visitedCountryCodes))),
+                        countries: countries,
+                        homeCityName: homeCityName,
+                        onTripTap: { trip in
+                            detailTrip = trip
+                            showTripDetail = true
+                        },
+                        onDeleteTrip: onDeleteTrip,
+                        onStartTrip: onStartTrip
+                    )
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .background(Color.Nomad.panelBlack.ignoresSafeArea())
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .panelGradient()
         .ignoresSafeArea(edges: .bottom)
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
-        .presentationBackground(Color.Nomad.panelBlack)
-        // CRITICAL (INFRA-02): TripDetailSheet nested inside ProfileSheet body.
+        .presentationDetents([.height(56), .medium, .large], selection: $currentDetent)
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(.clear)
+        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+        .interactiveDismissDisabled()
         .sheet(isPresented: $showTripDetail) {
             if let trip = detailTrip {
                 TripDetailSheet(trip: trip)
             }
         }
-        .sheet(isPresented: $showPassport) {
-            TravelerPassportStub()
+    }
+
+    // MARK: - Handle Bar
+
+    // MARK: - Peek Pill (collapsed state)
+
+    private var peekPill: some View {
+        Button {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                currentDetent = .medium
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "person.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color.Nomad.accent)
+                Text("My Profile")
+                    .font(AppFont.caption())
+                    .foregroundStyle(Color.Nomad.textPrimary)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                Capsule()
+                    .fill(Color.Nomad.panelBlack)
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.15), lineWidth: 1)
+                    )
+                    .shadow(color: Color.Nomad.globeBackground.opacity(0.4), radius: 8, y: 4)
+            )
         }
     }
 
-    private func shareTrip(_ trip: TripDocument) {
-        let text = "\(trip.cityName) — \(Self.dateFormatter.string(from: trip.startDate))"
-        let av = UIActivityViewController(activityItems: [text], applicationActivities: nil)
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let root = scene.windows.first?.rootViewController {
-            root.present(av, animated: true)
-        }
+    // MARK: - Handle Bar
+
+    private var handleBar: some View {
+        Capsule()
+            .fill(Color.Nomad.surfaceBorder.opacity(0.30))
+            .frame(width: 36, height: 4)
     }
+
 }
 
 // MARK: - Trip Preview Card
@@ -168,34 +136,31 @@ struct TripPreviewCard: View {
     var onShare: (() -> Void)? = nil
 
     @State private var swipeOffset: CGFloat = 0
-    private let actionWidth: CGFloat = 132 // 2 × 66pt action buttons
+    private let actionWidth: CGFloat = 132
 
     var body: some View {
         ZStack(alignment: .trailing) {
-            // MARK: Action buttons revealed on swipe
             HStack(spacing: 12) {
-                // Share
                 Button {
                     resetSwipe()
                     onShare?()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.Nomad.textPrimary)
                         .frame(width: 48, height: 48)
                         .background(Color.Nomad.panelBlack)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                        .overlay(Circle().stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1))
                 }
 
-                // Delete
                 Button {
                     resetSwipe()
                     onDelete?()
                 } label: {
                     Image(systemName: "trash")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.Nomad.textPrimary)
                         .frame(width: 48, height: 48)
                         .background(Color.red)
                         .clipShape(Circle())
@@ -204,7 +169,6 @@ struct TripPreviewCard: View {
             .padding(.trailing, 8)
             .opacity(swipeOffset < 0 ? 1 : 0)
 
-            // MARK: Card content (slides left on swipe)
             cardContent
                 .offset(x: swipeOffset)
                 .gesture(
@@ -212,7 +176,6 @@ struct TripPreviewCard: View {
                         .onChanged { value in
                             let dx = value.translation.width
                             if dx < 0 {
-                                // Resist past full reveal with rubber-band
                                 swipeOffset = max(dx, -actionWidth - 20) * (abs(dx) > actionWidth ? 0.3 : 1)
                             } else if swipeOffset < 0 {
                                 swipeOffset = min(0, swipeOffset + dx)
@@ -237,7 +200,6 @@ struct TripPreviewCard: View {
 
     private var cardContent: some View {
         HStack(spacing: 16) {
-            // Route strip — transparent background so card colour shows through
             ZStack {
                 Color.clear
                 GeometryReader { geo in
@@ -273,10 +235,10 @@ struct TripPreviewCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.black.opacity(0.35))
+                .fill(Color.Nomad.globeBackground.opacity(0.50))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        .stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1)
                 )
         )
     }
@@ -297,61 +259,34 @@ struct TripPreviewCard: View {
 #if DEBUG
 private let previewTrips: [TripDocument] = [
     TripDocument(
-        id: "preview-tokyo",
-        cityName: "Tokyo",
+        id: "preview-tokyo", cityName: "Tokyo",
         startDate: Date(timeIntervalSinceNow: -86400 * 30),
         endDate: Date(timeIntervalSinceNow: -86400 * 28),
-        stepCount: 12450,
-        distanceMeters: 8300,
-        routePreview: [
-            [35.6762, 139.6503],
-            [35.6895, 139.6917],
-            [35.7100, 139.8107],
-            [35.6584, 139.7454]
-        ],
-        visitedCountryCodes: ["JP"],
-        placeCounts: ["food": 3, "culture": 2]
+        stepCount: 12450, distanceMeters: 8300,
+        routePreview: [[35.6762, 139.6503], [35.6895, 139.6917], [35.7100, 139.8107]],
+        visitedCountryCodes: ["JP"], placeCounts: ["food": 3, "culture": 2]
     ),
     TripDocument(
-        id: "preview-paris",
-        cityName: "Paris",
+        id: "preview-paris", cityName: "Paris",
         startDate: Date(timeIntervalSinceNow: -86400 * 90),
         endDate: Date(timeIntervalSinceNow: -86400 * 88),
-        stepCount: 9800,
-        distanceMeters: 6200,
-        routePreview: [
-            [48.8566, 2.3522],
-            [48.8630, 2.3387],
-            [48.8738, 2.2950]
-        ],
-        visitedCountryCodes: ["FR"],
-        placeCounts: ["culture": 4, "food": 2]
+        stepCount: 9800, distanceMeters: 6200,
+        routePreview: [[48.8566, 2.3522], [48.8630, 2.3387], [48.8738, 2.2950]],
+        visitedCountryCodes: ["FR"], placeCounts: ["culture": 4, "food": 2]
     )
 ]
 
 #Preview("With trips") {
-    ZStack {
-        Color.Nomad.globeBackground.ignoresSafeArea()
-    }
-    .sheet(isPresented: .constant(true)) {
-        ProfileSheet(
-            trips: previewTrips,
-            scrollToTripId: nil,
-            onStartTrip: nil
-        )
-    }
+    Color.Nomad.globeBackground.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            ProfileSheet(trips: previewTrips, scrollToTripId: nil, onStartTrip: nil)
+        }
 }
 
 #Preview("Empty state") {
-    ZStack {
-        Color.Nomad.globeBackground.ignoresSafeArea()
-    }
-    .sheet(isPresented: .constant(true)) {
-        ProfileSheet(
-            trips: [],
-            scrollToTripId: nil,
-            onStartTrip: nil
-        )
-    }
+    Color.Nomad.globeBackground.ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            ProfileSheet(trips: [], scrollToTripId: nil, onStartTrip: nil)
+        }
 }
 #endif

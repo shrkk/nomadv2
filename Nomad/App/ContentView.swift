@@ -18,7 +18,7 @@ struct ContentView: View {
                     HStack {
                         Spacer()
                         Capsule()
-                            .fill(Color.white.opacity(0.30))
+                            .fill(Color.Nomad.surfaceBorder.opacity(0.30))
                             .frame(width: 36, height: 4)
                         Spacer()
                     }

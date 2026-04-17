@@ -15,13 +15,13 @@ struct StatsPillRow: View {
             statCell(value: "\(tripCount)", label: "logs")
 
             Rectangle()
-                .fill(Color.white.opacity(0.15))
+                .fill(Color.Nomad.surfaceBorder.opacity(0.12))
                 .frame(width: 1, height: 20)
 
             statCell(value: String(format: "%.1f", distanceKm), label: "km")
 
             Rectangle()
-                .fill(Color.white.opacity(0.15))
+                .fill(Color.Nomad.surfaceBorder.opacity(0.12))
                 .frame(width: 1, height: 20)
 
             statCell(value: "\(photoCount)", label: "photos")
@@ -30,10 +30,10 @@ struct StatsPillRow: View {
         .frame(height: 44)
         .background(
             RoundedRectangle(cornerRadius: 22)
-                .fill(Color.black.opacity(0.35))
+                .fill(Color.Nomad.globeBackground.opacity(0.50))
                 .overlay(
                     RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        .stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1)
                 )
         )
         .padding(.horizontal, 16)

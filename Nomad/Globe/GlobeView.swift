@@ -186,139 +186,90 @@ struct GlobeMapView: UIViewRepresentable {
             }
         }
 
-        // MARK: - Pin Shape Drawing
+        // MARK: - Pin Rendering
 
-        /// Classic map-pin outline: circle head with a pointed tail, matching the
-        /// reference silhouette (thick stroke, circular photo inset).
-        private func pinPath(width: CGFloat, height: CGFloat) -> UIBezierPath {
-            // The circle occupies the top portion; the tail tapers to a point.
-            let borderInset: CGFloat = 3          // keep path inside canvas for stroke
-            let circleD = width - borderInset * 2 // circle diameter
-            let circleR = circleD / 2
-            let cx = width / 2
-            let cy = borderInset + circleR        // circle center Y
-            let tipY = height - borderInset
-
-            // Angle where the tangent lines from the tip meet the circle (~38°)
-            let halfSpread: CGFloat = .pi * 0.28
-
-            let path = UIBezierPath()
-            // Arc: most of the circle (from right-tangent around top to left-tangent)
-            let rightAngle = CGFloat.pi / 2 - halfSpread  // ~right side going down
-            let leftAngle  = CGFloat.pi / 2 + halfSpread  // ~left side going down
-            path.addArc(withCenter: CGPoint(x: cx, y: cy), radius: circleR,
-                        startAngle: rightAngle, endAngle: leftAngle, clockwise: true)
-            // Line to tip
-            path.addLine(to: CGPoint(x: cx, y: tipY))
-            path.close()
-            return path
-        }
-
-        /// Renders the full pin image with 3D shadow, photo thumbnail in circular
-        /// inset, and thick dark border matching the reference icon.
+        /// Renders a rectangular pin with a full-width triangle pointer at the bottom.
         private func renderPinImage(photo: UIImage?, pinWidth: CGFloat, pinHeight: CGFloat) -> UIImage {
-            // Extra canvas space for the drop shadow
-            let shadowPad: CGFloat = 8
-            let canvasW = pinWidth + shadowPad * 2
-            let canvasH = pinHeight + shadowPad + shadowPad / 2
-            let dx = shadowPad   // shift pin drawing right by shadow padding
-            let dy = shadowPad / 2
+            let margin: CGFloat = 4
+            let w = pinWidth                     // rectangle width
+            let h = pinHeight                    // rectangle height
+            let cr: CGFloat = 8
+            let borderW: CGFloat = 3
+            let triH: CGFloat = 10               // triangle height
+
+            let canvasW = w + margin * 2
+            let canvasH = h + triH + margin * 2
+
+            let rectFrame = CGRect(x: margin, y: margin, width: w, height: h)
+            let cx = margin + w / 2
 
             let renderer = UIGraphicsImageRenderer(size: CGSize(width: canvasW, height: canvasH))
-            return renderer.image { ctx in
-                let gc = ctx.cgContext
+            return renderer.image { _ in
+                let ctx = UIGraphicsGetCurrentContext()!
 
-                // Build pin path offset into canvas
-                let path = pinPath(width: pinWidth, height: pinHeight)
-                let translate = CGAffineTransform(translationX: dx, y: dy)
-                path.apply(translate)
-
-                // --- 3D drop shadow ---
-                gc.saveGState()
-                gc.setShadow(offset: CGSize(width: 0, height: 4), blur: 6,
-                             color: UIColor.black.withAlphaComponent(0.55).cgColor)
-                UIColor(white: 0.15, alpha: 1.0).setFill()
-                path.fill()
-                gc.restoreGState()
-
-                // --- Photo or fallback inside the full pin shape ---
-                gc.saveGState()
-                path.addClip()
+                // Photo clipped to the rectangle
+                let rectPath = UIBezierPath(roundedRect: rectFrame, cornerRadius: cr)
+                ctx.saveGState()
+                rectPath.addClip()
                 if let photo {
-                    let imageRect = CGRect(x: dx, y: dy, width: pinWidth, height: pinHeight)
-                    photo.draw(in: imageRect.aspectFill(for: photo.size))
+                    photo.draw(in: rectFrame.aspectFill(for: photo.size))
                 } else {
-                    UIColor(white: 0.15, alpha: 1.0).setFill()
-                    path.fill()
+                    UIColor(hex: 0x0C2457).setFill()
+                    rectPath.fill()
                 }
-                gc.restoreGState()
+                ctx.restoreGState()
 
-                // --- Thick dark border (matches reference icon) ---
-                UIColor(white: 0.12, alpha: 1.0).setStroke()
-                path.lineWidth = 4.0
-                path.stroke()
+                // Rectangle border
+                UIColor(hex: 0x0F0F28).setStroke()
+                let borderPath = UIBezierPath(roundedRect: rectFrame, cornerRadius: cr)
+                borderPath.lineWidth = borderW
+                borderPath.stroke()
 
-                // --- Circular photo inset ring (the inner circle from the reference) ---
-                let circleR = (pinWidth - 6) / 2
-                let cx = dx + pinWidth / 2
-                let cy = dy + 3 + circleR  // 3 = borderInset
-                let insetR = circleR * 0.52
-                let ringPath = UIBezierPath(arcCenter: CGPoint(x: cx, y: cy),
-                                            radius: insetR,
-                                            startAngle: 0, endAngle: .pi * 2, clockwise: true)
+                // Triangle — full width of the rectangle
+                let triTop = rectFrame.maxY
+                let triPath = UIBezierPath()
+                triPath.move(to: CGPoint(x: margin, y: triTop))
+                triPath.addLine(to: CGPoint(x: cx, y: triTop + triH))
+                triPath.addLine(to: CGPoint(x: margin + w, y: triTop))
+                triPath.close()
 
-                // If we have a photo, clip photo into the inner circle and add ring
-                if let photo {
-                    gc.saveGState()
-                    ringPath.addClip()
-                    let insetRect = CGRect(x: cx - insetR, y: cy - insetR,
-                                           width: insetR * 2, height: insetR * 2)
-                    photo.draw(in: insetRect.aspectFill(for: photo.size))
-                    gc.restoreGState()
-                }
+                UIColor(hex: 0x0F0F28).setFill()
+                triPath.fill()
 
-                // Inner circle border (visible ring from the reference)
-                UIColor(white: 0.12, alpha: 1.0).setStroke()
-                ringPath.lineWidth = 3.0
-                ringPath.stroke()
-
-                // If no photo, draw camera icon in center
+                // Camera icon fallback
                 if photo == nil {
                     let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
                     if let icon = UIImage(systemName: "camera.fill")?
-                        .withTintColor(.white, renderingMode: .alwaysOriginal)
+                        .withTintColor(UIColor(hex: 0xE1E2F0), renderingMode: .alwaysOriginal)
                         .withConfiguration(config) {
-                        let iconSize = icon.size
-                        icon.draw(at: CGPoint(x: cx - iconSize.width / 2,
-                                              y: cy - iconSize.height / 2))
+                        icon.draw(at: CGPoint(x: rectFrame.midX - icon.size.width / 2,
+                                              y: rectFrame.midY - icon.size.height / 2))
                     }
                 }
             }
         }
 
-        /// Renders a cluster pin: same pin shape with a count badge in the top-right.
+        /// Renders a cluster pin: photo pin with a count badge in the top-right.
         private func renderClusterPinImage(photo: UIImage?, count: Int,
                                            pinWidth: CGFloat, pinHeight: CGFloat) -> UIImage {
-            let shadowPad: CGFloat = 8
             let badgeSize: CGFloat = 22
-            let canvasW = pinWidth + shadowPad * 2
-            let canvasH = pinHeight + shadowPad + shadowPad / 2
 
-            // Render the base pin
+            // Render the base pin — its size includes margin
             let basePin = renderPinImage(photo: photo, pinWidth: pinWidth, pinHeight: pinHeight)
+            let baseSize = basePin.size
 
-            let renderer = UIGraphicsImageRenderer(size: CGSize(width: canvasW, height: canvasH))
+            let renderer = UIGraphicsImageRenderer(size: baseSize)
             return renderer.image { _ in
                 basePin.draw(at: .zero)
 
                 // Badge circle — top-right corner of the pin canvas
-                let badgeX = canvasW - badgeSize - 2
+                let badgeX = baseSize.width - badgeSize - 2
                 let badgeY: CGFloat = 0
                 let badgeRect = CGRect(x: badgeX, y: badgeY, width: badgeSize, height: badgeSize)
 
-                UIColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 1.0).setFill()
+                UIColor(hex: 0x2D62D3).setFill()
                 UIBezierPath(ovalIn: badgeRect).fill()
-                UIColor.white.setStroke()
+                UIColor(hex: 0xC8D7F3).setStroke()
                 let borderPath = UIBezierPath(ovalIn: badgeRect.insetBy(dx: 1, dy: 1))
                 borderPath.lineWidth = 1.5
                 borderPath.stroke()
@@ -327,7 +278,7 @@ struct GlobeMapView: UIViewRepresentable {
                 let text = "\(count)" as NSString
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 12, weight: .bold),
-                    .foregroundColor: UIColor.white,
+                    .foregroundColor: UIColor(hex: 0xE1E2F0),
                 ]
                 let textSize = text.size(withAttributes: attrs)
                 let textOrigin = CGPoint(
@@ -343,7 +294,7 @@ struct GlobeMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                renderer.strokeColor = UIColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 0.9)
+                renderer.strokeColor = UIColor(hex: 0x5EE0DD, alpha: 0.9)
                 renderer.lineWidth = 2.0
                 renderer.lineCap = .round
                 renderer.lineJoin = .round
@@ -364,15 +315,15 @@ struct GlobeMapView: UIViewRepresentable {
                 let size: CGFloat = 44
                 let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
                 view.image = renderer.image { ctx in
-                    UIColor(red: 0.95, green: 0.75, blue: 0.3, alpha: 1.0).setFill()
+                    UIColor(hex: 0x2D62D3).setFill()
                     UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size, height: size)).fill()
-                    UIColor.white.setStroke()
+                    UIColor(hex: 0xC8D7F3).setStroke()
                     let border = UIBezierPath(ovalIn: CGRect(x: 1.5, y: 1.5, width: size - 3, height: size - 3))
                     border.lineWidth = 3
                     border.stroke()
                     let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
                     if let icon = UIImage(systemName: "house.fill")?
-                        .withTintColor(.white, renderingMode: .alwaysOriginal)
+                        .withTintColor(UIColor(hex: 0xE1E2F0), renderingMode: .alwaysOriginal)
                         .withConfiguration(config) {
                         let iconSize = icon.size
                         let origin = CGPoint(x: (size - iconSize.width) / 2, y: (size - iconSize.height) / 2)
@@ -393,19 +344,21 @@ struct GlobeMapView: UIViewRepresentable {
 
                 // Use the first member's photo for the cluster pin
                 let memberPhoto = (cluster.memberAnnotations.first as? TripAnnotation)?.photo
-                let pinWidth: CGFloat = 56
-                let pinHeight: CGFloat = 76
-                let shadowPad: CGFloat = 8
+                let pinW: CGFloat = 64
+                let pinH: CGFloat = 48
                 let pinImage = renderClusterPinImage(
                     photo: memberPhoto,
                     count: cluster.memberAnnotations.count,
-                    pinWidth: pinWidth, pinHeight: pinHeight
+                    pinWidth: pinW, pinHeight: pinH
                 )
                 view.image = pinImage
-                let canvasW = pinWidth + shadowPad * 2
-                let canvasH = pinHeight + shadowPad + shadowPad / 2
-                view.frame.size = CGSize(width: canvasW, height: canvasH)
-                view.centerOffset = CGPoint(x: 0, y: -canvasH / 2)
+                let imgSize = pinImage.size
+                view.frame.size = imgSize
+                view.centerOffset = CGPoint(x: 0, y: -imgSize.height / 2)
+
+                let dist = mapView.camera.centerCoordinateDistance
+                let scale: CGFloat = dist > 2_000_000 ? 0.55 : dist > 500_000 ? 0.7 : dist > 100_000 ? 0.85 : 1.0
+                view.transform = CGAffineTransform(scaleX: scale, y: scale)
                 return view
             }
 
@@ -417,19 +370,34 @@ struct GlobeMapView: UIViewRepresentable {
             view.canShowCallout = false
             view.clusteringIdentifier = "TripCluster"
 
-            let pinWidth: CGFloat = 56
-            let pinHeight: CGFloat = 76
-            let shadowPad: CGFloat = 8
-            let pinImage = renderPinImage(photo: trip.photo, pinWidth: pinWidth, pinHeight: pinHeight)
+            let pinW: CGFloat = 64
+            let pinH: CGFloat = 48
+            let pinImage = renderPinImage(photo: trip.photo, pinWidth: pinW, pinHeight: pinH)
             view.image = pinImage
-            let canvasW = pinWidth + shadowPad * 2
-            let canvasH = pinHeight + shadowPad + shadowPad / 2
-            view.frame.size = CGSize(width: canvasW, height: canvasH)
-            view.centerOffset = CGPoint(x: 0, y: -canvasH / 2)
+            let imgSize = pinImage.size
+            view.frame.size = imgSize
+            view.centerOffset = CGPoint(x: 0, y: -imgSize.height / 2)
+
+            // Scale down when zoomed out
+            let dist = mapView.camera.centerCoordinateDistance
+            let scale: CGFloat = dist > 2_000_000 ? 0.55 : dist > 500_000 ? 0.7 : dist > 100_000 ? 0.85 : 1.0
+            view.transform = CGAffineTransform(scaleX: scale, y: scale)
             return view
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+            // Rescale pins based on zoom level
+            let dist = mapView.camera.centerCoordinateDistance
+            let scale: CGFloat = dist > 2_000_000 ? 0.55 : dist > 500_000 ? 0.7 : dist > 100_000 ? 0.85 : 1.0
+            for annotation in mapView.annotations {
+                if let view = mapView.view(for: annotation),
+                   (annotation is TripAnnotation || annotation is MKClusterAnnotation) {
+                    UIView.animate(withDuration: 0.2) {
+                        view.transform = CGAffineTransform(scaleX: scale, y: scale)
+                    }
+                }
+            }
+
             // Clear route overlay when user zooms out past ~500km
             if mapView.camera.centerCoordinateDistance > 500_000
                 && !viewModel.activeRouteCoordinates.isEmpty {
@@ -528,7 +496,7 @@ struct GlobeMapView: UIViewRepresentable {
                 ripple.center = CGPoint(x: pinView.bounds.midX, y: pinView.bounds.midY)
                 ripple.layer.cornerRadius = 10
                 ripple.layer.borderWidth = 2.5
-                ripple.layer.borderColor = UIColor.white.cgColor
+                ripple.layer.borderColor = UIColor(hex: 0xC8D7F3).cgColor
                 ripple.backgroundColor = .clear
                 ripple.alpha = 0.9
                 pinView.addSubview(ripple)
@@ -570,7 +538,7 @@ struct GlobeView: View {
 
     var body: some View {
         ZStack {
-            Color.black
+            Color.Nomad.globeBackground
                 .ignoresSafeArea()
 
             GlobeMapView(
@@ -584,7 +552,7 @@ struct GlobeView: View {
                 activeRouteCoordinates: viewModel.activeRouteCoordinates
             )
             .ignoresSafeArea()
-            .sheet(isPresented: $viewModel.showProfileSheet) {
+            .sheet(isPresented: .constant(true)) {
                 ProfileSheet(
                     trips: viewModel.trips,
                     scrollToTripId: viewModel.scrollToTripId,
@@ -594,7 +562,6 @@ struct GlobeView: View {
                         activeTripId = tripId
                         recordingStartDate = Date()
                         locationManager.startRecording(tripId: tripId)
-                        viewModel.showProfileSheet = false
                         // End any stale Live Activity before starting a new one.
                         Task {
                             for activity in Activity<TripActivityAttributes>.activities {
@@ -603,6 +570,20 @@ struct GlobeView: View {
                         }
                         locationManager.startLiveActivity()
                     },
+                    onDeleteTrip: { trip in
+                        viewModel.deleteTrip(trip)
+                        let tripId = trip.id
+                        let descriptor = FetchDescriptor<RoutePoint>(
+                            predicate: #Predicate<RoutePoint> { $0.tripId == tripId }
+                        )
+                        if let points = try? modelContext.fetch(descriptor) {
+                            for point in points {
+                                modelContext.delete(point)
+                            }
+                            try? modelContext.save()
+                        }
+                    },
+                    countries: viewModel.countries,
                     homeCityName: viewModel.homeCityName
                 )
             }
@@ -617,6 +598,17 @@ struct GlobeView: View {
                         initialCityName: viewModel.selectedInitialCity,
                         onDeleteTrip: { trip in
                             viewModel.deleteTrip(trip)
+                            // Purge local SwiftData RoutePoint records for the deleted trip
+                            let tripId = trip.id
+                            let descriptor = FetchDescriptor<RoutePoint>(
+                                predicate: #Predicate<RoutePoint> { $0.tripId == tripId }
+                            )
+                            if let points = try? modelContext.fetch(descriptor) {
+                                for point in points {
+                                    modelContext.delete(point)
+                                }
+                                try? modelContext.save()
+                            }
                         }
                     )
                 }
@@ -632,31 +624,7 @@ struct GlobeView: View {
                     .zIndex(1)
             }
 
-            // Floating journey pill — hidden when country detail sheet is open
-            if !viewModel.showProfileSheet && !viewModel.showCountryDetail {
-                VStack {
-                    Spacer()
-                    JourneyPill(
-                        onOpenJourneys: { viewModel.showProfileSheet = true },
-                        onStartTrip: {
-                            let tripId = UUID().uuidString
-                            activeTripId = tripId
-                            recordingStartDate = Date()
-                            locationManager.startRecording(tripId: tripId)
-                            // End any stale Live Activity before starting a new one.
-                            Task {
-                                for activity in Activity<TripActivityAttributes>.activities {
-                                    await activity.end(nil, dismissalPolicy: .immediate)
-                                }
-                            }
-                            locationManager.startLiveActivity()
-                        }
-                    )
-                    .padding(.bottom, 24)
-                }
-                .allowsHitTesting(true)
-                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-            }
+            // JourneyPill removed — persistent profile panel replaces it
         }
         .task {
             await viewModel.loadGlobeData()
@@ -749,12 +717,23 @@ struct GlobeView: View {
         // Calculate distance from route points
         let distance = calculateDistance(from: routePoints)
 
+        // Reverse-geocode the actual city from the first route point
+        var locality = name
+        if let firstPoint = routePoints.first {
+            let location = CLLocation(latitude: firstPoint.latitude, longitude: firstPoint.longitude)
+            if let placemarks = try? await CLGeocoder().reverseGeocodeLocation(location),
+               let city = placemarks.first?.locality {
+                locality = city
+            }
+        }
+
         let tripService = TripService()
         do {
             try await tripService.finalizeTrip(
                 userId: uid,
                 tripId: tripId,
                 cityName: name,
+                locality: locality,
                 startDate: startDate,
                 endDate: endDate,
                 routePoints: routePoints,

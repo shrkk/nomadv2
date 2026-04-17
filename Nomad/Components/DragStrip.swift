@@ -37,13 +37,13 @@ struct DragStrip: View {
 
             // White capsule handle — centered, 8pt from top (UI-SPEC: 36x4pt, white 30%)
             Capsule()
-                .fill(Color.white.opacity(0.30))
+                .fill(Color.Nomad.surfaceBorder.opacity(0.30))
                 .frame(width: 36, height: 4)
                 .padding(.top, 8)
                 .frame(maxHeight: .infinity, alignment: .top)
         }
         .frame(height: 44)
-        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: -4)
+        .shadow(color: Color.Nomad.globeBackground.opacity(0.20), radius: 8, x: 0, y: -4)
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .gesture(

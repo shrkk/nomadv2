@@ -83,8 +83,8 @@ struct OnboardingView: View {
             ForEach(0..<coordinator.progressDotCount, id: \.self) { index in
                 Circle()
                     .fill(index == coordinator.activeDotIndex
-                          ? Color.white
-                          : Color.white.opacity(0.30))
+                          ? Color.Nomad.accent
+                          : Color.Nomad.surfaceBorder.opacity(0.30))
                     .frame(width: 8, height: 8)
             }
         }

@@ -56,9 +56,9 @@ struct SignUpScreen: View {
 
                 // Divider
                 HStack {
-                    Rectangle().frame(height: 1).foregroundColor(Color.white.opacity(0.10))
+                    Rectangle().frame(height: 1).foregroundColor(Color.Nomad.surfaceBorder.opacity(0.10))
                     Text("or").font(AppFont.caption()).foregroundColor(Color.Nomad.textSecondary)
-                    Rectangle().frame(height: 1).foregroundColor(Color.white.opacity(0.10))
+                    Rectangle().frame(height: 1).foregroundColor(Color.Nomad.surfaceBorder.opacity(0.10))
                 }
                 .padding(.top, 20)
 
@@ -87,8 +87,8 @@ struct SignUpScreen: View {
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.35))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                        .fill(Color.Nomad.globeBackground.opacity(0.50))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
                 )
                 .cornerRadius(12)
 
@@ -131,8 +131,8 @@ struct SignUpScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.35))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                    .fill(Color.Nomad.globeBackground.opacity(0.50))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
             )
             .cornerRadius(12)
 
@@ -217,9 +217,9 @@ struct SignUpScreen: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .background(Color.black.opacity(0.35))
+            .background(Color.Nomad.globeBackground.opacity(0.50))
             .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
         }
         .disabled(isGoogleLoading)
     }

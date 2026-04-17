@@ -47,6 +47,7 @@
 		<string>PlayfairDisplay-SemiBold.otf</string>
 		<string>Inter-Regular.ttf</string>
 		<string>Inter-SemiBold.ttf</string>
+		<string>CalSans-Regular.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

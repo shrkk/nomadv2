@@ -20,7 +20,7 @@ struct TemperatureNotchPill: View {
                     .fill(Color.Nomad.globeBackground.opacity(0.9))
                     .overlay(
                         Capsule()
-                            .stroke(Color.white.opacity(0.20), lineWidth: 1)
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
                     )
             )
     }

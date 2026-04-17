@@ -1,27 +1,25 @@
 import SwiftUI
 
-// PanelGlassSurfaceModifier — canonical glass surface for all sheet panels (Phase 03.2 redesign).
-// 4-layer background stack: panelBlack base + ultraThinMaterial blur + dark overlay + hairline border.
-// Corner radius: 20pt top corners, 0pt bottom corners (extends to safe area edge).
-// Source: D-02 (CONTEXT.md), UI-SPEC Glassmorphic Surface Contract, PanelGradient Replacement section.
+// PanelGlassSurfaceModifier — canonical glass surface for all sheet panels.
+// Navy-tinted glassmorphic surface matching the Nomad poster palette.
 struct PanelGlassSurfaceModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
                 ZStack {
-                    // Layer 1: Solid opaque base
+                    // Layer 1: Solid opaque base — dark indigo
                     Color.Nomad.panelBlack
 
                     // Layer 2: Material blur
                     Rectangle()
                         .fill(.ultraThinMaterial)
 
-                    // Layer 3: Darkness reinforcement overlay
-                    Color.black.opacity(0.35)
+                    // Layer 3: Navy reinforcement overlay
+                    Color.Nomad.globeBackground.opacity(0.45)
 
                     // Layer 4: Edge darkening vignette
                     RadialGradient(
-                        colors: [.clear, Color.black.opacity(0.20)],
+                        colors: [.clear, Color.Nomad.globeBackground.opacity(0.30)],
                         center: .center,
                         startRadius: UIScreen.main.bounds.width * 0.4,
                         endRadius: UIScreen.main.bounds.width * 0.9
@@ -36,21 +34,21 @@ struct PanelGlassSurfaceModifier: ViewModifier {
                     )
                 )
                 .overlay(
-                    // White hairline border — top corners only, 1pt at 20% opacity
+                    // Light blue hairline border — top corners only
                     UnevenRoundedRectangle(
                         topLeadingRadius: 20,
                         bottomLeadingRadius: 0,
                         bottomTrailingRadius: 0,
                         topTrailingRadius: 20
                     )
-                    .stroke(Color.white.opacity(0.20), lineWidth: 1)
+                    .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
                 )
             )
     }
 }
 
 extension View {
-    /// Glass surface recipe — Phase 03.2 redesign (glassmorphic black/white)
+    /// Glass surface recipe — navy-tinted glassmorphic
     func panelGlassSurface() -> some View {
         modifier(PanelGlassSurfaceModifier())
     }
@@ -69,14 +67,14 @@ struct GlassButtonStyle: ButtonStyle {
         configuration.label
             .background(
                 Capsule()
-                    .fill(Color.black.opacity(0.35))
+                    .fill(Color.Nomad.panelBlack.opacity(0.50))
                     .background(
                         Capsule()
                             .fill(.ultraThinMaterial)
                     )
                     .overlay(
                         Capsule()
-                            .stroke(Color.white.opacity(0.20), lineWidth: 1)
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
                     )
             )
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
@@ -93,10 +91,10 @@ struct InnerCardSurfaceModifier: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.35))
+                    .fill(Color.Nomad.globeBackground.opacity(0.50))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1)
                     )
             )
     }
@@ -124,9 +122,9 @@ struct FloatingPillSurfaceModifier: ViewModifier {
                     )
                     .overlay(
                         Capsule()
-                            .stroke(Color.white.opacity(0.20), lineWidth: 1)
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.40), radius: 12, x: 0, y: 6)
+                    .shadow(color: Color.Nomad.globeBackground.opacity(0.50), radius: 12, x: 0, y: 6)
             )
     }
 }
@@ -157,7 +155,7 @@ extension View {
                 Text("Glass Surface Preview")
                     .font(AppFont.title())
                     .foregroundStyle(Color.Nomad.textPrimary)
-                Text("ultraThinMaterial + dark overlay + hairline border.")
+                Text("Navy-tinted glassmorphic surface.")
                     .font(AppFont.body())
                     .foregroundStyle(Color.Nomad.textSecondary)
 

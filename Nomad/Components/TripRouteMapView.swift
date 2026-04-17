@@ -83,7 +83,7 @@ struct TripRouteMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                renderer.strokeColor = UIColor.white
+                renderer.strokeColor = UIColor(hex: 0x5EE0DD)
                 renderer.lineWidth = 3
                 return renderer
             }
@@ -104,11 +104,11 @@ struct TripRouteMapView: UIViewRepresentable {
             let size: CGFloat = 24
             let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
             let image = renderer.image { _ in
-                UIColor.white.setFill()
+                UIColor(hex: 0xC8D7F3).setFill()
                 UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size, height: size)).fill()
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: UIFont.systemFont(ofSize: 11, weight: .semibold),
-                    .foregroundColor: UIColor.black
+                    .foregroundColor: UIColor(hex: 0x0F0F28)
                 ]
                 let text = "\(numbered.index)" as NSString
                 let textSize = text.size(withAttributes: attrs)

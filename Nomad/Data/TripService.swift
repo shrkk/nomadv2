@@ -19,6 +19,7 @@ final class TripService {
         userId: String,
         tripId: String,
         cityName: String,
+        locality: String? = nil,
         startDate: Date,
         endDate: Date,
         routePoints: [RoutePoint],
@@ -53,6 +54,7 @@ final class TripService {
             FirestoreSchema.TripFields.stepCount: stepCount,
             FirestoreSchema.TripFields.distanceMeters: distanceMeters,
             FirestoreSchema.TripFields.userId: userId,
+            FirestoreSchema.TripFields.locality: locality ?? cityName,
         ])
 
         // 6. Batch-write routePoints to subcollection (400 per batch — safe under 500 limit)

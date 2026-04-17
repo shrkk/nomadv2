@@ -16,6 +16,7 @@ struct TripDocument: Identifiable {
     let routePreview: [[Double]]           // TripFields.routePreview (50-pt [[lat, lon]])
     let visitedCountryCodes: [String]      // TripFields.visitedCountryCodes
     let placeCounts: [String: Int]         // TripFields.placeCounts
+    let locality: String                    // TripFields.locality (reverse-geocoded city name)
 
     /// Derived: first route preview point as coordinate for globe pinpoint placement.
     var coordinate: CLLocationCoordinate2D? {
@@ -48,6 +49,7 @@ struct TripDocument: Identifiable {
         self.routePreview = preview
         self.visitedCountryCodes = data[FirestoreSchema.TripFields.visitedCountryCodes] as? [String] ?? []
         self.placeCounts = data[FirestoreSchema.TripFields.placeCounts] as? [String: Int] ?? [:]
+        self.locality = data[FirestoreSchema.TripFields.locality] as? String ?? cityName
     }
 
     /// Memberwise initializer for previews and testing.
@@ -60,7 +62,8 @@ struct TripDocument: Identifiable {
         distanceMeters: Double,
         routePreview: [[Double]],
         visitedCountryCodes: [String],
-        placeCounts: [String: Int]
+        placeCounts: [String: Int],
+        locality: String? = nil
     ) {
         self.id = id
         self.cityName = cityName
@@ -71,5 +74,6 @@ struct TripDocument: Identifiable {
         self.routePreview = routePreview
         self.visitedCountryCodes = visitedCountryCodes
         self.placeCounts = placeCounts
+        self.locality = locality ?? cityName
     }
 }

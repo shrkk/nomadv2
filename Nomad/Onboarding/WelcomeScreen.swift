@@ -22,13 +22,13 @@ struct WelcomeScreen: View {
                     // App name
                     Text("Nomad")
                         .font(AppFont.title())
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.Nomad.textPrimary)
                         .multilineTextAlignment(.center)
 
                     // Tagline
                     Text("The world is yours to explore.")
                         .font(AppFont.subheading())
-                        .foregroundColor(Color.white.opacity(0.85))
+                        .foregroundColor(Color.Nomad.textPrimary.opacity(0.85))
                         .multilineTextAlignment(.center)
                         .padding(.top, 16)
 
@@ -55,14 +55,14 @@ struct WelcomeScreen: View {
                         HStack(spacing: 0) {
                             Text("Already have an account? ")
                                 .font(AppFont.caption())
-                                .foregroundColor(Color.white.opacity(0.6))
+                                .foregroundColor(Color.Nomad.textSecondary)
                             Button {
                                 coordinator.isSignInMode = true
                                 coordinator.advance()
                             } label: {
                                 Text("Sign in")
                                     .font(AppFont.caption())
-                                    .foregroundColor(Color.white.opacity(0.6))
+                                    .foregroundColor(Color.Nomad.textSecondary)
                                     .underline()
                             }
                         }

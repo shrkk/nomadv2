@@ -125,8 +125,8 @@ struct HomeCityScreen: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.black.opacity(0.35))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                .fill(Color.Nomad.globeBackground.opacity(0.50))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
         )
         .cornerRadius(12)
     }
@@ -149,8 +149,8 @@ struct HomeCityScreen: View {
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.35))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                        .fill(Color.Nomad.globeBackground.opacity(0.50))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
                 )
                 .cornerRadius(12)
         }
