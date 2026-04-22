@@ -13,9 +13,12 @@ struct ProfileSheet: View {
     var onDeleteTrip: ((TripDocument) -> Void)? = nil
     var countries: [CountryFeature] = []
     var homeCityName: String? = nil
+    var friendPosts: [FriendTripPost] = []
 
     @State private var showTripDetail = false
     @State private var detailTrip: TripDocument? = nil
+    @State private var selectedDetent: PresentationDetent = .height(96)
+    @State private var showPassport = false
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -29,88 +32,34 @@ struct ProfileSheet: View {
         return f
     }()
 
-    // MARK: - Custom peek detent
-
-    @State private var currentDetent: PresentationDetent = .height(56)
-
-    private var isPeeking: Bool {
-        currentDetent == .height(56)
-    }
-
     // MARK: - Body
 
     var body: some View {
-        Group {
-            if isPeeking {
-                // Collapsed: just the pill, no full-width container
-                peekPill
-                    .padding(.top, 10)
-                    .frame(maxWidth: .infinity)
-            } else {
-                // Expanded: full panel with background
-                VStack(spacing: 0) {
-                    handleBar
-                        .padding(.top, 8)
-                        .padding(.bottom, 4)
+        VStack(spacing: 0) {
+            handleBar
+                .padding(.top, 8)
+                .padding(.bottom, 4)
 
-                    TravelerPassport(
-                        trips: trips,
-                        visitedCountryCodes: Array(Set(trips.flatMap(\.visitedCountryCodes))),
-                        countries: countries,
-                        homeCityName: homeCityName,
-                        onTripTap: { trip in
-                            detailTrip = trip
-                            showTripDetail = true
-                        },
-                        onDeleteTrip: onDeleteTrip,
-                        onStartTrip: onStartTrip
-                    )
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(Color.Nomad.panelBlack.ignoresSafeArea())
-            }
+            HomeFeedView(friendPosts: friendPosts, onProfileTap: { showPassport = true })
         }
-        .ignoresSafeArea(edges: .bottom)
-        .presentationDetents([.height(56), .medium, .large], selection: $currentDetent)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.Nomad.panelBlack.ignoresSafeArea())
+        .presentationDetents([.height(96), .medium, .large], selection: $selectedDetent)
         .presentationDragIndicator(.hidden)
-        .presentationBackground(.clear)
-        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-        .interactiveDismissDisabled()
+        .interactiveDismissDisabled(true)
+        .presentationBackground(Color.Nomad.panelBlack)
+        .presentationBackgroundInteraction(.enabled(upThrough: .height(96)))
         .sheet(isPresented: $showTripDetail) {
             if let trip = detailTrip {
                 TripDetailSheet(trip: trip)
             }
         }
-    }
-
-    // MARK: - Handle Bar
-
-    // MARK: - Peek Pill (collapsed state)
-
-    private var peekPill: some View {
-        Button {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                currentDetent = .medium
-            }
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "person.circle.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.Nomad.accent)
-                Text("My Profile")
-                    .font(AppFont.caption())
-                    .foregroundStyle(Color.Nomad.textPrimary)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .background(
-                Capsule()
-                    .fill(Color.Nomad.panelBlack)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.Nomad.surfaceBorder.opacity(0.15), lineWidth: 1)
-                    )
-                    .shadow(color: Color.Nomad.globeBackground.opacity(0.4), radius: 8, y: 4)
+        .sheet(isPresented: $showPassport) {
+            TravelerPassport(
+                trips: trips,
+                visitedCountryCodes: Array(Set(trips.flatMap(\.visitedCountryCodes))),
+                countries: countries,
+                homeCityName: homeCityName
             )
         }
     }

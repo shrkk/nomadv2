@@ -28,6 +28,7 @@
 		A100B200C300D400E500F605 /* FirestoreSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = A101B201C301D401E501F605 /* FirestoreSchema.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* countries-simplified.geojson in Resources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* countries-simplified.geojson */; };
 		A66194437CE04E958ABD4DFA /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2C9CB6DB828A4E6F9C335D66 /* Inter-SemiBold.ttf */; };
+		A7BBB7F575AA4A84AB3428D3 /* CalSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */; };
 		AA01BB02CC03DD04EE05FF06 /* GlobeCountryOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */; };
 		AA02BB03CC04DD05EE06FF07 /* GlobeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */; };
 		AA03BB04CC05DD06EE07FF08 /* GlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */; };
@@ -38,7 +39,6 @@
 		BAB1B9137B594C2CABFA9A0E /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9245CA396446D896EA50F6 /* FirebaseService.swift */; };
 		C3D4E5F6A7B8C9D0E1F2A3B4 /* CountryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */; };
 		C98FE2FDD90349E0B94C1E03 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4477F0441A44305908292A1 /* Inter-Regular.ttf */; };
-		A7BBB7F575AA4A84AB3428D3 /* CalSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */; };
 		CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */; };
 		CC31DD32EE33FF34AA35BB36 /* CityCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */; };
 		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
@@ -74,9 +74,13 @@
 		SP01SP02SP03SP04SP05SP06 /* StatsPillRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */; };
 		TD01TD02TD03TD04TD05TD06 /* TripDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */; };
 		TL01TL02TL03TL04TL05TL06 /* TripLogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */; };
+		FT01FT02FT03FT04FT05FT06 /* FriendTripFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = FT11FT12FT13FT14FT15FT16 /* FriendTripFeed.swift */; };
 		TN01TN02TN03TN04TN05TN06 /* TemperatureNotchPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */; };
 		TP01TP02TP03TP04TP05TP06 /* TravelerPassportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */; };
 		TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */; };
+		DD01DD02DD03DD04DD05DD06 /* DummyDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD11DD12DD13DD14DD15DD16 /* DummyDataSeeder.swift */; };
+		FS01FS02FS03FS04FS05FS06 /* FriendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FS11FS12FS13FS14FS15FS16 /* FriendService.swift */; };
+		HF01HF02HF03HF04HF05HF06 /* HomeFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HF11HF12HF13HF14HF15HF16 /* HomeFeedView.swift */; };
 		TS01TS02TS03TS04TS05TS06 /* TripService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TS11TS12TS13TS14TS15TS16 /* TripService.swift */; };
 		WS01WS02WS03WS04WS05WS06 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */; };
 /* End PBXBuildFile section */
@@ -119,6 +123,7 @@
 		42CD8ECB346049A2A67D41DE /* PanelGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelGradient.swift; sourceTree = "<group>"; };
 		48E30326CFC44723A8BC0A45 /* PlayfairDisplay-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.otf"; sourceTree = "<group>"; };
 		528632E14E3F411192BA5560 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CalSans-Regular.ttf"; sourceTree = "<group>"; };
 		5D299DB49ACB4F0E9B748D1E /* grain-noise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grain-noise.png"; sourceTree = "<group>"; };
 		6BCDCF7500B445F5AEBDF02F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		96AB8F13EB564CBDA2460F55 /* NomadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomadApp.swift; sourceTree = "<group>"; };
@@ -143,7 +148,6 @@
 		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
 		D32422AB49024EB385B48A1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D4477F0441A44305908292A1 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
-		5940A4E8BA0D47EDB1C3D52C /* CalSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CalSans-Regular.ttf"; sourceTree = "<group>"; };
 		D4E5F6A7B8C9D0E1F2A3B4C5 /* CountryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryFeature.swift; sourceTree = "<group>"; };
 		DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobePinpoint.swift; sourceTree = "<group>"; };
 		DS11DS12DS13DS14DS15DS16 /* DragStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragStrip.swift; sourceTree = "<group>"; };
@@ -171,9 +175,13 @@
 		SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsPillRow.swift; sourceTree = "<group>"; };
 		TD11TD12TD13TD14TD15TD16 /* TripDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDocument.swift; sourceTree = "<group>"; };
 		TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripLogCard.swift; sourceTree = "<group>"; };
+		FT11FT12FT13FT14FT15FT16 /* FriendTripFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendTripFeed.swift; sourceTree = "<group>"; };
 		TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureNotchPill.swift; sourceTree = "<group>"; };
 		TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelerPassportStub.swift; sourceTree = "<group>"; };
 		TR11TR12TR13TR14TR15TR16 /* TripRouteMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripRouteMapView.swift; sourceTree = "<group>"; };
+		DD11DD12DD13DD14DD15DD16 /* DummyDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyDataSeeder.swift; sourceTree = "<group>"; };
+		FS11FS12FS13FS14FS15FS16 /* FriendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendService.swift; sourceTree = "<group>"; };
+		HF11HF12HF13HF14HF15HF16 /* HomeFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeedView.swift; sourceTree = "<group>"; };
 		TS11TS12TS13TS14TS15TS16 /* TripService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripService.swift; sourceTree = "<group>"; };
 		WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -321,6 +329,8 @@
 				WS11WS12WS13WS14WS15WS16 /* WeatherService.swift */,
 				PC11PC12PC13PC14PC15PC16 /* PlaceCategoryService.swift */,
 				TS11TS12TS13TS14TS15TS16 /* TripService.swift */,
+				DD11DD12DD13DD14DD15DD16 /* DummyDataSeeder.swift */,
+				FS11FS12FS13FS14FS15FS16 /* FriendService.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -388,6 +398,7 @@
 				TN11TN12TN13TN14TN15TN16 /* TemperatureNotchPill.swift */,
 				SP11SP12SP13SP14SP15SP16 /* StatsPillRow.swift */,
 				TL11TL12TL13TL14TL15TL16 /* TripLogCard.swift */,
+				FT11FT12FT13FT14FT15FT16 /* FriendTripFeed.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -399,6 +410,7 @@
 				BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */,
 				TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */,
 				CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */,
+				HF11HF12HF13HF14HF15HF16 /* HomeFeedView.swift */,
 			);
 			path = Sheets;
 			sourceTree = "<group>";
@@ -587,6 +599,8 @@
 				WS01WS02WS03WS04WS05WS06 /* WeatherService.swift in Sources */,
 				PC01PC02PC03PC04PC05PC06 /* PlaceCategoryService.swift in Sources */,
 				TS01TS02TS03TS04TS05TS06 /* TripService.swift in Sources */,
+				DD01DD02DD03DD04DD05DD06 /* DummyDataSeeder.swift in Sources */,
+				FS01FS02FS03FS04FS05FS06 /* FriendService.swift in Sources */,
 				LC01LC02LC03LC04LC05LC06 /* LocationManager.swift in Sources */,
 				LC02LC03LC04LC05LC06LC07 /* VisitMonitor.swift in Sources */,
 				LC03LC04LC05LC06LC07LC08 /* RouteSimplifier.swift in Sources */,
@@ -609,11 +623,13 @@
 				TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */,
 				PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */,
 				CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */,
+				HF01HF02HF03HF04HF05HF06 /* HomeFeedView.swift in Sources */,
 				CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */,
 				CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */,
 				TN01TN02TN03TN04TN05TN06 /* TemperatureNotchPill.swift in Sources */,
 				SP01SP02SP03SP04SP05SP06 /* StatsPillRow.swift in Sources */,
 				TL01TL02TL03TL04TL05TL06 /* TripLogCard.swift in Sources */,
+				FT01FT02FT03FT04FT05FT06 /* FriendTripFeed.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -637,7 +653,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 2C5T56B2G4;
+				DEVELOPMENT_TEAM = GU72X6JZ98;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Nomad/Info.plist;
@@ -647,7 +663,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rahul.nomad;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shreyank.nomad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -784,7 +800,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 2C5T56B2G4;
+				DEVELOPMENT_TEAM = GU72X6JZ98;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Nomad/Info.plist;
@@ -794,7 +810,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rahul.nomad;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shreyank.nomad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -812,7 +828,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2C5T56B2G4;
+				DEVELOPMENT_TEAM = GU72X6JZ98;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NomadLiveActivity/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NomadLiveActivity;
@@ -825,7 +841,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rahul.nomad.liveactivity;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shreyank.nomad.liveactivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -845,7 +861,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2C5T56B2G4;
+				DEVELOPMENT_TEAM = GU72X6JZ98;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NomadLiveActivity/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NomadLiveActivity;
@@ -859,7 +875,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rahul.nomad.liveactivity;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shreyank.nomad.liveactivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

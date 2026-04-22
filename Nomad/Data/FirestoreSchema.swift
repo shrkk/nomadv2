@@ -30,6 +30,22 @@ enum FirestoreSchema {
         Firestore.firestore().collection(usernames).document(handle.lowercased())
     }
 
+    static let friends = "friends"
+
+    static func friendsCollection(_ uid: String) -> CollectionReference {
+        userDoc(uid).collection(friends)
+    }
+
+    static func friendDoc(_ uid: String, friendUid: String) -> DocumentReference {
+        friendsCollection(uid).document(friendUid)
+    }
+
+    enum FriendFields {
+        static let handle = "handle"
+        static let avatarHue = "avatarHue"
+        static let addedAt = "addedAt"
+    }
+
     /// Trip document field keys (D-14)
     enum TripFields {
         static let routePreview = "routePreview"

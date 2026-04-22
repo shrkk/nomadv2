@@ -21,7 +21,7 @@ class GlobeViewModel {
     var focusedCountryCode: String? = nil
     var showPinpoints = false
     var selectedTrip: TripDocument? = nil
-    var showProfileSheet = false
+    var showProfileSheet = true
 
     // Country detail sheet state (03.1-04)
     var showCountryDetail = false
@@ -42,6 +42,13 @@ class GlobeViewModel {
 
     // Active route overlay (drawn on globe when zoomed into a trip)
     var activeRouteCoordinates: [CLLocationCoordinate2D] = []
+
+    // Friend feed posts
+    #if DEBUG
+    var friendPosts: [FriendTripPost] = GlobeViewModel.mockFriendPosts
+    #else
+    var friendPosts: [FriendTripPost] = []
+    #endif
 
     // MARK: - Country Detail Sheet
 
@@ -184,4 +191,73 @@ class GlobeViewModel {
             }
         }
     }
+
+    // MARK: - Mock data (shreyank@uw.edu only)
+
+    private static let mockFriendPosts: [FriendTripPost] = [
+        FriendTripPost(
+            id: "mock-maya-kyoto",
+            authorHandle: "maya.v",
+            authorAvatarHue: 260,
+            trip: TripDocument(
+                id: "mock-t1", cityName: "Kyoto",
+                startDate: Date(timeIntervalSinceNow: -86_400 * 2),
+                endDate: Date(timeIntervalSinceNow: -86_400 * 2 + 10_800),
+                stepCount: 11_400, distanceMeters: 7_800,
+                routePreview: [
+                    [35.0116, 135.7681], [35.0194, 135.7723],
+                    [35.0272, 135.7805], [35.0339, 135.7718]
+                ],
+                visitedCountryCodes: ["JP"], placeCounts: ["culture": 4, "food": 2]
+            )
+        ),
+        FriendTripPost(
+            id: "mock-leo-lisbon",
+            authorHandle: "leo.b",
+            authorAvatarHue: 28,
+            trip: TripDocument(
+                id: "mock-t2", cityName: "Lisbon",
+                startDate: Date(timeIntervalSinceNow: -86_400 * 6),
+                endDate: Date(timeIntervalSinceNow: -86_400 * 6 + 14_400),
+                stepCount: 9_200, distanceMeters: 6_100,
+                routePreview: [
+                    [38.7169, -9.1399], [38.7134, -9.1390],
+                    [38.7098, -9.1362], [38.7071, -9.1344]
+                ],
+                visitedCountryCodes: ["PT"], placeCounts: ["food": 3, "art": 1]
+            )
+        ),
+        FriendTripPost(
+            id: "mock-priya-marrakech",
+            authorHandle: "priya.s",
+            authorAvatarHue: 160,
+            trip: TripDocument(
+                id: "mock-t3", cityName: "Marrakech",
+                startDate: Date(timeIntervalSinceNow: -86_400 * 11),
+                endDate: Date(timeIntervalSinceNow: -86_400 * 11 + 18_000),
+                stepCount: 14_600, distanceMeters: 9_300,
+                routePreview: [
+                    [31.6295, -7.9811], [31.6308, -7.9852],
+                    [31.6341, -7.9887], [31.6379, -7.9901]
+                ],
+                visitedCountryCodes: ["MA"], placeCounts: ["market": 5, "food": 3]
+            )
+        ),
+        FriendTripPost(
+            id: "mock-jake-seoul",
+            authorHandle: "jake.n",
+            authorAvatarHue: 340,
+            trip: TripDocument(
+                id: "mock-t4", cityName: "Seoul",
+                startDate: Date(timeIntervalSinceNow: -86_400 * 18),
+                endDate: Date(timeIntervalSinceNow: -86_400 * 18 + 21_600),
+                stepCount: 18_200, distanceMeters: 12_400,
+                routePreview: [
+                    [37.5665, 126.9780], [37.5704, 126.9821],
+                    [37.5779, 126.9768], [37.5826, 126.9700]
+                ],
+                visitedCountryCodes: ["KR"], placeCounts: ["food": 6, "culture": 2]
+            )
+        )
+    ]
 }

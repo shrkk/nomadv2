@@ -1,127 +1,95 @@
 import SwiftUI
+@preconcurrency import FirebaseAuth
 
 // MARK: - TravelerPassport
 //
-// Passport-style travel stats view inspired by Flighty's passport design.
-// Bold typography, country flags, dashed dividers, MRZ-style footer.
+// Holographic trading-card-style passport. Tilt to reveal the holo shine.
+// Based on the Nomad Passport "Trading Card" concept design.
 
 struct TravelerPassport: View {
     let trips: [TripDocument]
     let visitedCountryCodes: [String]
     var countries: [CountryFeature] = []
     var homeCityName: String? = nil
+    var friendPosts: [FriendTripPost] = []
     var onTripTap: ((TripDocument) -> Void)? = nil
     var onDeleteTrip: ((TripDocument) -> Void)? = nil
     var onStartTrip: (() -> Void)? = nil
 
+    @State private var tilt: CGSize = .zero
     @State private var showShareSheet = false
     @State private var shareImage: UIImage?
-    @State private var mapPageIndex = 0  // 0 = map, 1 = journeys
 
-    // MARK: - Computed Stats
+    // MARK: - Stats
 
     private var totalTrips: Int { trips.count }
     private var totalCountries: Int { Set(visitedCountryCodes).count }
     private var totalCities: Int { Set(trips.map(\.locality)).count }
     private var totalDistanceKm: Double { trips.reduce(0) { $0 + $1.distanceMeters } / 1000.0 }
     private var totalSteps: Int { trips.reduce(0) { $0 + $1.stepCount } }
-
-    private var totalDurationHours: Double {
-        trips.reduce(0.0) { $0 + $1.endDate.timeIntervalSince($1.startDate) } / 3600.0
+    private var totalContinents: Int {
+        Set(Set(visitedCountryCodes).compactMap(Self.continent(for:))).count
     }
 
-    private var topCity: String {
-        let abroad = trips.filter { $0.locality != homeCityName }
-        return Dictionary(grouping: abroad, by: \.locality)
-            .max(by: { $0.value.count < $1.value.count })?.key ?? "—"
+    private var currentYear: Int { Calendar.current.component(.year, from: Date()) }
+
+    private var displayName: String {
+        if let name = Auth.auth().currentUser?.displayName, !name.isEmpty { return name }
+        if let email = Auth.auth().currentUser?.email,
+           let handle = email.split(separator: "@").first {
+            return handle.capitalized.replacingOccurrences(of: ".", with: " ")
+        }
+        return "Nomad Explorer"
     }
 
-    private var topCategory: String {
-        var totals: [String: Int] = [:]
-        for trip in trips { for (cat, count) in trip.placeCounts { totals[cat, default: 0] += count } }
-        return totals.max(by: { $0.value < $1.value })?.key.capitalized ?? "—"
+    private var handleText: String {
+        if let email = Auth.auth().currentUser?.email,
+           let handle = email.split(separator: "@").first {
+            return String(handle)
+        }
+        return "nomad"
     }
 
-    private var cityList: [String] {
-        Array(Set(trips.map(\.locality))).sorted()
+    private var passportNumber: String {
+        let uid = Auth.auth().currentUser?.uid ?? "NOMAD000000000"
+        let digits = uid.uppercased().filter { $0.isLetter || $0.isNumber }
+        let a = String(digits.prefix(4)).padding(toLength: 4, withPad: "0", startingAt: 0)
+        let b = String(digits.dropFirst(4).prefix(4)).padding(toLength: 4, withPad: "0", startingAt: 0)
+        return "NMD · \(a) · \(b)"
     }
 
-    private var durationText: String {
-        let h = Int(totalDurationHours)
-        let m = Int((totalDurationHours - Double(h)) * 60)
-        if h > 0 { return "\(h)h \(m)m" }
-        return "\(m)m"
-    }
-
-    private var mrzLine: String {
-        let year = Calendar.current.component(.year, from: Date())
-        let cities = cityList.prefix(3).joined(separator: "<").uppercased()
-        return "\(year)<<<NOMAD<<<\(cities)<<<PASSPORT<\(totalTrips)TRIPS"
-    }
+    private var homeCity: String { homeCityName ?? "—" }
 
     // MARK: - Body
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                // Country flags above the map
-                flagStrip
-                    .padding(.top, 4)
+            VStack(spacing: 18) {
+                header
+                    .padding(.top, 12)
+                    .padding(.horizontal, 20)
 
-                // Map / Journeys swipeable area
-                globeVisual
+                tradingCard
+                    .padding(.horizontal, 28)
                     .padding(.top, 6)
 
-                // Dashed divider
-                dashedDivider
-                    .padding(.top, 20)
-
-                // Passport title
-                passportHeader
-                    .padding(.top, 20)
-                    .padding(.horizontal, 28)
-
-                // Big stats
-                bigStats
-                    .padding(.top, 24)
-                    .padding(.horizontal, 28)
-
-                // Secondary stats
-                secondaryStats
-                    .padding(.top, 20)
-                    .padding(.horizontal, 28)
-
-                // Dashed divider
-                dashedDivider
-                    .padding(.top, 24)
-
-                // Fun facts
-                funFacts
-                    .padding(.top, 20)
-                    .padding(.horizontal, 28)
-
-                // MRZ footer
-                mrzFooter
-                    .padding(.top, 28)
-                    .padding(.horizontal, 28)
-
-                // Share button
                 shareButton
-                    .padding(.top, 24)
                     .padding(.horizontal, 28)
-                    .padding(.bottom, 40)
+                    .padding(.top, 8)
+
+                AddFriendSection()
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 32)
             }
         }
         .frame(maxWidth: .infinity)
         .background(
             LinearGradient(
-                colors: [Color.Nomad.panelBlack, Color.Nomad.globeBackground],
+                colors: [Color.Nomad.panelBlack, Color(hex: 0x0A0A1E)],
                 startPoint: .top, endPoint: .bottom
             ).ignoresSafeArea()
         )
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
-        .presentationBackground(Color.Nomad.panelBlack)
         .sheet(isPresented: $showShareSheet) {
             if let image = shareImage {
                 ShareSheet(items: [image])
@@ -129,54 +97,61 @@ struct TravelerPassport: View {
         }
     }
 
-    // MARK: - Swipeable Map / Journeys
+    // MARK: - Header
 
-    private var globeVisual: some View {
-        VStack(spacing: 6) {
-            TabView(selection: $mapPageIndex) {
-                mapPage
-                    .tag(0)
-                journeysPage
-                    .tag(1)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: UIScreen.main.bounds.width * 0.65)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            // Page dots
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(mapPageIndex == 0 ? Color.Nomad.accent : Color.Nomad.surfaceBorder.opacity(0.3))
-                    .frame(width: 6, height: 6)
-                Circle()
-                    .fill(mapPageIndex == 1 ? Color.Nomad.accent : Color.Nomad.surfaceBorder.opacity(0.3))
-                    .frame(width: 6, height: 6)
-            }
-        }
-        .padding(.horizontal, 12)
+    private var header: some View {
+        Text("Profile")
+            .font(.custom("CalSans-Regular", size: 22))
+            .foregroundStyle(Color.Nomad.textPrimary)
+            .frame(maxWidth: .infinity)
     }
 
-    private var mapPage: some View {
-        Group {
-            if countries.isEmpty {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.Nomad.landUnvisited.opacity(0.3))
-                    .overlay(
-                        Image(systemName: "globe.americas.fill")
-                            .font(.system(size: 80))
-                            .foregroundStyle(Color.Nomad.landVisited.opacity(0.25))
-                    )
-            } else {
-                let mapImage = GlobeCountryOverlay.renderPassportMap(
-                    countries: countries,
-                    visitedCodes: Set(visitedCountryCodes)
-                )
-                Image(uiImage: mapImage)
-                    .resizable()
-                    .scaledToFill()
-            }
+    // MARK: - Trading Card
+
+    private var tradingCard: some View {
+        GeometryReader { geo in
+            TradingCardFace(
+                tilt: tilt,
+                year: currentYear,
+                fullName: displayName,
+                handle: handleText,
+                homeCity: homeCity,
+                countries: totalCountries,
+                cities: totalCities,
+                trips: totalTrips,
+                continents: totalContinents,
+                distanceKm: totalDistanceKm,
+                steps: totalSteps,
+                passportNumber: passportNumber
+            )
+            .frame(width: geo.size.width, height: geo.size.height)
+            .rotation3DEffect(
+                .degrees(Double(tilt.width)),
+                axis: (x: 0, y: 1, z: 0),
+                perspective: 0.8
+            )
+            .rotation3DEffect(
+                .degrees(Double(-tilt.height)),
+                axis: (x: 1, y: 0, z: 0),
+                perspective: 0.8
+            )
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: tilt)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let x = max(-20, min(20, value.translation.width / 6))
+                        let y = max(-20, min(20, value.translation.height / 6))
+                        tilt = CGSize(width: x, height: y)
+                    }
+                    .onEnded { _ in
+                        tilt = .zero
+                    }
+            )
         }
+        .aspectRatio(63.0 / 88.0, contentMode: .fit)
     }
+
+    // MARK: - Journeys Section
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -184,14 +159,13 @@ struct TravelerPassport: View {
         return f
     }()
 
-    private var journeysPage: some View {
-        VStack(spacing: 0) {
-            // Header
+    private var journeysSection: some View {
+        VStack(spacing: 10) {
             HStack {
                 Text("JOURNEYS")
                     .font(.system(size: 11, weight: .medium, design: .monospaced))
                     .foregroundStyle(Color.Nomad.textSecondary)
-                    .tracking(1)
+                    .tracking(1.5)
 
                 Spacer()
 
@@ -201,256 +175,98 @@ struct TravelerPassport: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "plus")
-                                .font(.system(size: 11, weight: .bold))
-                            Text("Log")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.system(size: 12, weight: .bold))
+                            Text("Log Trip")
+                                .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundStyle(Color.Nomad.accent)
+                        .foregroundStyle(Color.Nomad.panelBlack)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.Nomad.accent)
+                        .clipShape(Capsule())
                     }
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.top, 10)
-            .padding(.bottom, 6)
 
             if trips.isEmpty {
-                Spacer()
-                Text("No trips yet")
+                Text("No trips yet — tap Log Trip to start.")
                     .font(AppFont.caption())
                     .foregroundStyle(Color.Nomad.textSecondary)
-                Spacer()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
             } else {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 6) {
-                        ForEach(trips.prefix(10)) { trip in
-                            Button {
-                                onTripTap?(trip)
-                            } label: {
-                                HStack(spacing: 10) {
-                                    // Route mini preview
-                                    ZStack {
-                                        GeometryReader { geo in
-                                            RoutePreviewPath(routePreview: trip.routePreview, size: geo.size)
-                                        }
-                                    }
-                                    .frame(width: 36, height: 28)
-                                    .background(Color.Nomad.globeBackground.opacity(0.3))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
-
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(trip.cityName)
-                                            .font(.system(size: 13, weight: .medium))
-                                            .foregroundStyle(Color.Nomad.textPrimary)
-                                            .lineLimit(1)
-                                        Text(Self.dateFormatter.string(from: trip.startDate))
-                                            .font(.system(size: 10))
-                                            .foregroundStyle(Color.Nomad.textSecondary)
-                                    }
-
-                                    Spacer()
-
-                                    Text(String(format: "%.1f km", trip.distanceMeters / 1000))
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundStyle(Color.Nomad.textSecondary)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                            }
-                            .buttonStyle(.plain)
-                        }
+                VStack(spacing: 6) {
+                    ForEach(trips) { trip in
+                        journeyRow(trip)
                     }
                 }
             }
         }
-        .background(Color.Nomad.globeBackground.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    // MARK: - Flag Strip
-
-    private var flagStrip: some View {
-        HStack(spacing: 4) {
-            ForEach(Array(Set(visitedCountryCodes)).sorted(), id: \.self) { code in
-                Text(flagEmoji(for: code))
-                    .font(.system(size: 20))
-            }
-        }
-    }
-
-    // MARK: - Dashed Divider
-
-    private var dashedDivider: some View {
-        Rectangle()
-            .fill(Color.clear)
-            .frame(height: 1)
-            .overlay(
-                GeometryReader { geo in
-                    Path { path in
-                        path.move(to: .zero)
-                        path.addLine(to: CGPoint(x: geo.size.width, y: 0))
+    private func journeyRow(_ trip: TripDocument) -> some View {
+        Button {
+            onTripTap?(trip)
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    GeometryReader { geo in
+                        RoutePreviewPath(routePreview: trip.routePreview, size: geo.size)
                     }
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
-                    .foregroundStyle(Color.Nomad.accent.opacity(0.25))
                 }
-            )
-            .padding(.horizontal, 28)
-    }
+                .frame(width: 44, height: 32)
+                .background(Color.Nomad.globeBackground.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
 
-    // MARK: - Passport Header
-
-    private var passportHeader: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("MY NOMAD PASSPORT")
-                    .font(.system(size: 20, weight: .bold, design: .default))
-                    .foregroundStyle(Color.Nomad.textPrimary)
-                    .tracking(1)
-
-                Text("PASSPORT · PASS · PASAPORTE")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Color.Nomad.textSecondary.opacity(0.6))
-            }
-
-            Spacer()
-
-            // App icon placeholder
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.Nomad.accent.opacity(0.15))
-                .frame(width: 44, height: 44)
-                .overlay(
-                    Image(systemName: "figure.walk")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(Color.Nomad.accent)
-                )
-        }
-    }
-
-    // MARK: - Big Stats
-
-    private var bigStats: some View {
-        HStack(alignment: .top, spacing: 0) {
-            // Trips
-            VStack(alignment: .leading, spacing: 2) {
-                Text("JOURNEYS")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.Nomad.textSecondary)
-                    .tracking(1)
-                Text("\(totalTrips)")
-                    .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.Nomad.textPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            // Distance
-            VStack(alignment: .leading, spacing: 2) {
-                Text("DISTANCE")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.Nomad.textSecondary)
-                    .tracking(1)
-
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text(String(format: "%.0f", totalDistanceKm))
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(trip.cityName)
+                        .font(.custom("Inter-SemiBold", size: 14))
                         .foregroundStyle(Color.Nomad.textPrimary)
-                    Text("km")
-                        .font(.system(size: 24, weight: .medium))
+                        .lineLimit(1)
+                    Text(Self.dateFormatter.string(from: trip.startDate))
+                        .font(.custom("Inter-Regular", size: 11))
                         .foregroundStyle(Color.Nomad.textSecondary)
                 }
+
+                Spacer()
+
+                Text(String(format: "%.1f km", trip.distanceMeters / 1000))
+                    .font(.custom("Inter-Regular", size: 12))
+                    .foregroundStyle(Color.Nomad.textSecondary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color(hex: 0x020920).opacity(0.5))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.10), lineWidth: 1)
+                    )
+            )
         }
-    }
-
-    // MARK: - Secondary Stats
-
-    private var secondaryStats: some View {
-        HStack(alignment: .top, spacing: 0) {
-            statColumn(label: "TIME", value: durationText)
-            statColumn(label: "COUNTRIES", value: "\(totalCountries)")
-            statColumn(label: "CITIES", value: "\(totalCities)")
+        .buttonStyle(.plain)
+        .contextMenu {
+            if onDeleteTrip != nil {
+                Button(role: .destructive) {
+                    onDeleteTrip?(trip)
+                } label: {
+                    Label("Delete Trip", systemImage: "trash")
+                }
+            }
         }
-    }
-
-    private func statColumn(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color.Nomad.textSecondary)
-                .tracking(1)
-            Text(value)
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.Nomad.textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // MARK: - Fun Facts
-
-    private var funFacts: some View {
-        VStack(spacing: 14) {
-            funFactRow(emoji: "👟", label: "TOTAL STEPS", value: formatNumber(totalSteps))
-            funFactRow(emoji: "📍", label: "FAV CITY ABROAD", value: topCity)
-            funFactRow(emoji: "❤️", label: "TOP ACTIVITY", value: topCategory)
-        }
-    }
-
-    private func funFactRow(emoji: String, label: String, value: String) -> some View {
-        HStack {
-            Text(emoji)
-                .font(.system(size: 20))
-
-            Text(label)
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(Color.Nomad.textSecondary)
-                .tracking(1)
-
-            Spacer()
-
-            Text(value)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color.Nomad.textPrimary)
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 14)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.Nomad.globeBackground.opacity(0.5))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.Nomad.surfaceBorder.opacity(0.08), lineWidth: 1)
-                )
-        )
-    }
-
-    // MARK: - MRZ Footer
-
-    private var mrzFooter: some View {
-        VStack(spacing: 4) {
-            Text(mrzLine)
-                .font(.system(size: 9, weight: .regular, design: .monospaced))
-                .foregroundStyle(Color.Nomad.textSecondary.opacity(0.4))
-                .lineLimit(1)
-                .truncationMode(.tail)
-
-            Text("nomad — turn miles into memories")
-                .font(.system(size: 9, weight: .regular, design: .monospaced))
-                .foregroundStyle(Color.Nomad.textSecondary.opacity(0.3))
-        }
-        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Share Button
 
     private var shareButton: some View {
         Button {
-            shareImage = renderPassportCard()
+            shareImage = renderTradingCard()
             showShareSheet = true
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "square.and.arrow.up")
-                Text("Share Passport")
+                Text("Share Card")
             }
             .font(AppFont.buttonLabel())
             .foregroundStyle(Color.Nomad.panelBlack)
@@ -461,162 +277,705 @@ struct TravelerPassport: View {
         }
     }
 
-    // MARK: - Shareable Card Renderer
+    // MARK: - Shareable Image
 
     @MainActor
-    private func renderPassportCard() -> UIImage {
-        let w: CGFloat = 390
-        let h: CGFloat = 780
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: w, height: h))
-        return renderer.image { ctx in
-            let gc = ctx.cgContext
-            let m: CGFloat = 28 // margin
+    private func renderTradingCard() -> UIImage {
+        let card = TradingCardFace(
+            tilt: .zero,
+            year: currentYear,
+            fullName: displayName,
+            handle: handleText,
+            homeCity: homeCity,
+            countries: totalCountries,
+            cities: totalCities,
+            trips: totalTrips,
+            continents: totalContinents,
+            distanceKm: totalDistanceKm,
+            steps: totalSteps,
+            passportNumber: passportNumber
+        )
+        .frame(width: 630, height: 880)
 
-            // Background gradient
-            let bgColors = [UIColor(hex: 0x0F0F28).cgColor, UIColor(hex: 0x020920).cgColor]
-            let grad = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                   colors: bgColors as CFArray, locations: [0, 1])!
-            gc.drawLinearGradient(grad, start: .zero, end: CGPoint(x: 0, y: h), options: [])
+        let renderer = ImageRenderer(content: card)
+        renderer.scale = 3
+        return renderer.uiImage ?? UIImage()
+    }
+
+    // MARK: - Continent mapping
+
+    fileprivate static func continent(for code: String) -> String? {
+        switch code.uppercased() {
+        case "US","CA","MX","GT","BZ","SV","HN","NI","CR","PA","CU","DO","HT","JM","BS","PR":
+            return "NA"
+        case "BR","AR","CL","PE","CO","VE","EC","BO","PY","UY","GY","SR":
+            return "SA"
+        case "GB","IE","FR","DE","ES","PT","IT","NL","BE","LU","CH","AT","DK","SE","NO","FI","IS","PL","CZ","SK","HU","RO","BG","GR","HR","SI","RS","BA","MK","AL","ME","LT","LV","EE","BY","UA","MD","MT","CY","LI","MC","AD","SM","VA","XK":
+            return "EU"
+        case "CN","JP","KR","KP","IN","PK","BD","LK","NP","BT","MM","TH","VN","LA","KH","MY","SG","ID","PH","TW","HK","MO","MN","KZ","UZ","TM","KG","TJ","AF","IR","IQ","SA","AE","QA","BH","KW","OM","YE","JO","LB","SY","IL","PS","TR","GE","AM","AZ","MV","BN","TL":
+            return "AS"
+        case "EG","LY","TN","DZ","MA","EH","SD","SS","ET","ER","DJ","SO","KE","UG","RW","BI","TZ","MZ","ZW","ZM","MW","AO","NA","BW","ZA","SZ","LS","MG","MU","SC","KM","CV","SN","GM","GN","GW","SL","LR","CI","GH","TG","BJ","NG","NE","ML","BF","CM","CF","TD","CG","CD","GA","GQ":
+            return "AF"
+        case "AU","NZ","PG","FJ","SB","VU","NC","PF","WS","TO","KI","TV","NR","FM","MH","PW":
+            return "OC"
+        default: return nil
+        }
+    }
+}
+
+// MARK: - Trading Card Face
+
+private struct TradingCardFace: View {
+    let tilt: CGSize
+    let year: Int
+    let fullName: String
+    let handle: String
+    let homeCity: String
+    let countries: Int
+    let cities: Int
+    let trips: Int
+    let continents: Int
+    let distanceKm: Double
+    let steps: Int
+    let passportNumber: String
+
+    var body: some View {
+        ZStack {
+            // Base card
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.Nomad.panelBlack)
+
+            // Holo background layer (conic + radial)
+            holoBackground
+                .blendMode(.screen)
+                .opacity(0.18)
+
+            // Inner border (card edge)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.Nomad.surfaceBorder.opacity(0.15), lineWidth: 1)
+                .padding(8)
+
+            // Content
+            VStack(spacing: 0) {
+                topStrip
+                    .padding(.bottom, 12)
+
+                nameBlock
+                    .padding(.bottom, 10)
+
+                globePortrait
+                    .padding(.bottom, 12)
+
+                statsGrid
+                    .padding(.bottom, 8)
+
+                movesList
+                    .padding(.bottom, 8)
+
+                footer
+            }
+            .padding(18)
+
+            // Holo shine overlay
+            holoShine
+                .allowsHitTesting(false)
 
             // Outer border
-            gc.setStrokeColor(UIColor(hex: 0x5E89DD, alpha: 0.25).cgColor)
-            gc.setLineWidth(2)
-            gc.addPath(UIBezierPath(roundedRect: CGRect(x: 1, y: 1, width: w - 2, height: h - 2),
-                                     cornerRadius: 24).cgPath)
-            gc.strokePath()
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color(hex: 0x020920).opacity(0.6), radius: 30, x: 0, y: 16)
+        .shadow(color: Color.Nomad.accent.opacity(0.18), radius: 20, x: 0, y: 0)
+    }
 
-            // Globe placeholder
-            let globeRect = CGRect(x: m, y: 30, width: w - m * 2, height: 160)
-            gc.setFillColor(UIColor(hex: 0x0C2457, alpha: 0.4).cgColor)
-            gc.addPath(UIBezierPath(roundedRect: globeRect, cornerRadius: 14).cgPath)
-            gc.fillPath()
+    // MARK: - Holo Background
 
-            // Flags
-            var y: CGFloat = 210
-            let flagStr = Array(Set(visitedCountryCodes)).sorted()
-                .map { flagEmoji(for: $0) }.joined(separator: "  ")
-            let flagAttrs: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 28)]
-            (flagStr as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: flagAttrs)
+    private var holoBackground: some View {
+        ZStack {
+            AngularGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: 0x5E89DD),
+                    Color(hex: 0xC8D7F3),
+                    Color(hex: 0xD94F3D),
+                    Color(hex: 0x5E89DD),
+                    Color(hex: 0x2D62D3),
+                    Color(hex: 0xC8D7F3),
+                    Color(hex: 0x5E89DD)
+                ]),
+                center: .center,
+                angle: .degrees(Double(tilt.width) * 10)
+            )
 
-            // Dashed line
-            y += 50
-            gc.setStrokeColor(UIColor(hex: 0x5E89DD, alpha: 0.2).cgColor)
-            gc.setLineWidth(1)
-            gc.setLineDash(phase: 0, lengths: [6, 4])
-            gc.move(to: CGPoint(x: m, y: y))
-            gc.addLine(to: CGPoint(x: w - m, y: y))
-            gc.strokePath()
-            gc.setLineDash(phase: 0, lengths: [])
-
-            // Title
-            y += 16
-            let titleAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont(name: "Inter-SemiBold", size: 20) ?? .boldSystemFont(ofSize: 20),
-                .foregroundColor: UIColor(hex: 0xE1E2F0),
-            ]
-            ("MY NOMAD PASSPORT" as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: titleAttrs)
-
-            y += 28
-            let subAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedSystemFont(ofSize: 9, weight: .medium),
-                .foregroundColor: UIColor(hex: 0x8E92C6, alpha: 0.6),
-            ]
-            ("PASSPORT · PASS · PASAPORTE" as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: subAttrs)
-
-            // Big stats
-            y += 36
-            let bigAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 52, weight: .bold),
-                .foregroundColor: UIColor(hex: 0xE1E2F0),
-            ]
-            let unitAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 22, weight: .medium),
-                .foregroundColor: UIColor(hex: 0x8E92C6),
-            ]
-            let labelAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedSystemFont(ofSize: 10, weight: .medium),
-                .foregroundColor: UIColor(hex: 0x8E92C6),
-            ]
-
-            ("JOURNEYS" as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: labelAttrs)
-            ("DISTANCE" as NSString).draw(at: CGPoint(x: 200, y: y), withAttributes: labelAttrs)
-            y += 16
-            ("\(totalTrips)" as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: bigAttrs)
-            let distStr = String(format: "%.0f", totalDistanceKm)
-            (distStr as NSString).draw(at: CGPoint(x: 200, y: y), withAttributes: bigAttrs)
-            let distSize = (distStr as NSString).size(withAttributes: bigAttrs)
-            ("km" as NSString).draw(at: CGPoint(x: 200 + distSize.width + 4, y: y + 26), withAttributes: unitAttrs)
-
-            // Secondary stats
-            y += 72
-            let medAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 34, weight: .bold),
-                .foregroundColor: UIColor(hex: 0xE1E2F0),
-            ]
-            let col1: CGFloat = m
-            let col2: CGFloat = 150
-            let col3: CGFloat = 270
-
-            ("TIME" as NSString).draw(at: CGPoint(x: col1, y: y), withAttributes: labelAttrs)
-            ("COUNTRIES" as NSString).draw(at: CGPoint(x: col2, y: y), withAttributes: labelAttrs)
-            ("CITIES" as NSString).draw(at: CGPoint(x: col3, y: y), withAttributes: labelAttrs)
-            y += 14
-            (durationText as NSString).draw(at: CGPoint(x: col1, y: y), withAttributes: medAttrs)
-            ("\(totalCountries)" as NSString).draw(at: CGPoint(x: col2, y: y), withAttributes: medAttrs)
-            ("\(totalCities)" as NSString).draw(at: CGPoint(x: col3, y: y), withAttributes: medAttrs)
-
-            // Dashed line
-            y += 52
-            gc.setStrokeColor(UIColor(hex: 0x5E89DD, alpha: 0.2).cgColor)
-            gc.setLineDash(phase: 0, lengths: [6, 4])
-            gc.move(to: CGPoint(x: m, y: y))
-            gc.addLine(to: CGPoint(x: w - m, y: y))
-            gc.strokePath()
-            gc.setLineDash(phase: 0, lengths: [])
-
-            // Fun facts
-            y += 16
-            let factAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont(name: "Inter-SemiBold", size: 15) ?? .boldSystemFont(ofSize: 15),
-                .foregroundColor: UIColor(hex: 0xE1E2F0),
-            ]
-            let facts = [
-                ("👟", "STEPS", formatNumber(totalSteps)),
-                ("📍", "FAV ABROAD", topCity),
-                ("❤️", "ACTIVITY", topCategory),
-            ]
-            for (emoji, lbl, val) in facts {
-                let line = "\(emoji)  \(lbl)"
-                (line as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: labelAttrs)
-                (val as NSString).draw(at: CGPoint(x: w - m - (val as NSString).size(withAttributes: factAttrs).width, y: y - 2), withAttributes: factAttrs)
-                y += 28
-            }
-
-            // MRZ
-            y = h - 50
-            let mrzAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedSystemFont(ofSize: 8, weight: .regular),
-                .foregroundColor: UIColor(hex: 0x8E92C6, alpha: 0.35),
-            ]
-            (mrzLine as NSString).draw(at: CGPoint(x: m, y: y), withAttributes: mrzAttrs)
-            ("nomad — turn miles into memories" as NSString).draw(
-                at: CGPoint(x: m, y: y + 14), withAttributes: mrzAttrs)
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.Nomad.accent.opacity(0.35),
+                    Color.clear
+                ]),
+                center: UnitPoint(
+                    x: 0.5 + Double(tilt.width) / 100,
+                    y: 0.5 + Double(tilt.height) / 100
+                ),
+                startRadius: 0,
+                endRadius: 280
+            )
         }
     }
 
-    // MARK: - Helpers
+    // MARK: - Top Strip
 
-    private func flagEmoji(for countryCode: String) -> String {
-        let base: UInt32 = 127397
-        return countryCode.uppercased().unicodeScalars.compactMap {
-            UnicodeScalar(base + $0.value).map { String($0) }
-        }.joined()
+    private var topStrip: some View {
+        HStack {
+            Text("NOMAD · \(String(year)) SET")
+                .font(.custom("Inter-SemiBold", size: 9))
+                .tracking(2.25)
+                .foregroundStyle(Color.Nomad.star)
+
+            Spacer()
+
+            Text("EXPLORER")
+                .font(.custom("Inter-SemiBold", size: 10))
+                .tracking(1)
+                .foregroundStyle(Color.Nomad.panelBlack)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 3)
+                .background(
+                    LinearGradient(
+                        colors: [Color.Nomad.accent, Color.Nomad.star],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+        }
     }
 
-    private func formatNumber(_ n: Int) -> String {
+    // MARK: - Name Block
+
+    private var nameBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(fullName)
+                .font(.custom("CalSans-Regular", size: 26))
+                .foregroundStyle(Color.Nomad.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text("@\(handle) · \(homeCity)")
+                .font(.custom("Inter-Regular", size: 12))
+                .foregroundStyle(Color.Nomad.accent)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Globe Portrait
+
+    private var globePortrait: some View {
+        ZStack {
+            // Portrait background
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(colors: [
+                            Color(hex: 0x0B1A38),
+                            Color(hex: 0x020920)
+                        ]),
+                        center: UnitPoint(x: 0.5, y: 0.55),
+                        startRadius: 0, endRadius: 160
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1)
+                )
+
+            StarField()
+
+            GlobeBall()
+
+            // Rarity star (top-left)
+            VStack {
+                HStack {
+                    ZStack {
+                        Circle()
+                            .fill(Color.Nomad.accent.opacity(0.2))
+                        Circle()
+                            .stroke(Color.Nomad.accent, lineWidth: 1)
+                        Text("★")
+                            .font(.custom("CalSans-Regular", size: 16))
+                            .foregroundStyle(Color.Nomad.accent)
+                    }
+                    .frame(width: 32, height: 32)
+                    Spacer()
+                }
+                Spacer()
+            }
+            .padding(8)
+        }
+        .frame(height: 170)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    // MARK: - Stats Grid
+
+    private var statsGrid: some View {
+        HStack(spacing: 2) {
+            CardStat(value: "\(countries)", label: "CTR")
+            CardStat(value: "\(cities)", label: "CIT")
+            CardStat(value: "\(trips)", label: "TRP")
+            CardStat(value: "\(continents)", label: "CNT")
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color(hex: 0x020920).opacity(0.6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1)
+                )
+        )
+    }
+
+    // MARK: - Moves
+
+    private var movesList: some View {
+        VStack(spacing: 4) {
+            MoveRow(
+                name: "Long Haul",
+                detail: "\(formatDistance(distanceKm)) km traveled",
+                power: formatPower(Int(distanceKm))
+            )
+            MoveRow(
+                name: "Pace Setter",
+                detail: "\(formatSteps(steps)) steps logged",
+                power: formatPower(steps)
+            )
+        }
+    }
+
+    private func formatDistance(_ km: Double) -> String {
+        if km >= 1000 { return String(format: "%.1fk", km / 1000) }
+        return String(format: "%.0f", km)
+    }
+
+    private func formatSteps(_ s: Int) -> String {
+        if s >= 1_000_000 { return String(format: "%.2fM", Double(s) / 1_000_000) }
+        if s >= 1000 { return String(format: "%.1fK", Double(s) / 1000) }
+        return "\(s)"
+    }
+
+    private func formatPower(_ n: Int) -> String {
         if n >= 1_000_000 { return String(format: "%.1fM", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.1fK", Double(n) / 1_000) }
+        if n >= 1000 { return String(format: "%.0fK", Double(n) / 1000) }
         return "\(n)"
+    }
+
+    // MARK: - Footer
+
+    private var footer: some View {
+        VStack(spacing: 6) {
+            Rectangle()
+                .fill(Color.Nomad.surfaceBorder.opacity(0.08))
+                .frame(height: 1)
+
+            HStack {
+                Text(passportNumber)
+                    .font(.system(size: 8, weight: .regular, design: .monospaced))
+                    .tracking(1)
+                    .foregroundStyle(Color.Nomad.textSecondary)
+                Spacer()
+                Text("017 / ∞ · \(String(year))")
+                    .font(.system(size: 8, weight: .regular, design: .monospaced))
+                    .tracking(1)
+                    .foregroundStyle(Color.Nomad.textSecondary)
+            }
+        }
+    }
+
+    // MARK: - Holo Shine
+
+    private var holoShine: some View {
+        GeometryReader { _ in
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0.30),
+                    .init(color: Color.white.opacity(0.08), location: 0.45),
+                    .init(color: Color.Nomad.star.opacity(0.12), location: 0.50),
+                    .init(color: Color.white.opacity(0.08), location: 0.55),
+                    .init(color: .clear, location: 0.70)
+                ],
+                startPoint: shineStart,
+                endPoint: shineEnd
+            )
+            .blendMode(.overlay)
+        }
+    }
+
+    private var shineStart: UnitPoint {
+        let offset = Double(tilt.width) / 60
+        return UnitPoint(x: -0.2 - offset, y: 0)
+    }
+
+    private var shineEnd: UnitPoint {
+        let offset = Double(tilt.width) / 60
+        return UnitPoint(x: 1.2 - offset, y: 1)
+    }
+}
+
+// MARK: - Card Stat
+
+private struct CardStat: View {
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.custom("CalSans-Regular", size: 20))
+                .foregroundStyle(Color.Nomad.accent)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Text(label)
+                .font(.custom("Inter-Regular", size: 8))
+                .tracking(1.6)
+                .foregroundStyle(Color.Nomad.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Move Row
+
+private struct MoveRow: View {
+    let name: String
+    let detail: String
+    let power: String
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(name)
+                    .font(.custom("CalSans-Regular", size: 13))
+                    .foregroundStyle(Color.Nomad.textPrimary)
+                Text(detail)
+                    .font(.custom("Inter-Regular", size: 10))
+                    .foregroundStyle(Color.Nomad.textSecondary)
+            }
+            Spacer()
+            Text(power)
+                .font(.custom("CalSans-Regular", size: 16))
+                .foregroundStyle(Color.Nomad.accent)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color(hex: 0x020920).opacity(0.5))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .stroke(Color.Nomad.surfaceBorder.opacity(0.08), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Globe Ball
+
+private struct GlobeBall: View {
+    // Fixed pin positions to mirror the reference design's land pattern.
+    private let pins: [(x: Double, y: Double)] = [
+        (0.35, 0.30), (0.62, 0.28), (0.48, 0.42),
+        (0.30, 0.52), (0.58, 0.58), (0.44, 0.68)
+    ]
+
+    var body: some View {
+        GeometryReader { geo in
+            let size = min(geo.size.width, geo.size.height) * 0.72
+            ZStack {
+                // Sphere
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(colors: [
+                                Color.Nomad.accent.opacity(0.3),
+                                Color.clear
+                            ]),
+                            center: UnitPoint(x: 0.35, y: 0.35),
+                            startRadius: 0, endRadius: size * 0.6
+                        )
+                    )
+                    .background(
+                        Circle().fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    Color(hex: 0x0C2457),
+                                    Color(hex: 0x020920)
+                                ]),
+                                center: .center,
+                                startRadius: 0, endRadius: size * 0.5
+                            )
+                        )
+                    )
+                    .shadow(color: Color.black.opacity(0.4), radius: 8, x: -4, y: -6)
+                    .shadow(color: Color.Nomad.accent.opacity(0.3), radius: 12)
+
+                // Meridians
+                Ellipse()
+                    .stroke(Color.Nomad.accent.opacity(0.25), lineWidth: 0.7)
+                    .frame(width: size * 0.96, height: size * 0.24)
+                Ellipse()
+                    .stroke(Color.Nomad.accent.opacity(0.25), lineWidth: 0.7)
+                    .frame(width: size * 0.24, height: size * 0.96)
+                Ellipse()
+                    .stroke(Color.Nomad.accent.opacity(0.15), lineWidth: 0.7)
+                    .frame(width: size * 0.60, height: size * 0.96)
+
+                // Country glow pins
+                ForEach(0..<pins.count, id: \.self) { i in
+                    Circle()
+                        .fill(Color.Nomad.accent)
+                        .frame(width: 5, height: 5)
+                        .shadow(color: Color.Nomad.accent.opacity(0.9), radius: 4)
+                        .offset(
+                            x: (pins[i].x - 0.5) * size,
+                            y: (pins[i].y - 0.5) * size
+                        )
+                }
+            }
+            .frame(width: size, height: size)
+            .position(x: geo.size.width / 2, y: geo.size.height * 0.52)
+        }
+    }
+}
+
+// MARK: - Star Field
+
+private struct StarField: View {
+    // Stable random positions seeded once.
+    private static let stars: [(x: Double, y: Double, size: Double, opacity: Double)] = {
+        var gen = SeededGenerator(seed: 42)
+        return (0..<30).map { _ in
+            (
+                x: Double.random(in: 0...1, using: &gen),
+                y: Double.random(in: 0...1, using: &gen),
+                size: Double.random(in: 0.3...1.8, using: &gen),
+                opacity: Double.random(in: 0.2...0.8, using: &gen)
+            )
+        }
+    }()
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                ForEach(0..<Self.stars.count, id: \.self) { i in
+                    let s = Self.stars[i]
+                    Circle()
+                        .fill(Color.Nomad.star)
+                        .frame(width: s.size, height: s.size)
+                        .opacity(s.opacity)
+                        .position(x: s.x * geo.size.width, y: s.y * geo.size.height)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Seeded Generator
+
+private struct SeededGenerator: RandomNumberGenerator {
+    var state: UInt64
+    init(seed: UInt64) { self.state = seed &* 0x9E3779B97F4A7C15 }
+    mutating func next() -> UInt64 {
+        state = state &* 6364136223846793005 &+ 1442695040888963407
+        return state
+    }
+}
+
+// MARK: - Add Friend Section
+
+private struct AddFriendSection: View {
+    @State private var handle = ""
+    @State private var state: SearchState = .idle
+
+    enum SearchState {
+        case idle
+        case loading
+        case found(FoundUser)
+        case alreadyFriend
+        case notFound
+        case added(String)
+        case error(String)
+    }
+
+    var body: some View {
+        VStack(spacing: 14) {
+            divider
+
+            HStack(spacing: 10) {
+                HStack(spacing: 6) {
+                    Text("@")
+                        .font(.custom("CalSans-Regular", size: 16))
+                        .foregroundStyle(Color.Nomad.textSecondary)
+                    TextField("username", text: $handle)
+                        .font(.custom("CalSans-Regular", size: 16))
+                        .foregroundStyle(Color.Nomad.textPrimary)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .onSubmit { search() }
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.Nomad.globeBackground.opacity(0.45))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color.Nomad.surfaceBorder.opacity(0.15), lineWidth: 1)
+                        )
+                )
+
+                Button(action: search) {
+                    Group {
+                        if case .loading = state {
+                            ProgressView()
+                                .tint(Color.Nomad.panelBlack)
+                        } else {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(Color.Nomad.panelBlack)
+                        }
+                    }
+                    .frame(width: 44, height: 44)
+                    .background(Color.Nomad.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                .disabled(handle.trimmingCharacters(in: .whitespaces).isEmpty || {
+                    if case .loading = state { return true }
+                    return false
+                }())
+            }
+
+            resultView
+        }
+    }
+
+    @ViewBuilder
+    private var resultView: some View {
+        switch state {
+        case .idle:
+            EmptyView()
+
+        case .loading:
+            EmptyView()
+
+        case .found(let user):
+            HStack(spacing: 12) {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(hue: user.avatarHue / 360, saturation: 0.32, brightness: 0.75),
+                                Color(hue: user.avatarHue / 360, saturation: 0.28, brightness: 0.42)
+                            ],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 36, height: 36)
+                    .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 1))
+
+                Text("@\(user.handle)")
+                    .font(.custom("CalSans-Regular", size: 16))
+                    .foregroundStyle(Color.Nomad.textPrimary)
+
+                Spacer(minLength: 0)
+
+                Button {
+                    addFriend(user)
+                } label: {
+                    Text("Add")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.Nomad.panelBlack)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 7)
+                        .background(Color.Nomad.accent)
+                        .clipShape(Capsule())
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.Nomad.globeBackground.opacity(0.35))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color.Nomad.surfaceBorder.opacity(0.10), lineWidth: 1)
+                    )
+            )
+
+        case .alreadyFriend:
+            feedbackText("Already friends.", color: Color.Nomad.textSecondary)
+
+        case .notFound:
+            feedbackText("No user found with that handle.", color: Color.Nomad.textSecondary)
+
+        case .added(let h):
+            feedbackText("Added @\(h)!", color: Color.Nomad.accent)
+
+        case .error(let msg):
+            feedbackText(msg, color: .red.opacity(0.8))
+        }
+    }
+
+    private func feedbackText(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.custom("CalSans-Regular", size: 14))
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
+    }
+
+    private var divider: some View {
+        HStack(spacing: 10) {
+            Rectangle()
+                .fill(Color.Nomad.surfaceBorder.opacity(0.12))
+                .frame(height: 1)
+            Text("ADD FRIENDS")
+                .font(.custom("CalSans-Regular", size: 12))
+                .tracking(1.6)
+                .foregroundStyle(Color.Nomad.textSecondary)
+            Rectangle()
+                .fill(Color.Nomad.surfaceBorder.opacity(0.12))
+                .frame(height: 1)
+        }
+    }
+
+    private func search() {
+        let trimmed = handle.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !trimmed.isEmpty else { return }
+        state = .loading
+        Task {
+            do {
+                guard let user = try await FriendService.shared.searchUser(handle: trimmed) else {
+                    state = .notFound
+                    return
+                }
+                let already = try await FriendService.shared.isFriend(uid: user.uid)
+                state = already ? .alreadyFriend : .found(user)
+            } catch {
+                state = .error("Something went wrong.")
+            }
+        }
+    }
+
+    private func addFriend(_ user: FoundUser) {
+        Task {
+            do {
+                try await FriendService.shared.addFriend(friend: user)
+                state = .added(user.handle)
+                handle = ""
+            } catch {
+                state = .error("Couldn't add friend.")
+            }
+        }
     }
 }
 

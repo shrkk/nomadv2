@@ -552,7 +552,7 @@ struct GlobeView: View {
                 activeRouteCoordinates: viewModel.activeRouteCoordinates
             )
             .ignoresSafeArea()
-            .sheet(isPresented: .constant(true)) {
+            .sheet(isPresented: $viewModel.showProfileSheet) {
                 ProfileSheet(
                     trips: viewModel.trips,
                     scrollToTripId: viewModel.scrollToTripId,
@@ -584,10 +584,13 @@ struct GlobeView: View {
                         }
                     },
                     countries: viewModel.countries,
-                    homeCityName: viewModel.homeCityName
+                    homeCityName: viewModel.homeCityName,
+                    friendPosts: viewModel.friendPosts
                 )
             }
-            .sheet(isPresented: $viewModel.showCountryDetail) {
+            .sheet(isPresented: $viewModel.showCountryDetail, onDismiss: {
+                viewModel.showProfileSheet = true
+            }) {
                 if let code = viewModel.selectedCountryCode {
                     let countryTrips = viewModel.trips.filter {
                         $0.visitedCountryCodes.contains(code)
@@ -624,9 +627,13 @@ struct GlobeView: View {
                     .zIndex(1)
             }
 
-            // JourneyPill removed — persistent profile panel replaces it
         }
         .task {
+            // One-time dummy data seed — remove this block when done demoing
+            if !UserDefaults.standard.bool(forKey: "dummyDataSeeded") {
+                await DummyDataSeeder.seed()
+                UserDefaults.standard.set(true, forKey: "dummyDataSeeded")
+            }
             await viewModel.loadGlobeData()
             locationManager.configure(modelContext: modelContext)
         }
