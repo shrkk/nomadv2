@@ -197,6 +197,7 @@ class GlobeViewModel {
     private static let mockFriendPosts: [FriendTripPost] = [
         FriendTripPost(
             id: "mock-maya-kyoto",
+            authorUID: "mock-uid-maya",
             authorHandle: "maya.v",
             authorAvatarHue: 260,
             trip: TripDocument(
@@ -213,6 +214,7 @@ class GlobeViewModel {
         ),
         FriendTripPost(
             id: "mock-leo-lisbon",
+            authorUID: "mock-uid-leo",
             authorHandle: "leo.b",
             authorAvatarHue: 28,
             trip: TripDocument(
@@ -229,6 +231,7 @@ class GlobeViewModel {
         ),
         FriendTripPost(
             id: "mock-priya-marrakech",
+            authorUID: "mock-uid-priya",
             authorHandle: "priya.s",
             authorAvatarHue: 160,
             trip: TripDocument(
@@ -245,6 +248,7 @@ class GlobeViewModel {
         ),
         FriendTripPost(
             id: "mock-jake-seoul",
+            authorUID: "mock-uid-jake",
             authorHandle: "jake.n",
             authorAvatarHue: 340,
             trip: TripDocument(

@@ -25,11 +25,13 @@ private struct TimestampedCoordinate {
 
 struct TripDetailSheet: View {
     let trip: TripDocument
+    var ownerUID: String? = nil  // when set, fetches from friend's Firestore path
 
     @State private var routeCoordinates: [CLLocationCoordinate2D] = []
     @State private var timedCoordinates: [TimestampedCoordinate] = []
     @State private var isLoadingRoute = true
     @State private var routeFetchError = false
+    @State private var showShareSheet = false
 
     // Pause-based stops: locations where user dwelled >= 90s within 40m radius
     private var visitedPlaces: [VisitedPlace] {
@@ -42,79 +44,165 @@ struct TripDetailSheet: View {
     }
 
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
 
-                // MARK: Header — DETAIL-05: city name + Open in Maps
+                // MARK: Header
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(Color.Nomad.accent)
+                                .frame(width: 5, height: 5)
+                            Text(trip.visitedCountryCodes.first?.uppercased() ?? "")
+                                .font(.system(size: 11, weight: .medium))
+                                .tracking(0.6)
+                                .foregroundStyle(Color.Nomad.textSecondary)
+                                .textCase(.uppercase)
+                        }
                         Text(trip.cityName)
-                            .font(AppFont.title())       // 28pt Playfair Display SemiBold
+                            .font(.custom("CalSans-Regular", size: 30))
                             .foregroundStyle(Color.Nomad.textPrimary)
-
+                            .lineSpacing(-2)
                         Text(formattedDateRange())
-                            .font(AppFont.body())        // 16pt Inter Regular
+                            .font(.system(size: 13))
                             .foregroundStyle(Color.Nomad.textSecondary)
+                            .padding(.top, 1)
                     }
 
                     Spacer()
 
-                    Button {
-                        openInMaps()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "map")
-                                .font(.system(size: 13, weight: .medium))
-                            Text("Maps")
-                                .font(AppFont.caption())
+                    HStack(spacing: 8) {
+                        Button { openInMaps() } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "map")
+                                    .font(.system(size: 12, weight: .medium))
+                                Text("Maps")
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            .foregroundStyle(Color.Nomad.textPrimary)
+                            .padding(.horizontal, 10)
+                            .frame(height: 32)
+                            .background(Color.Nomad.globeBackground.opacity(0.5))
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.Nomad.surfaceBorder.opacity(0.2), lineWidth: 1))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
-                        .foregroundStyle(Color.Nomad.textPrimary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.Nomad.globeBackground.opacity(0.50))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.Nomad.surfaceBorder.opacity(0.20), lineWidth: 1)
-                                )
-                        )
+                        .buttonStyle(.plain)
+
+                        if ownerUID == nil {
+                            Button { showShareSheet = true } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text("Share")
+                                        .font(.system(size: 12, weight: .bold))
+                                }
+                                .foregroundStyle(Color.Nomad.globeBackground)
+                                .padding(.horizontal, 10)
+                                .frame(height: 32)
+                                .background(Color.Nomad.accent)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
-                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 24)
-                .padding(.bottom, 16)
+                .padding(.top, 20)
+                .padding(.bottom, 14)
 
-                // MARK: Map — DETAIL-01
-                TripRouteMapContainer(
-                    routeCoordinates: routeCoordinates,
-                    places: visitedPlaces,
-                    isLoading: isLoadingRoute
-                )
+                // MARK: Map with distance badge — DETAIL-01
+                ZStack(alignment: .topLeading) {
+                    TripRouteMapContainer(
+                        routeCoordinates: routeCoordinates,
+                        places: visitedPlaces,
+                        isLoading: isLoadingRoute
+                    )
+
+                    // Glass distance badge
+                    HStack(spacing: 5) {
+                        Image(systemName: "arrow.triangle.swap")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(Color.Nomad.accent)
+                        Text(formatDistance(trip.distanceMeters))
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Color.Nomad.textPrimary)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.ultraThinMaterial)
+                    .overlay(RoundedRectangle(cornerRadius: 999).stroke(Color.Nomad.surfaceBorder.opacity(0.18), lineWidth: 1))
+                    .clipShape(Capsule())
+                    .padding(10)
+                }
                 .padding(.horizontal, 16)
 
                 if routeFetchError {
-                    Text("Could not load route. Pull down to retry.")
-                        .font(AppFont.caption())
+                    Text("Could not load route.")
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.Nomad.textSecondary)
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 8)
+                        .padding(.top, 6)
                         .padding(.horizontal, 16)
                 }
 
-                // MARK: Stats Row — DETAIL-02
-                statsRow
+                // MARK: Horizontal Stat Cards — DETAIL-02
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        statCard(value: formatDistance(trip.distanceMeters), label: "Distance")
+                        statCard(value: formatDuration(), label: "Duration")
+                        statCard(value: formatSteps(trip.stepCount), label: "Steps")
+                        statCard(value: "\(trip.placeCounts.values.reduce(0, +))", label: "Stops")
+                        topCategoryCard()
+                    }
                     .padding(.horizontal, 16)
-                    .padding(.top, 16)
+                    .padding(.vertical, 2)
+                }
+                .padding(.top, 14)
+
+                // MARK: Category Chips
+                if !trip.placeCounts.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(trip.placeCounts.sorted(by: { $0.value > $1.value }), id: \.key) { key, count in
+                                categoryChip(key: key, count: count)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 2)
+                    }
+                    .padding(.top, 10)
+                }
 
                 // MARK: Photo Gallery — DETAIL-03, DETAIL-04
-                PhotoGalleryStrip(
-                    startDate: trip.startDate,
-                    endDate: trip.endDate,
-                    boundingBox: boundingBox
-                )
-                .padding(.top, 24)
+                if ownerUID == nil {
+                    PhotoGalleryStrip(
+                        startDate: trip.startDate,
+                        endDate: trip.endDate,
+                        boundingBox: boundingBox
+                    )
+                    .padding(.top, 20)
+                }
+
+                // MARK: Share CTA
+                if ownerUID == nil {
+                    Button { showShareSheet = true } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("Share Trip")
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(Color.Nomad.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 24)
+                }
 
                 Spacer(minLength: 32)
             }
@@ -124,8 +212,82 @@ struct TripDetailSheet: View {
         .presentationBackground(Color.Nomad.panelBlack)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .sheet(isPresented: $showShareSheet) {
+            TripShareSheet(trip: trip)
+        }
         .task {
             await fetchRoutePoints()
+        }
+    }
+
+    // MARK: - Stat Card
+
+    private func statCard(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(value)
+                .font(.custom("CalSans-Regular", size: 22))
+                .foregroundStyle(Color.Nomad.accent)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(Color.Nomad.textSecondary)
+                .tracking(0.3)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color.Nomad.globeBackground.opacity(0.5))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    @ViewBuilder
+    private func topCategoryCard() -> some View {
+        let (symbol, name) = topCategoryInfo()
+        VStack(alignment: .leading, spacing: 4) {
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color.Nomad.accent)
+            Text(name)
+                .font(.system(size: 11))
+                .foregroundStyle(Color.Nomad.textSecondary)
+                .tracking(0.3)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color.Nomad.globeBackground.opacity(0.5))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - Category Chip
+
+    private func categoryChip(key: String, count: Int) -> some View {
+        HStack(spacing: 5) {
+            Circle()
+                .fill(categoryColor(for: key))
+                .frame(width: 5, height: 5)
+            Text("\(key.capitalized)")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color.Nomad.textPrimary)
+            Text("· \(count)")
+                .font(.system(size: 11))
+                .foregroundStyle(Color.Nomad.textSecondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Color.Nomad.globeBackground.opacity(0.5))
+        .overlay(RoundedRectangle(cornerRadius: 999).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
+        .clipShape(Capsule())
+    }
+
+    private func categoryColor(for key: String) -> Color {
+        switch key.lowercased() {
+        case "food":      return Color(hue: 0.08, saturation: 0.7, brightness: 0.8)
+        case "culture":   return Color(hue: 0.78, saturation: 0.55, brightness: 0.7)
+        case "nature":    return Color(hue: 0.36, saturation: 0.6, brightness: 0.65)
+        case "nightlife": return Color(hue: 0.63, saturation: 0.65, brightness: 0.75)
+        default:          return Color.Nomad.accent
         }
     }
 
@@ -202,58 +364,10 @@ struct TripDetailSheet: View {
         ])
     }
 
-    // MARK: - Stats Row
-
-    private var statsRow: some View {
-        HStack(spacing: 0) {
-            statCell(value: formatSteps(trip.stepCount), label: "Steps")
-            Divider().frame(height: 32)
-            statCell(value: formatDistance(trip.distanceMeters), label: "Distance")
-            Divider().frame(height: 32)
-            statCell(value: formatDuration(), label: "Duration")
-            Divider().frame(height: 32)
-            statCell(value: formatPlaces(), label: "Stops")
-            Divider().frame(height: 32)
-            topCategoryCell()
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .innerCardSurface()
-    }
-
-    private func statCell(value: String, label: String) -> some View {
-        VStack(spacing: 4) {
-            Text(value)
-                .font(AppFont.body())    // 16pt Inter Regular
-                .foregroundStyle(Color.Nomad.accent)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            Text(label)
-                .font(AppFont.caption()) // 13pt Inter Regular
-                .foregroundStyle(Color.Nomad.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    @ViewBuilder
-    private func topCategoryCell() -> some View {
-        let (symbol, name) = topCategoryInfo()
-        VStack(spacing: 4) {
-            Image(systemName: symbol)
-                .foregroundStyle(Color.Nomad.accent)
-                .font(.system(size: 14, weight: .regular))
-            Text(name)
-                .font(AppFont.caption())
-                .foregroundStyle(Color.Nomad.textSecondary)
-                .lineLimit(1)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
     // MARK: - Route Fetch (T-03-13: scoped to current user UID)
 
     private func fetchRoutePoints() async {
-        guard let uid = Auth.auth().currentUser?.uid else {
+        guard let uid = ownerUID ?? Auth.auth().currentUser?.uid else {
             isLoadingRoute = false
             return
         }
@@ -340,11 +454,6 @@ struct TripDetailSheet: View {
         } else {
             return "\(minutes)m"
         }
-    }
-
-    private func formatPlaces() -> String {
-        let count = trip.placeCounts.values.reduce(0, +)
-        return "\(count)"
     }
 
     private func topCategoryInfo() -> (symbol: String, name: String) {

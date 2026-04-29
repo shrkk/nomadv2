@@ -16,6 +16,10 @@ struct TravelerPassport: View {
     var onDeleteTrip: ((TripDocument) -> Void)? = nil
     var onStartTrip: (() -> Void)? = nil
 
+    // Friend mode: when set, shows another user's passport (read-only, no share/AddFriend)
+    var externalHandle: String? = nil
+    var externalUID: String? = nil
+
     @State private var tilt: CGSize = .zero
     @State private var showShareSheet = false
     @State private var shareImage: UIImage?
@@ -33,7 +37,12 @@ struct TravelerPassport: View {
 
     private var currentYear: Int { Calendar.current.component(.year, from: Date()) }
 
+    private var isFriendMode: Bool { externalHandle != nil }
+
     private var displayName: String {
+        if let h = externalHandle {
+            return h.split(separator: ".").map { $0.capitalized }.joined(separator: " ")
+        }
         if let name = Auth.auth().currentUser?.displayName, !name.isEmpty { return name }
         if let email = Auth.auth().currentUser?.email,
            let handle = email.split(separator: "@").first {
@@ -43,6 +52,7 @@ struct TravelerPassport: View {
     }
 
     private var handleText: String {
+        if let h = externalHandle { return h }
         if let email = Auth.auth().currentUser?.email,
            let handle = email.split(separator: "@").first {
             return String(handle)
@@ -51,7 +61,7 @@ struct TravelerPassport: View {
     }
 
     private var passportNumber: String {
-        let uid = Auth.auth().currentUser?.uid ?? "NOMAD000000000"
+        let uid = externalUID ?? Auth.auth().currentUser?.uid ?? "NOMAD000000000"
         let digits = uid.uppercased().filter { $0.isLetter || $0.isNumber }
         let a = String(digits.prefix(4)).padding(toLength: 4, withPad: "0", startingAt: 0)
         let b = String(digits.dropFirst(4).prefix(4)).padding(toLength: 4, withPad: "0", startingAt: 0)
@@ -73,14 +83,18 @@ struct TravelerPassport: View {
                     .padding(.horizontal, 28)
                     .padding(.top, 6)
 
-                shareButton
-                    .padding(.horizontal, 28)
-                    .padding(.top, 8)
+                if !isFriendMode {
+                    shareButton
+                        .padding(.horizontal, 28)
+                        .padding(.top, 8)
 
-                AddFriendSection()
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .padding(.bottom, 32)
+                    AddFriendSection()
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                        .padding(.bottom, 32)
+                } else {
+                    Spacer().frame(height: 32)
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -100,7 +114,7 @@ struct TravelerPassport: View {
     // MARK: - Header
 
     private var header: some View {
-        Text("Profile")
+        Text(isFriendMode ? "@\(handleText)" : "Profile")
             .font(.custom("CalSans-Regular", size: 22))
             .foregroundStyle(Color.Nomad.textPrimary)
             .frame(maxWidth: .infinity)

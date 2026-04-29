@@ -32,6 +32,8 @@
 		AA01BB02CC03DD04EE05FF06 /* GlobeCountryOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */; };
 		AA02BB03CC04DD05EE06FF07 /* GlobeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */; };
 		AA03BB04CC05DD06EE07FF08 /* GlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */; };
+		FG01FG02FG03FG04FG05FG06 /* FriendGlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FG11FG12FG13FG14FG15FG16 /* FriendGlobeView.swift */; };
+		FP01FP02FP03FP04FP05FP06 /* FriendProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FP11FP12FP13FP14FP15FP16 /* FriendProfileSheet.swift */; };
 		AA06BB07CC08DD09EE05FF06 /* TripDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */; };
 		AAFF11223344556677889900 /* earth-texture.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BBFF11223344556677889900 /* earth-texture.jpg */; };
 		AAFF22334455667788990011 /* earth-day.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BBFF22334455667788990011 /* earth-day.jpg */; };
@@ -42,6 +44,7 @@
 		CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */; };
 		CC31DD32EE33FF34AA35BB36 /* CityCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */; };
 		CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */; };
+		SR01SR02SR03SR04SR05SR06 /* TripShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SR11SR12SR13SR14SR15SR16 /* TripShareSheet.swift */; };
 		CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */; };
 		CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */; };
 		DS01DS02DS03DS04DS05DS06 /* DragStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = DS11DS12DS13DS14DS15DS16 /* DragStrip.swift */; };
@@ -138,12 +141,15 @@
 		BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeCountryOverlay.swift; sourceTree = "<group>"; };
 		BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeViewModel.swift; sourceTree = "<group>"; };
 		BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeView.swift; sourceTree = "<group>"; };
+		FG11FG12FG13FG14FG15FG16 /* FriendGlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendGlobeView.swift; sourceTree = "<group>"; };
+		FP11FP12FP13FP14FP15FP16 /* FriendProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendProfileSheet.swift; sourceTree = "<group>"; };
 		BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDetailSheet.swift; sourceTree = "<group>"; };
 		BBFF11223344556677889900 /* earth-texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-texture.jpg"; sourceTree = "<group>"; };
 		BBFF22334455667788990011 /* earth-day.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-day.jpg"; sourceTree = "<group>"; };
 		BBFF33445566778899001122 /* earth-night.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "earth-night.jpg"; sourceTree = "<group>"; };
 		CC41DD42EE43FF44AA45BB46 /* CityCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityCluster.swift; sourceTree = "<group>"; };
 		CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailSheet.swift; sourceTree = "<group>"; };
+		SR11SR12SR13SR14SR15SR16 /* TripShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripShareSheet.swift; sourceTree = "<group>"; };
 		CP13A1B2C3D4E5F6 /* CityPhotoCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityPhotoCarousel.swift; sourceTree = "<group>"; };
 		CT11CT12CT13CT14CT15CT16 /* CityThumbnailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityThumbnailCard.swift; sourceTree = "<group>"; };
 		D32422AB49024EB385B48A1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -379,6 +385,7 @@
 				BB01CC02DD03EE04FF05AA06 /* GlobeCountryOverlay.swift */,
 				BB02CC03DD04EE05FF06AA07 /* GlobeViewModel.swift */,
 				BB03CC04DD05EE06FF07AA08 /* GlobeView.swift */,
+				FG11FG12FG13FG14FG15FG16 /* FriendGlobeView.swift */,
 				DD04EE05FF06AA07BB08CC09 /* GlobePinpoint.swift */,
 			);
 			path = Globe;
@@ -407,9 +414,11 @@
 			isa = PBXGroup;
 			children = (
 				FF05AA06BB07CC08DD09EE06 /* ProfileSheet.swift */,
+				FP11FP12FP13FP14FP15FP16 /* FriendProfileSheet.swift */,
 				BB06CC07DD08EE09FF05AA07 /* TripDetailSheet.swift */,
 				TP11TP12TP13TP14TP15TP16 /* TravelerPassportStub.swift */,
 				CD11CD12CD13CD14CD15CD16 /* CountryDetailSheet.swift */,
+			SR11SR12SR13SR14SR15SR16 /* TripShareSheet.swift */,
 				HF11HF12HF13HF14HF15HF16 /* HomeFeedView.swift */,
 			);
 			path = Sheets;
@@ -587,6 +596,8 @@
 				AA01BB02CC03DD04EE05FF06 /* GlobeCountryOverlay.swift in Sources */,
 				AA02BB03CC04DD05EE06FF07 /* GlobeViewModel.swift in Sources */,
 				AA03BB04CC05DD06EE07FF08 /* GlobeView.swift in Sources */,
+				FG01FG02FG03FG04FG05FG06 /* FriendGlobeView.swift in Sources */,
+				FP01FP02FP03FP04FP05FP06 /* FriendProfileSheet.swift in Sources */,
 				CC04DD05EE06FF07AA08BB09 /* GlobePinpoint.swift in Sources */,
 				EE05FF06AA07BB08CC09DD05 /* ProfileSheet.swift in Sources */,
 				AA06BB07CC08DD09EE05FF06 /* TripDetailSheet.swift in Sources */,
@@ -623,6 +634,7 @@
 				TR01TR02TR03TR04TR05TR06 /* TripRouteMapView.swift in Sources */,
 				PG01PG02PG03PG04PG05PG06 /* PhotoGalleryStrip.swift in Sources */,
 				CD01CD02CD03CD04CD05CD06 /* CountryDetailSheet.swift in Sources */,
+			SR01SR02SR03SR04SR05SR06 /* TripShareSheet.swift in Sources */,
 				HF01HF02HF03HF04HF05HF06 /* HomeFeedView.swift in Sources */,
 				CT01CT02CT03CT04CT05CT06 /* CityThumbnailCard.swift in Sources */,
 				CP03A1B2C3D4E5F6 /* CityPhotoCarousel.swift in Sources */,

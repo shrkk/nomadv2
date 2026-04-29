@@ -10,11 +10,16 @@ import CoreLocation
 
 struct FriendTripPost: Identifiable {
     let id: String
+    let authorUID: String
     let authorHandle: String
     let authorAvatarHue: Double  // 0-360, drives the avatar gradient
     let trip: TripDocument
 
     var postedAt: Date { trip.startDate }
+
+    var asFoundUser: FoundUser {
+        FoundUser(uid: authorUID, handle: authorHandle, avatarHue: authorAvatarHue)
+    }
 }
 
 // MARK: - FriendTripFeed
@@ -25,6 +30,7 @@ struct FriendTripPost: Identifiable {
 
 struct FriendTripFeed: View {
     let posts: [FriendTripPost]
+    var onAuthorTap: ((FoundUser) -> Void)? = nil
 
     private var sortedPosts: [FriendTripPost] {
         posts.sorted { $0.postedAt > $1.postedAt }
@@ -38,7 +44,7 @@ struct FriendTripFeed: View {
                 emptyState
             } else {
                 ForEach(sortedPosts) { post in
-                    FriendTripFeedCard(post: post)
+                    FriendTripFeedCard(post: post, onAuthorTap: onAuthorTap)
                 }
             }
         }
@@ -81,6 +87,7 @@ struct FriendTripFeed: View {
 
 struct FriendTripFeedCard: View {
     let post: FriendTripPost
+    var onAuthorTap: ((FoundUser) -> Void)? = nil
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -105,14 +112,23 @@ struct FriendTripFeedCard: View {
     // MARK: - Username row
 
     private var usernameRow: some View {
-        HStack(spacing: 10) {
-            avatar
-            Text("@\(post.authorHandle)")
-                .font(.custom("CalSans-Regular", size: 16))
-                .foregroundStyle(Color.Nomad.textPrimary)
-            Spacer(minLength: 0)
+        Button {
+            onAuthorTap?(post.asFoundUser)
+        } label: {
+            HStack(spacing: 10) {
+                avatar
+                Text("@\(post.authorHandle)")
+                    .font(.custom("CalSans-Regular", size: 16))
+                    .foregroundStyle(Color.Nomad.textPrimary)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.Nomad.textSecondary)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 4)
         }
-        .padding(.horizontal, 4)
+        .buttonStyle(.plain)
+        .disabled(onAuthorTap == nil)
     }
 
     private var avatar: some View {
@@ -262,6 +278,7 @@ struct FriendTripRouteMap: UIViewRepresentable {
     let posts = [
         FriendTripPost(
             id: "maya-walk",
+            authorUID: "mock-uid-maya",
             authorHandle: "maya.v",
             authorAvatarHue: 260,
             trip: TripDocument(
@@ -279,6 +296,7 @@ struct FriendTripRouteMap: UIViewRepresentable {
         ),
         FriendTripPost(
             id: "leo-ferry",
+            authorUID: "mock-uid-leo",
             authorHandle: "leo.b",
             authorAvatarHue: 20,
             trip: TripDocument(

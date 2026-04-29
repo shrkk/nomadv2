@@ -12,10 +12,12 @@ import SwiftUI
 struct RoutePreviewPath: View {
     let routePreview: [[Double]]
     let size: CGSize
+    var strokeColor: Color = Color.Nomad.textPrimary
+    var lineWidth: CGFloat = 1.5
 
     var body: some View {
         routePath(from: routePreview, in: size)
-            .stroke(Color.Nomad.textPrimary, lineWidth: 1.5)
+            .stroke(strokeColor, lineWidth: lineWidth)
     }
 
     private func routePath(from preview: [[Double]], in size: CGSize) -> Path {

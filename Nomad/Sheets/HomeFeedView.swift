@@ -1,13 +1,11 @@
 import SwiftUI
 
 // MARK: - HomeFeedView
-//
-// Home tab of the bottom drawer. Shows the "nomad" wordmark, scattered
-// friend-avatar orbs, and the recent-trips feed — matching the design spec.
 
 struct HomeFeedView: View {
     let friendPosts: [FriendTripPost]
     var onProfileTap: (() -> Void)? = nil
+    var onFriendTap: ((FoundUser) -> Void)? = nil  // wired from ProfileSheet
 
     @State private var marqueeOffset: CGFloat = 0
 
@@ -15,6 +13,30 @@ struct HomeFeedView: View {
         var seen = Set<String>()
         return friendPosts.filter { seen.insert($0.authorHandle).inserted }
     }
+
+    // Every orb in the 9-col × 2-row grid gets an emoji.
+    // isFriend=true → vivid background; false → softer background.
+    // Order: col0row0, col0row1, col1row0, col1row1, ... col8row0, col8row1
+    private let allOrbs: [(hue: Double, emoji: String, isFriend: Bool)] = [
+        (200, "😊",   false),  // col 0, row 0
+        (150, "🧑‍🦱", true),   // col 0, row 1  ★ friend
+        ( 30, "😄",   false),  // col 1, row 0
+        (280, "😅",   false),  // col 1, row 1
+        ( 15, "👩‍🦰", true),   // col 2, row 0  ★ friend
+        (340, "🥰",   false),  // col 2, row 1
+        ( 45, "🤩",   false),  // col 3, row 0
+        ( 35, "🧔",   true),   // col 3, row 1  ★ friend
+        (260, "😍",   false),  // col 4, row 0
+        ( 90, "😆",   false),  // col 4, row 1
+        (270, "👩‍🦳", true),   // col 5, row 0  ★ friend
+        (190, "🤗",   false),  // col 5, row 1
+        (170, "😏",   false),  // col 6, row 0
+        (210, "😎",   true),   // col 6, row 1  ★ friend
+        (320, "👩‍🦲", true),   // col 7, row 0  ★ friend
+        (230, "🧐",   false),  // col 7, row 1
+        (240, "😇",   false),  // col 8, row 0
+        ( 60, "🧑‍🦲", true),   // col 8, row 1  ★ friend
+    ]
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -24,12 +46,10 @@ struct HomeFeedView: View {
                     .padding(.top, 12)
                     .padding(.bottom, 24)
 
-                if !uniqueFriends.isEmpty {
-                    friendOrbs
-                        .padding(.bottom, 8)
-                }
+                friendOrbs
+                    .padding(.bottom, 8)
 
-                FriendTripFeed(posts: friendPosts)
+                FriendTripFeed(posts: friendPosts, onAuthorTap: onFriendTap)
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
                     .padding(.bottom, 32)
@@ -61,16 +81,19 @@ struct HomeFeedView: View {
         ZStack(alignment: .bottomTrailing) {
             Circle()
                 .fill(
-                    LinearGradient(
+                    RadialGradient(
                         colors: [
-                            Color(hue: 0.08, saturation: 0.45, brightness: 0.72),
-                            Color(hue: 0.08, saturation: 0.38, brightness: 0.42)
+                            Color(hue: 0.08, saturation: 0.55, brightness: 0.92),
+                            Color(hue: 0.08, saturation: 0.80, brightness: 0.60)
                         ],
-                        startPoint: .top, endPoint: .bottom
+                        center: UnitPoint(x: 0.35, y: 0.30),
+                        startRadius: 0,
+                        endRadius: 28
                     )
                 )
                 .frame(width: 42, height: 42)
-                .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 1))
+                .overlay(Circle().stroke(Color.white.opacity(0.20), lineWidth: 1))
+                .overlay(Text("🧑").font(.system(size: 22)))
 
             Circle()
                 .fill(Color.Nomad.accent)
@@ -87,58 +110,72 @@ struct HomeFeedView: View {
     // MARK: - Friend Orbs (horizontal marquee)
 
     private var friendOrbs: some View {
-        let orbSize: CGFloat = 52
-        let colSpacing: CGFloat = 10
-        let rowSpacing: CGFloat = 6
-        let numCols = 12
-        let colWidth = orbSize + colSpacing
-        let singleWidth = CGFloat(numCols) * colWidth
-        // Hues cycle through friends then placeholder palette
-        let friendHues = uniqueFriends.map { $0.authorAvatarHue }
-        let fallbackHues: [Double] = [210, 30, 150, 270, 60, 330, 90, 180, 0, 240, 120, 300]
-        let allHues: [Double] = friendHues + fallbackHues
+        let numCols = 9
+        let colSpacing: CGFloat = 14
+        let rowSpacing: CGFloat = 12
+        let baseSize: CGFloat = 58
+
+        // Per-orb size delta indexed by orbIdx (col*2 + row), 18 values
+        let sizeDeltas: [CGFloat] = [-4, 6, -6, 4, 8, -2, 2, -8, 6, -4, 4, -6, 8, -2, -4, 6, 2, 8]
+
+        // All-positive y-offsets per column so nothing clips at the top
+        let colYOffsets: [CGFloat] = [4, 24, 0, 28, 10, 20, 26, 8, 18]
+
+        // Tallest shifted column (col 6, bottom = 26 + 134 = 160) → frame needs > 160
+        let frameHeight: CGFloat = 178
+        let singleWidth = CGFloat(numCols) * (baseSize + colSpacing)
 
         return GeometryReader { _ in
             HStack(alignment: .top, spacing: colSpacing) {
-                // Two copies for seamless infinite loop
                 ForEach(0..<(numCols * 2), id: \.self) { col in
                     let colIdx = col % numCols
                     VStack(spacing: rowSpacing) {
-                        ForEach(0..<3, id: \.self) { row in
-                            let hueIdx = (colIdx * 3 + row) % allHues.count
-                            let isFriend = (colIdx * 3 + row) < friendHues.count
-                            orbCircle(
-                                hue: allHues[hueIdx],
-                                size: orbSize,
-                                saturated: isFriend
-                            )
+                        ForEach(0..<2, id: \.self) { row in
+                            let orbIdx = colIdx * 2 + row
+                            let def = allOrbs[orbIdx]
+                            let size = baseSize + sizeDeltas[orbIdx]
+                            orbCircle(hue: def.hue, size: size, emoji: def.emoji, isFriend: def.isFriend)
                         }
                     }
-                    .offset(y: colIdx.isMultiple(of: 2) ? 0 : orbSize * 0.5 + rowSpacing * 0.5)
+                    .offset(y: colYOffsets[colIdx])
                 }
             }
             .offset(x: marqueeOffset)
             .onAppear {
                 marqueeOffset = 0
-                withAnimation(.linear(duration: 18).repeatForever(autoreverses: false)) {
+                withAnimation(.linear(duration: 22).repeatForever(autoreverses: false)) {
                     marqueeOffset = -singleWidth
                 }
             }
         }
-        .frame(height: orbSize * 3 + rowSpacing * 2 + orbSize * 0.5 + 4)
-        .clipped()
+        .frame(height: frameHeight)
+        // Fade edges horizontally instead of hard-clipping
+        .mask(
+            LinearGradient(
+                stops: [
+                    .init(color: .clear,  location: 0.00),
+                    .init(color: .black,  location: 0.07),
+                    .init(color: .black,  location: 0.93),
+                    .init(color: .clear,  location: 1.00),
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
     }
 
-    private func orbCircle(hue: Double, size: CGFloat, saturated: Bool = true) -> some View {
+    private func orbCircle(hue: Double, size: CGFloat, emoji: String, isFriend: Bool) -> some View {
         let h = hue / 360.0
-        let sat: (Double, Double) = saturated ? (0.32, 0.52) : (0.20, 0.38)
-        let bri: (Double, Double) = saturated ? (0.82, 0.40) : (0.62, 0.30)
+        let satTop: Double    = isFriend ? 0.60 : 0.38
+        let satBottom: Double = isFriend ? 0.82 : 0.58
+        let briTop: Double    = isFriend ? 0.92 : 0.74
+        let briBottom: Double = isFriend ? 0.65 : 0.48
         return Circle()
             .fill(
                 RadialGradient(
                     colors: [
-                        Color(hue: h, saturation: sat.0, brightness: bri.0),
-                        Color(hue: h, saturation: sat.1, brightness: bri.1)
+                        Color(hue: h, saturation: satTop,    brightness: briTop),
+                        Color(hue: h, saturation: satBottom, brightness: briBottom)
                     ],
                     center: UnitPoint(x: 0.35, y: 0.30),
                     startRadius: 0,
@@ -146,7 +183,14 @@ struct HomeFeedView: View {
                 )
             )
             .frame(width: size, height: size)
-            .shadow(color: Color(hue: h, saturation: 0.5, brightness: 0.6).opacity(saturated ? 0.45 : 0.25), radius: 6, x: -2, y: -3)
+            .overlay(
+                Text(emoji)
+                    .font(.system(size: size * 0.58))
+            )
+            .shadow(
+                color: Color(hue: h, saturation: 0.7, brightness: 0.8).opacity(isFriend ? 0.50 : 0.25),
+                radius: 7, x: -2, y: -3
+            )
     }
 }
 
@@ -156,7 +200,7 @@ struct HomeFeedView: View {
 #Preview {
     let posts = [
         FriendTripPost(
-            id: "1", authorHandle: "maya.v", authorAvatarHue: 260,
+            id: "1", authorUID: "mock-uid-maya", authorHandle: "maya.v", authorAvatarHue: 260,
             trip: TripDocument(
                 id: "t1", cityName: "walk to denny",
                 startDate: Date(timeIntervalSinceNow: -86_400 * 3),
@@ -167,7 +211,7 @@ struct HomeFeedView: View {
             )
         ),
         FriendTripPost(
-            id: "2", authorHandle: "leo.b", authorAvatarHue: 20,
+            id: "2", authorUID: "mock-uid-leo", authorHandle: "leo.b", authorAvatarHue: 20,
             trip: TripDocument(
                 id: "t2", cityName: "ferry loop",
                 startDate: Date(timeIntervalSinceNow: -86_400 * 7),

@@ -19,6 +19,9 @@ struct ProfileSheet: View {
     @State private var detailTrip: TripDocument? = nil
     @State private var selectedDetent: PresentationDetent = .height(96)
     @State private var showPassport = false
+    @State private var showFriendProfile = false
+    @State private var selectedFriend: FoundUser? = nil
+    @State private var selectedFriendSeedTrips: [TripDocument] = []
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -40,7 +43,17 @@ struct ProfileSheet: View {
                 .padding(.top, 8)
                 .padding(.bottom, 4)
 
-            HomeFeedView(friendPosts: friendPosts, onProfileTap: { showPassport = true })
+            HomeFeedView(
+                friendPosts: friendPosts,
+                onProfileTap: { showPassport = true },
+                onFriendTap: { friend in
+                    selectedFriend = friend
+                    selectedFriendSeedTrips = friendPosts
+                        .filter { $0.authorUID == friend.uid }
+                        .map(\.trip)
+                    showFriendProfile = true
+                }
+            )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.Nomad.panelBlack.ignoresSafeArea())
@@ -61,6 +74,11 @@ struct ProfileSheet: View {
                 countries: countries,
                 homeCityName: homeCityName
             )
+        }
+        .sheet(isPresented: $showFriendProfile) {
+            if let friend = selectedFriend {
+                FriendProfileSheet(friend: friend, seedTrips: selectedFriendSeedTrips)
+            }
         }
     }
 
