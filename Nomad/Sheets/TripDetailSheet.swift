@@ -3,16 +3,13 @@ import SwiftUI
 import CoreLocation
 @preconcurrency import FirebaseAuth
 @preconcurrency import FirebaseFirestore
+import Photos
 
 // MARK: - TripDetailSheet
 //
-// Full trip detail view — slides up over ProfileSheet when a trip card is tapped.
-// DETAIL-01: MapKit route map with GPS polyline + numbered place pins.
-// DETAIL-02: Stats row with steps, distance, duration, places, top category.
-// DETAIL-03: Photo gallery with PHAsset thumbnails matched by date + GPS bounding box.
-// DETAIL-04: Nil-location photos included via date-range-only fallback.
-// DETAIL-05: City name displayed as trip header.
-// T-03-13: Route fetch scoped to Auth.auth().currentUser?.uid.
+// Full trip detail view — slides up when a trip is tapped on the globe.
+// Design: "A. Rich trip — Kyoto" layout from Trip Sheet Redesign.
+// Sections: Header, Map, Stats, Category Chips, POI Timeline, Photo Grid, Share CTA.
 
 // MARK: - TimestampedCoordinate
 
@@ -21,11 +18,23 @@ private struct TimestampedCoordinate {
     let timestamp: Date
 }
 
+// MARK: - DetectedStop
+//
+// A pause-detected stop enriched with geocoded name and dwell metadata.
+
+private struct DetectedStop: Identifiable {
+    let id: Int                             // 1-based index
+    let coordinate: CLLocationCoordinate2D
+    let arrivalTime: Date
+    let dwellMinutes: Int
+    var name: String                        // Reverse-geocoded; starts as "Loading..."
+}
+
 // MARK: - TripDetailSheet
 
 struct TripDetailSheet: View {
     let trip: TripDocument
-    var ownerUID: String? = nil  // when set, fetches from friend's Firestore path
+    var ownerUID: String? = nil
 
     @State private var routeCoordinates: [CLLocationCoordinate2D] = []
     @State private var timedCoordinates: [TimestampedCoordinate] = []
@@ -33,10 +42,18 @@ struct TripDetailSheet: View {
     @State private var routeFetchError = false
     @State private var showShareSheet = false
 
-    // Pause-based stops: locations where user dwelled >= 90s within 40m radius
+    // POI timeline state
+    @State private var detectedStops: [DetectedStop] = []
+    @State private var expandedStopId: Int? = nil
+
+    // Photo grid state
+    @State private var photoThumbnails: [(id: String, image: UIImage)] = []
+    @State private var isLoadingPhotos = true
+    @State private var photoPermissionDenied = false
+    @State private var totalPhotoCount = 0
+
     private var visitedPlaces: [VisitedPlace] {
-        let stops = detectPauseStops(from: timedCoordinates)
-        return stops.enumerated().map { VisitedPlace(coordinate: $1, index: $0 + 1) }
+        detectedStops.map { VisitedPlace(coordinate: $0.coordinate, index: $0.id) }
     }
 
     private var boundingBox: (minLat: Double, maxLat: Double, minLon: Double, maxLon: Double)? {
@@ -53,17 +70,18 @@ struct TripDetailSheet: View {
                         HStack(spacing: 6) {
                             Circle()
                                 .fill(Color.Nomad.accent)
-                                .frame(width: 5, height: 5)
+                                .frame(width: 6, height: 6)
                             Text(trip.visitedCountryCodes.first?.uppercased() ?? "")
                                 .font(.system(size: 11, weight: .medium))
-                                .tracking(0.6)
+                                .tracking(0.5)
                                 .foregroundStyle(Color.Nomad.textSecondary)
                                 .textCase(.uppercase)
                         }
                         Text(trip.cityName)
                             .font(.custom("CalSans-Regular", size: 30))
                             .foregroundStyle(Color.Nomad.textPrimary)
-                            .lineSpacing(-2)
+                            .lineLimit(2)
+                            .padding(.top, 2)
                         Text(formattedDateRange())
                             .font(.system(size: 13))
                             .foregroundStyle(Color.Nomad.textSecondary)
@@ -74,7 +92,7 @@ struct TripDetailSheet: View {
 
                     HStack(spacing: 8) {
                         Button { openInMaps() } label: {
-                            HStack(spacing: 4) {
+                            HStack(spacing: 5) {
                                 Image(systemName: "map")
                                     .font(.system(size: 12, weight: .medium))
                                 Text("Maps")
@@ -91,13 +109,13 @@ struct TripDetailSheet: View {
 
                         if ownerUID == nil {
                             Button { showShareSheet = true } label: {
-                                HStack(spacing: 4) {
+                                HStack(spacing: 5) {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.system(size: 12, weight: .medium))
                                     Text("Share")
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.system(size: 12, weight: .semibold))
                                 }
-                                .foregroundStyle(Color.Nomad.globeBackground)
+                                .foregroundStyle(Color.Nomad.panelBlack)
                                 .padding(.horizontal, 10)
                                 .frame(height: 32)
                                 .background(Color.Nomad.accent)
@@ -107,11 +125,11 @@ struct TripDetailSheet: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 20)
-                .padding(.bottom, 14)
+                .padding(.horizontal, 20)
+                .padding(.top, 14)
+                .padding(.bottom, 12)
 
-                // MARK: Map with distance badge — DETAIL-01
+                // MARK: Map with distance badge
                 ZStack(alignment: .topLeading) {
                     TripRouteMapContainer(
                         routeCoordinates: routeCoordinates,
@@ -121,7 +139,7 @@ struct TripDetailSheet: View {
 
                     // Glass distance badge
                     HStack(spacing: 5) {
-                        Image(systemName: "arrow.triangle.swap")
+                        Image(systemName: "point.topleft.down.to.point.bottomright.curvepath.fill")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(Color.Nomad.accent)
                         Text(formatDistance(trip.distanceMeters))
@@ -129,9 +147,9 @@ struct TripDetailSheet: View {
                             .foregroundStyle(Color.Nomad.textPrimary)
                     }
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .padding(.vertical, 5)
                     .background(.ultraThinMaterial)
-                    .overlay(RoundedRectangle(cornerRadius: 999).stroke(Color.Nomad.surfaceBorder.opacity(0.18), lineWidth: 1))
+                    .overlay(Capsule().stroke(Color.Nomad.surfaceBorder.opacity(0.18), lineWidth: 1))
                     .clipShape(Capsule())
                     .padding(10)
                 }
@@ -146,13 +164,13 @@ struct TripDetailSheet: View {
                         .padding(.horizontal, 16)
                 }
 
-                // MARK: Horizontal Stat Cards — DETAIL-02
+                // MARK: Horizontal Stat Cards
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        statCard(value: formatDistance(trip.distanceMeters), label: "Distance")
+                        statCard(value: formatDistance(trip.distanceMeters), label: "Distance", unit: "km")
                         statCard(value: formatDuration(), label: "Duration")
                         statCard(value: formatSteps(trip.stepCount), label: "Steps")
-                        statCard(value: "\(trip.placeCounts.values.reduce(0, +))", label: "Stops")
+                        statCard(value: "\(detectedStops.count > 0 ? detectedStops.count : trip.placeCounts.values.reduce(0, +))", label: "Stops")
                         topCategoryCard()
                     }
                     .padding(.horizontal, 16)
@@ -162,26 +180,52 @@ struct TripDetailSheet: View {
 
                 // MARK: Category Chips
                 if !trip.placeCounts.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 6) {
-                            ForEach(trip.placeCounts.sorted(by: { $0.value > $1.value }), id: \.key) { key, count in
-                                categoryChip(key: key, count: count)
-                            }
+                    FlowLayout(spacing: 6) {
+                        ForEach(trip.placeCounts.sorted(by: { $0.value > $1.value }), id: \.key) { key, count in
+                            categoryChip(key: key, count: count)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 2)
                     }
-                    .padding(.top, 10)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
                 }
 
-                // MARK: Photo Gallery — DETAIL-03, DETAIL-04
-                if ownerUID == nil {
-                    PhotoGalleryStrip(
-                        startDate: trip.startDate,
-                        endDate: trip.endDate,
-                        boundingBox: boundingBox
-                    )
+                // MARK: Points of Interest Timeline
+                if !detectedStops.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+                        sectionTitle("Points of interest", trailing: "\(detectedStops.count)")
+                            .padding(.bottom, 10)
+
+                        ZStack(alignment: .leading) {
+                            // Vertical connecting line
+                            Rectangle()
+                                .fill(Color.Nomad.surfaceBorder.opacity(0.15))
+                                .frame(width: 1)
+                                .padding(.leading, 13)
+                                .padding(.top, 8)
+                                .padding(.bottom, 8)
+
+                            VStack(spacing: 0) {
+                                ForEach(detectedStops) { stop in
+                                    poiRow(stop: stop)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
                     .padding(.top, 20)
+                } else if !isLoadingRoute && trip.placeCounts.values.reduce(0, +) == 0 {
+                    Text("No stops on this trip.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.Nomad.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                        .padding(.horizontal, 20)
+                }
+
+                // MARK: Photo Grid (3-column)
+                if ownerUID == nil {
+                    photoGridSection()
+                        .padding(.top, 20)
                 }
 
                 // MARK: Share CTA
@@ -191,9 +235,9 @@ struct TripDetailSheet: View {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 14, weight: .semibold))
                             Text("Share Trip")
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.system(size: 16, weight: .semibold))
                         }
-                        .foregroundStyle(Color.Nomad.globeBackground)
+                        .foregroundStyle(Color.Nomad.panelBlack)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
                         .background(Color.Nomad.accent)
@@ -218,17 +262,46 @@ struct TripDetailSheet: View {
         .task {
             await fetchRoutePoints()
         }
+        .task {
+            if ownerUID == nil {
+                await loadPhotoGrid()
+            }
+        }
+    }
+
+    // MARK: - Section Title
+
+    private func sectionTitle(_ title: String, trailing: String? = nil) -> some View {
+        HStack {
+            Text(title.uppercased())
+                .font(.system(size: 13, weight: .semibold))
+                .tracking(0.6)
+                .foregroundStyle(Color.Nomad.textSecondary)
+            Spacer()
+            if let trailing {
+                Text(trailing)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.Nomad.textSecondary)
+            }
+        }
     }
 
     // MARK: - Stat Card
 
-    private func statCard(value: String, label: String) -> some View {
+    private func statCard(value: String, label: String, unit: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(value)
-                .font(.custom("CalSans-Regular", size: 22))
-                .foregroundStyle(Color.Nomad.accent)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(.custom("CalSans-Regular", size: 22))
+                    .foregroundStyle(Color.Nomad.accent)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                if let unit {
+                    Text(unit)
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.Nomad.textSecondary)
+                }
+            }
             Text(label)
                 .font(.system(size: 11))
                 .foregroundStyle(Color.Nomad.textSecondary)
@@ -266,8 +339,8 @@ struct TripDetailSheet: View {
         HStack(spacing: 5) {
             Circle()
                 .fill(categoryColor(for: key))
-                .frame(width: 5, height: 5)
-            Text("\(key.capitalized)")
+                .frame(width: 6, height: 6)
+            Text(key.capitalized)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.Nomad.textPrimary)
             Text("· \(count)")
@@ -277,34 +350,160 @@ struct TripDetailSheet: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
         .background(Color.Nomad.globeBackground.opacity(0.5))
-        .overlay(RoundedRectangle(cornerRadius: 999).stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
+        .overlay(Capsule().stroke(Color.Nomad.surfaceBorder.opacity(0.12), lineWidth: 1))
         .clipShape(Capsule())
     }
 
     private func categoryColor(for key: String) -> Color {
         switch key.lowercased() {
-        case "food":      return Color(hue: 0.08, saturation: 0.7, brightness: 0.8)
-        case "culture":   return Color(hue: 0.78, saturation: 0.55, brightness: 0.7)
-        case "nature":    return Color(hue: 0.36, saturation: 0.6, brightness: 0.65)
-        case "nightlife": return Color(hue: 0.63, saturation: 0.65, brightness: 0.75)
+        case "food":      return Color(hue: 0.072, saturation: 0.55, brightness: 0.60)  // hue 26
+        case "culture":   return Color(hue: 0.778, saturation: 0.55, brightness: 0.60)  // hue 280
+        case "nature":    return Color(hue: 0.361, saturation: 0.55, brightness: 0.60)  // hue 130
+        case "nightlife": return Color(hue: 0.556, saturation: 0.55, brightness: 0.60)  // hue 200
+        case "wellness":  return Color(hue: 0.944, saturation: 0.55, brightness: 0.60)  // hue 340
+        case "local":     return Color(hue: 0.500, saturation: 0.55, brightness: 0.60)  // hue 180
         default:          return Color.Nomad.accent
         }
     }
 
-    // MARK: - Pause Detection
-    //
-    // Scans timestamped GPS points for dwell periods: consecutive points that stay
-    // within `radiusMeters` of a cluster anchor for at least `minDuration` seconds.
-    // Each qualifying dwell emits one stop at the centroid of the cluster.
+    // MARK: - POI Row
 
-    private func detectPauseStops(
+    private func poiRow(stop: DetectedStop) -> some View {
+        let isExpanded = expandedStopId == stop.id
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.28)) {
+                expandedStopId = expandedStopId == stop.id ? nil : stop.id
+            }
+        } label: {
+            HStack(alignment: .top, spacing: 12) {
+                // Numbered pin circle
+                ZStack {
+                    Circle()
+                        .fill(isExpanded ? Color.white : Color.Nomad.accent)
+                        .frame(width: 28, height: 28)
+                        .shadow(color: isExpanded ? Color.Nomad.accent.opacity(0.3) : .clear, radius: isExpanded ? 6 : 0)
+
+                    Text("\(stop.id)")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.Nomad.panelBlack)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    // Name + time
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(stop.name)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(Color.Nomad.textPrimary)
+                            .lineLimit(1)
+                        Spacer()
+                        Text(formatTime(stop.arrivalTime))
+                            .font(.system(size: 11, weight: .regular, design: .monospaced))
+                            .foregroundStyle(Color.Nomad.textSecondary)
+                    }
+
+                    // Duration tag
+                    HStack(spacing: 6) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Color.Nomad.accent)
+                        Text("Stayed \(stop.dwellMinutes) min")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(Color.Nomad.textSecondary)
+                    }
+
+                    // Expandable detail
+                    if isExpanded {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(stop.coordinate.latitude, specifier: "%.4f"), \(stop.coordinate.longitude, specifier: "%.4f")")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.Nomad.textSecondary)
+                        }
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.Nomad.globeBackground.opacity(0.6))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.Nomad.surfaceBorder.opacity(0.1), lineWidth: 1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .padding(.top, 5)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                }
+                .padding(.top, 2)
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Photo Grid Section
+
+    @ViewBuilder
+    private func photoGridSection() -> some View {
+        if photoPermissionDenied {
+            VStack(spacing: 8) {
+                Text("Allow photo access in Settings to see trip photos.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.Nomad.textSecondary)
+                    .multilineTextAlignment(.center)
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .font(.system(size: 13))
+                .foregroundStyle(Color.Nomad.accent)
+            }
+            .padding(.horizontal, 16)
+        } else if isLoadingPhotos {
+            ProgressView()
+                .frame(height: 80)
+                .frame(maxWidth: .infinity)
+        } else if photoThumbnails.isEmpty {
+            Text("No photos for this trip.")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.Nomad.textSecondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+        } else {
+            VStack(alignment: .leading, spacing: 10) {
+                sectionTitle("Moments", trailing: "\(totalPhotoCount)")
+                    .padding(.horizontal, 20)
+
+                // 3-column grid
+                let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 3)
+                LazyVGrid(columns: columns, spacing: 6) {
+                    ForEach(photoThumbnails.prefix(6), id: \.id) { item in
+                        Image(uiImage: item.image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(minHeight: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+    }
+
+    // MARK: - Pause Detection
+
+    private struct PauseCluster {
+        let startIndex: Int
+        let endIndex: Int       // exclusive
+        let centroid: CLLocationCoordinate2D
+        let arrivalTime: Date
+        let dwellSeconds: TimeInterval
+    }
+
+    private func detectPauseClusters(
         from points: [TimestampedCoordinate],
         radiusMeters: Double = 40,
         minDuration: TimeInterval = 90
-    ) -> [CLLocationCoordinate2D] {
+    ) -> [PauseCluster] {
         guard points.count > 1 else { return [] }
 
-        var stops: [CLLocationCoordinate2D] = []
+        var clusters: [PauseCluster] = []
         var clusterStart = 0
 
         for i in 1..<points.count {
@@ -318,30 +517,75 @@ struct TripDetailSheet: View {
             )
 
             if anchor.distance(from: current) > radiusMeters {
-                // User moved out of cluster — check if dwell was long enough
                 let duration = points[i - 1].timestamp.timeIntervalSince(points[clusterStart].timestamp)
                 if duration >= minDuration {
-                    stops.append(centroid(of: Array(points[clusterStart..<i])))
+                    let slice = Array(points[clusterStart..<i])
+                    clusters.append(PauseCluster(
+                        startIndex: clusterStart,
+                        endIndex: i,
+                        centroid: centroid(of: slice),
+                        arrivalTime: points[clusterStart].timestamp,
+                        dwellSeconds: duration
+                    ))
                 }
                 clusterStart = i
             }
         }
 
-        // Check the final cluster
+        // Final cluster
         if let last = points.last {
             let duration = last.timestamp.timeIntervalSince(points[clusterStart].timestamp)
             if duration >= minDuration {
-                stops.append(centroid(of: Array(points[clusterStart...])))
+                let slice = Array(points[clusterStart...])
+                clusters.append(PauseCluster(
+                    startIndex: clusterStart,
+                    endIndex: points.count,
+                    centroid: centroid(of: slice),
+                    arrivalTime: points[clusterStart].timestamp,
+                    dwellSeconds: duration
+                ))
             }
         }
 
-        return stops
+        return clusters
     }
 
     private func centroid(of points: [TimestampedCoordinate]) -> CLLocationCoordinate2D {
         let lat = points.map(\.coordinate.latitude).reduce(0, +) / Double(points.count)
         let lon = points.map(\.coordinate.longitude).reduce(0, +) / Double(points.count)
         return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+
+    // MARK: - Geocoding Stops
+
+    private func geocodeStops(_ clusters: [PauseCluster]) async -> [DetectedStop] {
+        var stops: [DetectedStop] = []
+        let geocoder = CLGeocoder()
+
+        for (i, cluster) in clusters.enumerated() {
+            var name = "Stop \(i + 1)"
+            let location = CLLocation(
+                latitude: cluster.centroid.latitude,
+                longitude: cluster.centroid.longitude
+            )
+
+            // Sequential geocoding — CLGeocoder allows one at a time
+            if let placemarks = try? await geocoder.reverseGeocodeLocation(location) {
+                name = placemarks.first?.name
+                    ?? placemarks.first?.locality
+                    ?? name
+            }
+
+            stops.append(DetectedStop(
+                id: i + 1,
+                coordinate: cluster.centroid,
+                arrivalTime: cluster.arrivalTime,
+                dwellMinutes: max(1, Int(cluster.dwellSeconds / 60)),
+                name: name
+            ))
+        }
+
+        return stops
     }
 
     // MARK: - Open in Apple Maps
@@ -364,7 +608,7 @@ struct TripDetailSheet: View {
         ])
     }
 
-    // MARK: - Route Fetch (T-03-13: scoped to current user UID)
+    // MARK: - Route Fetch
 
     private func fetchRoutePoints() async {
         guard let uid = ownerUID ?? Auth.auth().currentUser?.uid else {
@@ -387,11 +631,94 @@ struct TripDetailSheet: View {
             }
             timedCoordinates = timed
             routeCoordinates = timed.map(\.coordinate)
+
+            // Detect stops and geocode them
+            let clusters = detectPauseClusters(from: timed)
+            detectedStops = await geocodeStops(clusters)
         } catch {
             print("[TripDetail] Route fetch error: \(error)")
             routeFetchError = true
         }
         isLoadingRoute = false
+    }
+
+    // MARK: - Photo Loading
+
+    private func loadPhotoGrid() async {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        if status == .notDetermined {
+            let newStatus = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+            guard newStatus == .authorized || newStatus == .limited else {
+                await MainActor.run { photoPermissionDenied = true; isLoadingPhotos = false }
+                return
+            }
+        } else {
+            guard status == .authorized || status == .limited else {
+                await MainActor.run { photoPermissionDenied = true; isLoadingPhotos = false }
+                return
+            }
+        }
+
+        let options = PHFetchOptions()
+        options.predicate = NSPredicate(
+            format: "creationDate >= %@ AND creationDate <= %@",
+            trip.startDate as CVarArg, trip.endDate as CVarArg
+        )
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+
+        let allAssets = PHAsset.fetchAssets(with: .image, options: options)
+
+        var matchedAssets: [PHAsset] = []
+        let bbox = boundingBox
+        allAssets.enumerateObjects { asset, _, _ in
+            if let loc = asset.location, let bbox {
+                let lat = loc.coordinate.latitude
+                let lon = loc.coordinate.longitude
+                if lat >= bbox.minLat && lat <= bbox.maxLat &&
+                   lon >= bbox.minLon && lon <= bbox.maxLon {
+                    matchedAssets.append(asset)
+                }
+            } else {
+                matchedAssets.append(asset)
+            }
+        }
+
+        let total = matchedAssets.count
+        let targetSize = CGSize(width: 240, height: 240) // Higher res for grid tiles
+        let imageOptions = PHImageRequestOptions()
+        imageOptions.deliveryMode = .fastFormat
+        imageOptions.isSynchronous = false
+        imageOptions.isNetworkAccessAllowed = true
+
+        var loaded: [(id: String, image: UIImage)] = []
+        let manager = PHImageManager.default()
+
+        for asset in matchedAssets.prefix(6) {
+            await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+                var resumed = false
+                manager.requestImage(
+                    for: asset,
+                    targetSize: targetSize,
+                    contentMode: .aspectFill,
+                    options: imageOptions
+                ) { image, info in
+                    let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
+                    if !isDegraded && !resumed {
+                        resumed = true
+                        if let img = image {
+                            loaded.append((id: asset.localIdentifier, image: img))
+                        }
+                        cont.resume()
+                    }
+                }
+            }
+        }
+
+        await MainActor.run {
+            photoThumbnails = loaded
+            totalPhotoCount = total
+            isLoadingPhotos = false
+        }
     }
 
     // MARK: - Helpers
@@ -401,7 +728,6 @@ struct TripDetailSheet: View {
         guard !coords.isEmpty else { return nil }
         let lats = coords.map(\.latitude)
         let lons = coords.map(\.longitude)
-        // Add ~1km padding to catch nearby photos
         let padding = 0.01
         return (
             minLat: (lats.min() ?? 0) - padding,
@@ -417,21 +743,22 @@ struct TripDetailSheet: View {
         let startComponents = calendar.dateComponents([.month, .day, .year], from: trip.startDate)
         let endComponents = calendar.dateComponents([.month, .day, .year], from: trip.endDate)
 
-        if startComponents.month == endComponents.month &&
+        if calendar.isDate(trip.startDate, inSameDayAs: trip.endDate) {
+            formatter.dateFormat = "MMMM d, yyyy"
+            return formatter.string(from: trip.startDate)
+        } else if startComponents.month == endComponents.month &&
            startComponents.year == endComponents.year {
-            // Same month: "March 12 - 14, 2026"
             formatter.dateFormat = "MMMM d"
             let start = formatter.string(from: trip.startDate)
             formatter.dateFormat = "d, yyyy"
             let end = formatter.string(from: trip.endDate)
-            return "\(start) - \(end)"
+            return "\(start) \u{2013} \(end)"
         } else {
-            // Different months: "March 12 - April 3, 2026"
-            formatter.dateFormat = "MMMM d"
+            formatter.dateFormat = "MMM d"
             let start = formatter.string(from: trip.startDate)
-            formatter.dateFormat = "MMMM d, yyyy"
+            formatter.dateFormat = "MMM d, yyyy"
             let end = formatter.string(from: trip.endDate)
-            return "\(start) - \(end)"
+            return "\(start) \u{2013} \(end)"
         }
     }
 
@@ -450,10 +777,16 @@ struct TripDetailSheet: View {
         let hours = Int(interval) / 3600
         let minutes = (Int(interval) % 3600) / 60
         if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            return "\(hours)h \(String(format: "%02d", minutes))m"
         } else {
             return "\(minutes)m"
         }
+    }
+
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
     }
 
     private func topCategoryInfo() -> (symbol: String, name: String) {
@@ -469,6 +802,56 @@ struct TripDetailSheet: View {
         case "local":     return ("house",              "Local")
         default:          return ("mappin",             topKey.capitalized)
         }
+    }
+}
+
+// MARK: - FlowLayout
+//
+// Wrapping horizontal layout for category chips — matches the design's flexWrap behavior.
+
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        for (index, subview) in subviews.enumerated() {
+            guard index < result.positions.count else { break }
+            let position = result.positions[index]
+            subview.place(
+                at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y),
+                proposal: .unspecified
+            )
+        }
+    }
+
+    private func arrange(proposal: ProposedViewSize, subviews: Subviews)
+        -> (size: CGSize, positions: [CGPoint]) {
+        let maxWidth = proposal.width ?? .infinity
+        var positions: [CGPoint] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var maxX: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth && x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+            maxX = max(maxX, x)
+        }
+
+        return (CGSize(width: maxX, height: y + rowHeight), positions)
     }
 }
 

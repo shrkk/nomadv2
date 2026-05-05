@@ -27,6 +27,10 @@ class GlobeViewModel {
     var showCountryDetail = false
     var selectedCountryCode: String? = nil
 
+    // Direct trip detail sheet (replaces country detail flow for pin taps)
+    var showTripDetail = false
+    var selectedTripForDetail: TripDocument? = nil
+
     // Live Firestore data
     var trips: [TripDocument] = []
     var visitedCountryCodes: [String] = []
@@ -49,6 +53,15 @@ class GlobeViewModel {
     #else
     var friendPosts: [FriendTripPost] = []
     #endif
+
+    // MARK: - Trip Detail Sheet (direct from globe pin tap)
+
+    /// Present TripDetailSheet directly for a tapped trip pin.
+    func showTripDetailSheet(trip: TripDocument) {
+        showProfileSheet = false
+        selectedTripForDetail = trip
+        showTripDetail = true
+    }
 
     // MARK: - Country Detail Sheet
 

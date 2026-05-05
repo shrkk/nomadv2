@@ -410,7 +410,7 @@ struct GlobeMapView: UIViewRepresentable {
             // Home pin — let MKMapView show the native callout; no further action.
             if view.annotation is HomeAnnotation { print("[Globe] HomeAnnotation — ignoring"); return }
 
-            // Cluster tap — zoom in, then open sheet for the country
+            // Cluster tap — zoom in to separate the pins
             if let cluster = view.annotation as? MKClusterAnnotation {
                 print("[Globe] ClusterAnnotation tapped: \(cluster.memberAnnotations.count) members")
                 mapView.deselectAnnotation(view.annotation, animated: false)
@@ -437,18 +437,6 @@ struct GlobeMapView: UIViewRepresentable {
                     heading: 0
                 )
                 mapView.setCamera(camera, animated: true)
-
-                // After zoom, open sheet for the first trip's country
-                if let firstTrip = cluster.memberAnnotations.first as? TripAnnotation {
-                    let cityName = firstTrip.cityName
-                    let countryCode = firstTrip.countryCode
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 1_400_000_000)
-                        print("[Globe] Presenting sheet from cluster: city=\(cityName) country=\(countryCode)")
-                        self.viewModel.selectedInitialCity = cityName
-                        self.viewModel.animateToCountry(code: countryCode)
-                    }
-                }
                 return
             }
 
@@ -473,17 +461,13 @@ struct GlobeMapView: UIViewRepresentable {
                 Task {
                     await self.viewModel.loadRouteOverlay(for: tripDoc)
                 }
-            }
 
-            // Show detail sheet after zoom settles
-            let cityName = trip.cityName
-            let countryCode = trip.countryCode
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 1_400_000_000)
-                print("[Globe] Presenting sheet: city=\(cityName) country=\(countryCode)")
-                self.viewModel.selectedInitialCity = cityName
-                self.viewModel.animateToCountry(code: countryCode)
-                print("[Globe] showCountryDetail=\(self.viewModel.showCountryDetail) selectedCountryCode=\(String(describing: self.viewModel.selectedCountryCode))")
+                // Show trip detail sheet directly after zoom settles
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 1_400_000_000)
+                    print("[Globe] Presenting TripDetailSheet for: \(tripDoc.cityName)")
+                    self.viewModel.showTripDetailSheet(trip: tripDoc)
+                }
             }
         }
 
@@ -588,32 +572,11 @@ struct GlobeView: View {
                     friendPosts: viewModel.friendPosts
                 )
             }
-            .sheet(isPresented: $viewModel.showCountryDetail, onDismiss: {
+            .sheet(isPresented: $viewModel.showTripDetail, onDismiss: {
                 viewModel.showProfileSheet = true
             }) {
-                if let code = viewModel.selectedCountryCode {
-                    let countryTrips = viewModel.trips.filter {
-                        $0.visitedCountryCodes.contains(code)
-                    }
-                    CountryDetailSheet(
-                        countryCode: code,
-                        trips: countryTrips,
-                        initialCityName: viewModel.selectedInitialCity,
-                        onDeleteTrip: { trip in
-                            viewModel.deleteTrip(trip)
-                            // Purge local SwiftData RoutePoint records for the deleted trip
-                            let tripId = trip.id
-                            let descriptor = FetchDescriptor<RoutePoint>(
-                                predicate: #Predicate<RoutePoint> { $0.tripId == tripId }
-                            )
-                            if let points = try? modelContext.fetch(descriptor) {
-                                for point in points {
-                                    modelContext.delete(point)
-                                }
-                                try? modelContext.save()
-                            }
-                        }
-                    )
+                if let trip = viewModel.selectedTripForDetail {
+                    TripDetailSheet(trip: trip)
                 }
             }
 
